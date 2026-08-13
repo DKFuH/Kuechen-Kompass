@@ -96,6 +96,37 @@ Fragen, Antworten und Stilgewichtungen stehen am Anfang von `assets/app.js`.
 Die sichtbaren Farben und das Erscheinungsbild werden in `assets/app.css`
 über CSS-Variablen gesteuert.
 
+## In eine Website einbetten
+
+Der Parameter `?embed=1` aktiviert die rahmenlose Ansicht ohne eigenen Kopf-
+und Fußbereich. Für eine automatisch angepasste Höhe auf `kuechen-klas.de`
+kann die Seite so eingebunden werden:
+
+```html
+<div id="kuechen-kompass"></div>
+<script
+  src="https://stilfinder.kuechen-klas.de/assets/embed.js"
+  data-container="kuechen-kompass"
+  data-min-height="720px"
+  defer
+></script>
+```
+
+Alternativ funktioniert ein direktes Iframe mit fester Mindesthöhe:
+
+```html
+<iframe
+  src="https://stilfinder.kuechen-klas.de/?embed=1"
+  title="Küchen-Kompass – persönlichen Küchenstil finden"
+  loading="lazy"
+  style="display:block;width:100%;min-height:900px;border:0"
+></iframe>
+```
+
+Die `frame-ancestors`-Richtlinie erlaubt die Einbettung ausschließlich auf
+`kuechen-klas.de`, `www.kuechen-klas.de`, deren HTTPS-Subdomains sowie auf der
+lokalen Entwicklungsdomain `kuechen-klas-2026.test`.
+
 ## Noch vor dem Livegang
 
 - echte Küchen- und Materialbilder mit geklärten Nutzungsrechten einsetzen

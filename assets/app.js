@@ -74,7 +74,7 @@
     },
     {
       id: 'kitchen_shape', section: 'space', title: 'Welche Küchenform passt am ehesten zu Ihrem Grundriss?',
-      help: 'Wenn Sie noch unsicher sind, können Sie diese Frage überspringen.', multiple: false,
+      help: 'Wählen Sie die Form, die Ihrem Raum heute am nächsten kommt. Wenn noch nichts feststeht, nehmen Sie „Noch unsicher“.', multiple: false,
       options: [
         option('single_row', 'Einzeilige Küche', 'Eine durchgehende Zeile an einer Wand', '#c9a17c', {}),
         option('double_row', 'Zweizeilige Küche', 'Zwei parallele Zeilen mit Mittelgang', '#b9a48c', {}),
@@ -87,7 +87,7 @@
     {
       id: 'room_dimensions', section: 'space', type: 'dimensions',
       title: 'Wie groß ist der Raum für Ihre neue Küche?',
-      help: 'Angaben in Zentimetern. Auch grobe Schätzwerte helfen bei der ersten Einschätzung.',
+      help: 'Angaben in Zentimetern. Für eine belastbare Ersteinschätzung sind Länge, Breite und Höhe am hilfreichsten.',
       multiple: false, options: [],
       fields: [
         { id: 'length', label: 'Länge (cm)' },
@@ -97,7 +97,7 @@
     },
     {
       id: 'household', section: 'everyday', title: 'Wer nutzt die Küche im Alltag?',
-      help: 'Mehrfachauswahl möglich.', multiple: true,
+      help: 'Wählen Sie die Personen aus, für die die Küche im Alltag wirklich funktionieren muss.', multiple: true,
       options: [
         option('solo', 'Meist eine Person', 'Klare persönliche Abläufe', '#c7b9a5', {}),
         option('couple', 'Gemeinsam zu zweit', 'Zwei Arbeitsbereiche mit Bewegungsfreiheit', '#b8a081', {}),
@@ -127,7 +127,7 @@
     },
     {
       id: 'appliances', section: 'technik', title: 'Welche Elektrogeräte sind für Sie wichtig?',
-      help: 'Mehrfachauswahl möglich.', multiple: true,
+      help: 'Wählen Sie nur Geräte, die für Ihre Planung wirklich gesetzt oder besonders wichtig sind.', multiple: true,
       options: [
         option('oven', 'Heißluftbackofen', 'Gleichmäßige Hitze für Braten und Backen', '#c9a17c', {}),
         option('steamer', 'Dampfgarer', 'Schonendes Garen mit Feuchtigkeit', '#b9a48c', {}),
@@ -168,7 +168,7 @@
     },
     {
       id: 'lighting', section: 'technik', title: 'Welche Beleuchtung wünschen Sie sich?',
-      help: 'Mehrfachauswahl möglich.', multiple: true,
+      help: 'Wählen Sie die Lichtideen, die den Alltag oder die Atmosphäre Ihrer Küche wirklich verbessern würden.', multiple: true,
       options: [
         option('niche', 'Nischenbeleuchtung', 'Licht entlang der Arbeitsfläche', '#c9a17c', {}),
         option('cabinet_light', 'Vitrinenbeleuchtung', 'Effektlicht in Glasfronten', '#b9a48c', {}),
@@ -189,7 +189,7 @@
     },
     {
       id: 'budget', section: 'framework', title: 'Welcher Rahmen fühlt sich realistisch an?',
-      help: 'Die Angabe hilft, Empfehlungen passend zu priorisieren.', multiple: false,
+      help: 'Die Angabe hilft, Material- und Ausstattungsoptionen passend zu priorisieren. Wenn Sie noch offen sind, wählen Sie den letzten Punkt.', multiple: false,
       options: [
         option('under_15', 'Bis 15.000 €', 'Klar priorisiert und effizient geplant', '#d3c6b7', {}),
         option('15_25', '15.000 bis 25.000 €', 'Solide Ausstattung mit individuellen Akzenten', '#bea98f', {}),
@@ -211,11 +211,11 @@
   }
 
   const styleCopy = {
-    minimal: { label: 'Warm Minimal', description: 'Klare Linien, ruhige Flächen und eine warme Grundstimmung bilden Ihre ideale Küchenwelt.' },
-    natural: { label: 'Natürlich Wohnlich', description: 'Authentische Materialien und eine wohnliche Atmosphäre stehen bei Ihnen im Mittelpunkt.' },
-    japandi: { label: 'Soft Japandi', description: 'Reduktion, handwerkliche Details und natürliche Ruhe prägen Ihre persönliche Stilwelt.' },
-    urban: { label: 'Urban Architecture', description: 'Starke Materialien, klare Architektur und bewusste Kontraste geben Ihrer Küche Charakter.' },
-    classic: { label: 'Modern Classic', description: 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.' }
+    minimal: { label: 'Warm Minimal', description: 'Klare Linien, ruhige Flächen und eine warme Grundstimmung bilden Ihre ideale Küchenwelt.', image: 'assets/images/style-warm-minimal.webp' },
+    natural: { label: 'Natürlich Wohnlich', description: 'Authentische Materialien und eine wohnliche Atmosphäre stehen bei Ihnen im Mittelpunkt.', image: 'assets/images/style-natural-living.webp' },
+    japandi: { label: 'Soft Japandi', description: 'Reduktion, handwerkliche Details und natürliche Ruhe prägen Ihre persönliche Stilwelt.', image: 'assets/images/style-soft-japandi.webp' },
+    urban: { label: 'Urban Architecture', description: 'Starke Materialien, klare Architektur und bewusste Kontraste geben Ihrer Küche Charakter.', image: 'assets/images/style-urban-architecture.webp' },
+    classic: { label: 'Modern Classic', description: 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.', image: 'assets/images/style-modern-classic.webp' }
   };
 
   const state = {
@@ -236,6 +236,7 @@
 
   restore();
   bind();
+  bindEmbedResize();
   renderJourney();
   showView(state.started ? (state.submitted ? 'success' : 'quiz') : 'intro');
   if (state.submitted) renderSuccess(state.deliveryPending);
@@ -251,6 +252,26 @@
     document.getElementById('openContactButton').addEventListener('click', openContact);
     document.getElementById('successResultButton').addEventListener('click', showResult);
     document.getElementById('leadForm').addEventListener('submit', submitLead);
+  }
+
+  function bindEmbedResize() {
+    if (!document.body.classList.contains('embed-mode') || window.parent === window) return;
+    let parentOrigin = '*';
+    try {
+      if (document.referrer) parentOrigin = new URL(document.referrer).origin;
+    } catch (_) {
+      parentOrigin = '*';
+    }
+    let lastHeight = 0;
+    const reportHeight = () => {
+      const height = Math.ceil(document.documentElement.scrollHeight);
+      if (height === lastHeight) return;
+      lastHeight = height;
+      window.parent.postMessage({ type: 'kuechen-kompass:resize', height }, parentOrigin);
+    };
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener('load', reportHeight, { once: true });
+    reportHeight();
   }
 
   function start() {
@@ -293,7 +314,9 @@
         button.dataset.optionId = opt.id;
         button.setAttribute('aria-pressed', selected.includes(opt.id) ? 'true' : 'false');
         button.innerHTML = `<span class="answer-swatch"></span><strong>${escapeHtml(opt.label)}</strong><small>${escapeHtml(opt.description)}</small>`;
-        button.querySelector('.answer-swatch').style.setProperty('--swatch', opt.swatch);
+        const swatch = button.querySelector('.answer-swatch');
+        const image = optionImage(q.id, opt.id);
+        swatch.style.setProperty('--swatch', image ? `url("${image}") center / cover` : opt.swatch);
         button.addEventListener('click', () => choose(q, opt.id));
         answersEl.appendChild(button);
       });
@@ -319,6 +342,7 @@
       const input = document.createElement('input');
       input.type = 'number';
       input.min = '0';
+      input.step = '1';
       input.inputMode = 'numeric';
       input.placeholder = 'z. B. 320';
       input.value = details[field.id] || '';
@@ -331,11 +355,13 @@
 
   function updateDimension(q, fieldId, value) {
     if (!state.details[q.id]) state.details[q.id] = {};
-    state.details[q.id][fieldId] = value.trim();
-    const hasAny = Object.values(state.details[q.id]).some(v => v);
-    state.answers[q.id] = hasAny ? ['filled'] : [];
+    const cleaned = value.trim().replace(/[^\d]/g, '').slice(0, 4);
+    state.details[q.id][fieldId] = cleaned;
+    const filledCount = q.fields.filter(field => (state.details[q.id]?.[field.id] || '').trim()).length;
+    state.answers[q.id] = filledCount === q.fields.length ? ['filled'] : [];
     state.skipped = state.skipped.filter(id => id !== q.id);
     save();
+    updateNext(q);
   }
 
   function renderTextField(q) {
@@ -425,6 +451,9 @@
     document.getElementById('resultDescription').textContent = result.description;
     document.getElementById('profileProgress').textContent = `${completion()}%`;
     document.getElementById('resultInsight').textContent = insight(result);
+    const resultImage = document.getElementById('resultImage');
+    resultImage.style.backgroundImage = `url("${new URL(styleCopy[result.primary].image, document.baseURI).href}")`;
+    resultImage.setAttribute('aria-label', `Beispielküche für den Stil ${result.title}`);
     document.getElementById('continuePlanningButton').hidden = planningComplete();
     renderBars(result);
     renderMoodboard();
@@ -445,6 +474,487 @@
       .map(([id, score]) => ({ id, score, percent: Math.round((score / total) * 100), ...styleCopy[id] }))
       .sort((a, b) => b.score - a.score);
     return { title: ranked[0].label, description: ranked[0].description, ranked, primary: ranked[0].id };
+  }
+
+  function svgDataUrl(svg) {
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.replace(/\s+/g, ' ').trim())}`;
+  }
+
+  function plannerCard(theme, artwork) {
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" fill="none">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="${theme.top}" />
+            <stop offset="100%" stop-color="${theme.bottom}" />
+          </linearGradient>
+          <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${theme.glow}" stop-opacity=".95" />
+            <stop offset="100%" stop-color="${theme.glow}" stop-opacity=".2" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="400" rx="30" fill="url(#bg)" />
+        <rect x="20" y="20" width="560" height="360" rx="26" fill="${theme.panel}" />
+        <rect x="20" y="20" width="560" height="360" rx="26" stroke="${theme.line}" stroke-opacity=".65" />
+        <circle cx="506" cy="78" r="102" fill="url(#glow)" />
+        ${artwork}
+      </svg>`;
+    return svgDataUrl(svg);
+  }
+
+  function plannerThemes(name) {
+    return {
+      sand: { top: '#efe4d7', bottom: '#d7c1ab', panel: '#f7f1ea', line: '#b89c7f', glow: '#fff5e8', ink: '#6a5543', accent: '#b2865f', strong: '#8a6a51' },
+      warm: { top: '#d8b896', bottom: '#a6764f', panel: '#f5ede4', line: '#b68b66', glow: '#ffefdc', ink: '#67452f', accent: '#a96e44', strong: '#8b593a' },
+      earth: { top: '#b89a7e', bottom: '#6e5748', panel: '#f3ece3', line: '#9e7d66', glow: '#f5e4cf', ink: '#564235', accent: '#7c624f', strong: '#5e493c' },
+      dark: { top: '#5e5858', bottom: '#252223', panel: '#f1ece8', line: '#7e746f', glow: '#f7d9b7', ink: '#433936', accent: '#6f665f', strong: '#262223' },
+      sage: { top: '#c8d0c4', bottom: '#8f9c89', panel: '#f4f5f1', line: '#95a18d', glow: '#eef5de', ink: '#4f5c4d', accent: '#78856f', strong: '#66725e' },
+      stone: { top: '#dad3ca', bottom: '#b3a89b', panel: '#f7f4f0', line: '#aaa093', glow: '#fffaf4', ink: '#5c554f', accent: '#95897a', strong: '#81766b' },
+      cloud: { top: '#e9ecef', bottom: '#c1c7cd', panel: '#fbfcfc', line: '#a8afb6', glow: '#ffffff', ink: '#58626a', accent: '#8c98a2', strong: '#6a767e' }
+    }[name];
+  }
+
+  function roomFrame(theme) {
+    return `
+      <rect x="58" y="78" width="484" height="244" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+      <rect x="78" y="96" width="444" height="208" rx="22" fill="none" stroke="${theme.line}" stroke-opacity=".18" stroke-width="4" />
+    `;
+  }
+
+  function kitchenShapeArt(theme, shape) {
+    const base = roomFrame(theme);
+    const common = `stroke="${theme.strong}" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"`;
+    const island = `<rect x="240" y="160" width="120" height="80" rx="24" fill="${theme.accent}" opacity=".88" />`;
+    const row = `<path d="M130 200h340" ${common} />`;
+    const double = `<path d="M130 162h340M130 238h340" ${common} />`;
+    const u = `<path d="M158 132v136h284V132" ${common} />`;
+    const l = `<path d="M158 132v136h230" ${common} />`;
+    const unknown = `
+      <path d="M158 132v68M158 268v0M158 268h92M402 132h38M440 132v136M220 268h74" ${common} stroke-dasharray="1 54" />
+      <circle cx="300" cy="200" r="30" fill="${theme.accent}" opacity=".9" />
+      <path d="M288 184c3-11 12-17 24-17 15 0 26 9 26 22 0 9-5 15-16 23-9 7-11 10-11 18" stroke="${theme.panel}" stroke-width="10" stroke-linecap="round" />
+      <circle cx="311" cy="248" r="6" fill="${theme.panel}" />
+    `;
+    return plannerCard(theme, `${base}${{
+      single_row: row,
+      double_row: double,
+      u_shape: `${u}`,
+      l_shape: `${l}`,
+      island: `${row}${island}`,
+      unknown
+    }[shape] || row}`);
+  }
+
+  function handleArt(theme, mode) {
+    const doors = `
+      <rect x="92" y="92" width="126" height="236" rx="18" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+      <rect x="237" y="92" width="126" height="236" rx="18" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+      <rect x="382" y="92" width="126" height="236" rx="18" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+    `;
+    const accents = {
+      handleless: `
+        <path d="M208 128h-70M353 128h-70M498 128h-70" stroke="${theme.strong}" stroke-width="10" stroke-linecap="round" opacity=".8" />
+        <path d="M208 182h-70M353 182h-70M498 182h-70" stroke="${theme.line}" stroke-width="4" stroke-linecap="round" opacity=".35" />
+      `,
+      edge: `
+        <path d="M208 140h-40M353 140h-40M498 140h-40" stroke="${theme.accent}" stroke-width="12" stroke-linecap="round" />
+        <path d="M168 140v140M313 140v140M458 140v140" stroke="${theme.line}" stroke-width="4" opacity=".25" />
+      `,
+      handle: `
+        <rect x="174" y="176" width="28" height="76" rx="14" stroke="${theme.accent}" stroke-width="10" />
+        <rect x="319" y="176" width="28" height="76" rx="14" stroke="${theme.accent}" stroke-width="10" />
+        <rect x="464" y="176" width="28" height="76" rx="14" stroke="${theme.accent}" stroke-width="10" />
+      `
+    };
+    return plannerCard(theme, `${doors}${accents[mode] || accents.handleless}`);
+  }
+
+  function roomConceptArt(theme, mode) {
+    const shell = roomFrame(theme);
+    const open = `
+      <rect x="96" y="120" width="160" height="72" rx="18" fill="${theme.accent}" opacity=".88" />
+      <rect x="302" y="120" width="186" height="72" rx="20" fill="${theme.panel}" stroke="${theme.strong}" stroke-width="10" />
+      <circle cx="192" cy="246" r="20" fill="${theme.strong}" opacity=".85" />
+      <circle cx="244" cy="246" r="20" fill="${theme.strong}" opacity=".6" />
+      <path d="M286 214h126" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" />
+      <path d="M286 246h92" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" />
+    `;
+    const separate = `
+      <path d="M300 96v208" stroke="${theme.strong}" stroke-width="16" stroke-linecap="round" />
+      <path d="M300 174h54" stroke="${theme.strong}" stroke-width="16" stroke-linecap="round" />
+      <rect x="110" y="126" width="122" height="64" rx="18" fill="${theme.accent}" opacity=".88" />
+      <rect x="372" y="118" width="82" height="86" rx="20" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
+      <rect x="364" y="238" width="98" height="30" rx="15" fill="${theme.strong}" opacity=".84" />
+    `;
+    const unsure = `
+      <path d="M300 96v208" stroke="${theme.line}" stroke-width="14" stroke-linecap="round" stroke-dasharray="18 18" />
+      <path d="M96 212h392" stroke="${theme.line}" stroke-width="14" stroke-linecap="round" stroke-dasharray="18 18" />
+      <circle cx="300" cy="200" r="42" fill="${theme.accent}" opacity=".92" />
+      <path d="M284 185c5-16 17-24 34-24 20 0 34 12 34 29 0 11-6 20-20 29-11 7-14 12-14 23" stroke="${theme.panel}" stroke-width="10" stroke-linecap="round" />
+      <circle cx="320" cy="257" r="6" fill="${theme.panel}" />
+    `;
+    return plannerCard(theme, `${shell}${{ open, separate, unsure }[mode] || open}`);
+  }
+
+  function householdArt(theme, mode) {
+    const table = `<rect x="130" y="144" width="340" height="112" rx="34" fill="${theme.accent}" opacity=".92" />`;
+    const seat = (x, y) => `<circle cx="${x}" cy="${y}" r="20" fill="${theme.strong}" opacity=".82" />`;
+    const layouts = {
+      solo: `${seat(300, 290)}`,
+      couple: `${seat(250, 290)}${seat(350, 290)}`,
+      family: `${seat(215, 290)}${seat(300, 290)}${seat(385, 290)}${seat(170, 130)}${seat(430, 130)}`,
+      guests: `${seat(190, 130)}${seat(300, 118)}${seat(410, 130)}${seat(215, 290)}${seat(300, 302)}${seat(385, 290)}`
+    };
+    return plannerCard(theme, `${table}${layouts[mode] || layouts.solo}`);
+  }
+
+  function cookingArt(theme, mode) {
+    const island = `<rect x="96" y="208" width="408" height="88" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />`;
+    const graphics = {
+      fresh: `
+        <rect x="144" y="118" width="128" height="60" rx="18" fill="${theme.accent}" opacity=".92" />
+        <path d="M184 132l48 34M232 132l-48 34" stroke="${theme.panel}" stroke-width="8" stroke-linecap="round" />
+        <path d="M334 118c10 4 16 10 18 19M354 118c10 4 16 10 18 19M374 118c10 4 16 10 18 19" stroke="${theme.strong}" stroke-width="7" stroke-linecap="round" />
+        ${island}
+      `,
+      quick: `
+        <circle cx="192" cy="146" r="42" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="10" />
+        <path d="M192 118v30l20 12" stroke="${theme.strong}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+        <rect x="304" y="126" width="110" height="44" rx="22" fill="${theme.strong}" opacity=".82" />
+        <path d="M414 148h30" stroke="${theme.strong}" stroke-width="9" stroke-linecap="round" />
+        ${island}
+      `,
+      baking: `
+        <ellipse cx="214" cy="154" rx="56" ry="34" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="8" />
+        <circle cx="214" cy="154" r="20" fill="${theme.accent}" opacity=".72" />
+        <rect x="314" y="138" width="112" height="20" rx="10" fill="${theme.strong}" opacity=".86" />
+        <circle cx="314" cy="148" r="16" fill="${theme.strong}" opacity=".86" />
+        <circle cx="426" cy="148" r="16" fill="${theme.strong}" opacity=".86" />
+        ${island}
+      `,
+      hosting: `
+        ${island}
+        <path d="M178 126v32M230 126v32M282 126v32M334 126v32" stroke="${theme.accent}" stroke-width="8" stroke-linecap="round" />
+        <path d="M168 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
+        <path d="M220 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
+        <path d="M272 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
+        <path d="M324 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
+      `
+    };
+    return plannerCard(theme, graphics[mode] || graphics.fresh);
+  }
+
+  function storageArt(theme, mode) {
+    const graphics = {
+      order: `
+        <rect x="108" y="112" width="384" height="184" rx="26" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <path d="M236 112v184M364 112v184M108 174h384M108 236h384" stroke="${theme.line}" stroke-width="8" />
+        <rect x="142" y="144" width="60" height="30" rx="8" fill="${theme.accent}" opacity=".86" />
+        <rect x="270" y="208" width="80" height="28" rx="8" fill="${theme.strong}" opacity=".7" />
+        <circle cx="420" cy="250" r="18" fill="${theme.accent}" opacity=".8" />
+      `,
+      workspace: `
+        <rect x="92" y="146" width="416" height="124" rx="34" fill="${theme.accent}" opacity=".9" />
+        <rect x="150" y="184" width="300" height="48" rx="24" fill="${theme.panel}" opacity=".92" />
+      `,
+      ergonomics: `
+        <rect x="120" y="104" width="134" height="192" rx="20" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
+        <rect x="144" y="136" width="86" height="66" rx="12" fill="${theme.accent}" opacity=".88" />
+        <rect x="324" y="168" width="170" height="108" rx="24" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
+        <path d="M324 198h170" stroke="${theme.line}" stroke-width="6" />
+        <circle cx="358" cy="146" r="10" fill="${theme.strong}" />
+        <circle cx="390" cy="132" r="10" fill="${theme.strong}" opacity=".7" />
+      `,
+      together: `
+        <rect x="118" y="152" width="364" height="104" rx="30" fill="${theme.accent}" opacity=".9" />
+        <circle cx="194" cy="294" r="18" fill="${theme.strong}" opacity=".82" />
+        <circle cx="406" cy="294" r="18" fill="${theme.strong}" opacity=".82" />
+        <circle cx="262" cy="118" r="18" fill="${theme.strong}" opacity=".6" />
+        <circle cx="338" cy="118" r="18" fill="${theme.strong}" opacity=".6" />
+        <path d="M226 204h148" stroke="${theme.panel}" stroke-width="12" stroke-linecap="round" opacity=".85" />
+      `
+    };
+    return plannerCard(theme, graphics[mode] || graphics.order);
+  }
+
+  function applianceArt(theme, mode) {
+    const shell = `<rect x="178" y="86" width="244" height="228" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />`;
+    const icons = {
+      oven: `${shell}<rect x="220" y="130" width="160" height="120" rx="18" fill="${theme.accent}" opacity=".25" stroke="${theme.strong}" stroke-width="8" /><path d="M238 116h124" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" /><circle cx="252" cy="116" r="8" fill="${theme.strong}" /><circle cx="288" cy="116" r="8" fill="${theme.strong}" />`,
+      steamer: `${shell}<rect x="224" y="206" width="152" height="44" rx="22" fill="${theme.accent}" opacity=".86" /><path d="M248 120c0 20 12 20 12 40M286 120c0 20 12 20 12 40M324 120c0 20 12 20 12 40" stroke="${theme.strong}" stroke-width="9" stroke-linecap="round" />`,
+      hob: `<rect x="128" y="104" width="344" height="192" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" /><circle cx="220" cy="164" r="34" stroke="${theme.strong}" stroke-width="8" /><circle cx="380" cy="164" r="34" stroke="${theme.strong}" stroke-width="8" /><circle cx="220" cy="240" r="26" stroke="${theme.accent}" stroke-width="8" /><circle cx="380" cy="240" r="26" stroke="${theme.accent}" stroke-width="8" />`,
+      fridge: `${shell}<path d="M300 86v228" stroke="${theme.line}" stroke-width="8" /><path d="M340 154v40M340 218v40" stroke="${theme.strong}" stroke-width="8" stroke-linecap="round" />`,
+      fridge_freezer: `${shell}<path d="M178 198h244" stroke="${theme.line}" stroke-width="8" /><path d="M338 134v42M338 228v42" stroke="${theme.strong}" stroke-width="8" stroke-linecap="round" /><path d="M218 120h88" stroke="${theme.accent}" stroke-width="6" stroke-linecap="round" opacity=".7" />`,
+      dishwasher: `${shell}<rect x="218" y="144" width="164" height="96" rx="18" fill="${theme.accent}" opacity=".18" stroke="${theme.strong}" stroke-width="8" /><circle cx="264" cy="192" r="18" stroke="${theme.accent}" stroke-width="8" /><circle cx="336" cy="192" r="18" stroke="${theme.accent}" stroke-width="8" /><path d="M228 118h144" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" />`,
+      design_hood: `<path d="M194 120h212l-34 88H228z" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" /><path d="M298 78v40" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" /><rect x="210" y="242" width="176" height="18" rx="9" fill="${theme.accent}" opacity=".84" />`,
+      microwave: `${shell}<rect x="220" y="140" width="140" height="92" rx="18" fill="${theme.accent}" opacity=".18" stroke="${theme.strong}" stroke-width="8" /><circle cx="386" cy="170" r="10" fill="${theme.strong}" /><circle cx="386" cy="204" r="10" fill="${theme.strong}" />`
+    };
+    return plannerCard(theme, icons[mode] || icons.oven);
+  }
+
+  function extractorTypeArt(theme, mode) {
+    const base = `<rect x="132" y="136" width="336" height="120" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" /><rect x="250" y="92" width="100" height="52" rx="18" fill="${theme.accent}" opacity=".86" />`;
+    const airflow = {
+      exhaust: `${base}<path d="M208 194h172" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" /><path d="M352 170l40 24-40 24" fill="none" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" /><path d="M470 144v104" stroke="${theme.accent}" stroke-width="12" stroke-linecap="round" />`,
+      recirculation: `${base}<path d="M220 198c18-34 50-52 82-52 42 0 74 22 92 60" fill="none" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" /><path d="M380 182l12 24-28 8" fill="none" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" /><path d="M378 228c-18 24-42 36-72 36-34 0-64-16-88-48" fill="none" stroke="${theme.accent}" stroke-width="10" stroke-linecap="round" />`
+    };
+    return plannerCard(theme, airflow[mode] || airflow.exhaust);
+  }
+
+  function extractorStyleArt(theme, mode) {
+    const graphics = {
+      cabinet: `
+        <rect x="116" y="98" width="368" height="82" rx="24" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <rect x="242" y="180" width="116" height="38" rx="14" fill="${theme.accent}" opacity=".84" />
+        <rect x="156" y="224" width="288" height="54" rx="18" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
+      `,
+      hood: `
+        <path d="M226 116h148l-28 90H254z" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <path d="M300 76v40" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" />
+        <rect x="152" y="234" width="296" height="36" rx="18" fill="${theme.accent}" opacity=".84" />
+      `,
+      hob_integrated: `
+        <rect x="120" y="146" width="360" height="96" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <circle cx="222" cy="194" r="22" stroke="${theme.strong}" stroke-width="8" />
+        <circle cx="378" cy="194" r="22" stroke="${theme.strong}" stroke-width="8" />
+        <rect x="284" y="170" width="32" height="48" rx="12" fill="${theme.accent}" opacity=".86" />
+      `,
+      unsure: `
+        <rect x="120" y="110" width="360" height="160" rx="30" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" stroke-dasharray="16 14" />
+        <circle cx="300" cy="190" r="42" fill="${theme.accent}" opacity=".92" />
+        <path d="M284 176c5-15 16-23 33-23 19 0 33 12 33 28 0 11-6 19-19 28-10 6-13 11-13 21" stroke="${theme.panel}" stroke-width="10" stroke-linecap="round" />
+        <circle cx="319" cy="244" r="6" fill="${theme.panel}" />
+      `
+    };
+    return plannerCard(theme, graphics[mode] || graphics.cabinet);
+  }
+
+  function wasteArt(theme, mode) {
+    const graphics = {
+      integrated: `
+        <rect x="140" y="100" width="320" height="206" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <path d="M300 100v206" stroke="${theme.line}" stroke-width="8" />
+        <rect x="176" y="156" width="88" height="104" rx="18" fill="${theme.accent}" opacity=".82" />
+        <rect x="336" y="156" width="88" height="104" rx="18" fill="${theme.strong}" opacity=".72" />
+        <path d="M184 132h232" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" />
+      `,
+      separate: `
+        <rect x="142" y="146" width="112" height="144" rx="22" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <rect x="346" y="146" width="112" height="144" rx="22" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+        <path d="M164 136h68M368 136h68" stroke="${theme.accent}" stroke-width="10" stroke-linecap="round" />
+      `,
+      open: `
+        <rect x="132" y="110" width="336" height="176" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" stroke-dasharray="14 12" />
+        <circle cx="300" cy="198" r="42" fill="${theme.accent}" opacity=".9" />
+        <path d="M284 182c5-15 16-23 33-23 19 0 33 12 33 28 0 11-6 19-19 28-10 6-13 11-13 21" stroke="${theme.panel}" stroke-width="10" stroke-linecap="round" />
+        <circle cx="319" cy="250" r="6" fill="${theme.panel}" />
+      `
+    };
+    return plannerCard(theme, graphics[mode] || graphics.integrated);
+  }
+
+  function lightingArt(theme, mode) {
+    const shell = `
+      <rect x="112" y="104" width="376" height="188" rx="26" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
+      <rect x="112" y="104" width="376" height="58" rx="20" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+    `;
+    const graphics = {
+      niche: `${shell}<rect x="132" y="178" width="336" height="16" rx="8" fill="${theme.accent}" opacity=".88" /><rect x="132" y="206" width="336" height="52" rx="16" fill="${theme.panel}" />`,
+      cabinet_light: `${shell}<rect x="150" y="132" width="112" height="132" rx="18" fill="none" stroke="${theme.strong}" stroke-width="8" /><rect x="338" y="132" width="112" height="132" rx="18" fill="none" stroke="${theme.strong}" stroke-width="8" /><rect x="158" y="140" width="96" height="16" rx="8" fill="${theme.accent}" opacity=".9" /><rect x="346" y="140" width="96" height="16" rx="8" fill="${theme.accent}" opacity=".9" />`,
+      drawer_light: `${shell}<rect x="150" y="180" width="140" height="68" rx="18" fill="${theme.panel}" stroke="${theme.strong}" stroke-width="8" /><rect x="150" y="180" width="82" height="68" rx="18" fill="${theme.accent}" opacity=".84" /><rect x="330" y="170" width="120" height="18" rx="9" fill="${theme.line}" opacity=".45" />`,
+      plinth_light: `${shell}<rect x="120" y="286" width="360" height="20" rx="10" fill="${theme.accent}" opacity=".86" /><rect x="120" y="306" width="360" height="16" rx="8" fill="${theme.accent}" opacity=".32" />`,
+      ceiling_spots: `${shell}<circle cx="190" cy="86" r="18" fill="${theme.accent}" opacity=".82" /><circle cx="300" cy="86" r="18" fill="${theme.accent}" opacity=".82" /><circle cx="410" cy="86" r="18" fill="${theme.accent}" opacity=".82" /><path d="M190 104v32M300 104v32M410 104v32" stroke="${theme.line}" stroke-width="6" stroke-linecap="round" />`
+    };
+    return plannerCard(theme, graphics[mode] || graphics.niche);
+  }
+
+  function timeArt(theme, mode) {
+    const points = {
+      '0_3': 160,
+      '3_6': 240,
+      '6_12': 340,
+      ideas: 438
+    };
+    const x = points[mode] || 160;
+    return plannerCard(theme, `
+      <path d="M128 210h344" stroke="${theme.line}" stroke-width="10" stroke-linecap="round" />
+      <circle cx="160" cy="210" r="18" fill="${mode === '0_3' ? theme.accent : theme.panel}" stroke="${theme.strong}" stroke-width="7" />
+      <circle cx="240" cy="210" r="18" fill="${mode === '3_6' ? theme.accent : theme.panel}" stroke="${theme.strong}" stroke-width="7" />
+      <circle cx="340" cy="210" r="18" fill="${mode === '6_12' ? theme.accent : theme.panel}" stroke="${theme.strong}" stroke-width="7" />
+      <circle cx="438" cy="210" r="18" fill="${mode === 'ideas' ? theme.accent : theme.panel}" stroke="${theme.strong}" stroke-width="7" />
+      <rect x="${x - 34}" y="110" width="68" height="54" rx="14" fill="${theme.accent}" opacity=".92" />
+      <path d="M${x} 164v32" stroke="${theme.accent}" stroke-width="8" stroke-linecap="round" />
+      <rect x="208" y="258" width="184" height="20" rx="10" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+    `);
+  }
+
+  function budgetArt(theme, mode) {
+    const heights = {
+      under_15: [84, 44, 24, 12],
+      '15_25': [84, 70, 34, 14],
+      '25_40': [84, 70, 56, 22],
+      over_40: [84, 70, 56, 44],
+      unknown: [50, 50, 50, 50]
+    }[mode] || [84, 44, 24, 12];
+    const dash = mode === 'unknown' ? 'stroke-dasharray="12 10"' : '';
+    return plannerCard(theme, `
+      <path d="M142 286h316" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" />
+      <rect x="174" y="${286 - heights[0]}" width="48" height="${heights[0]}" rx="14" fill="${theme.accent}" opacity=".9" ${dash} />
+      <rect x="246" y="${286 - heights[1]}" width="48" height="${heights[1]}" rx="14" fill="${theme.strong}" opacity=".78" ${dash} />
+      <rect x="318" y="${286 - heights[2]}" width="48" height="${heights[2]}" rx="14" fill="${theme.accent}" opacity=".65" ${dash} />
+      <rect x="390" y="${286 - heights[3]}" width="48" height="${heights[3]}" rx="14" fill="${theme.strong}" opacity=".55" ${dash} />
+      <circle cx="196" cy="120" r="16" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+      <circle cx="268" cy="120" r="16" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+      <circle cx="340" cy="120" r="16" fill="${theme.panel}" stroke="${theme.line}" stroke-width="6" />
+    `);
+  }
+
+  function generatedOptionImage(questionId, optionId) {
+    const themeByQuestion = {
+      handles: plannerThemes('sand'),
+      room_concept: plannerThemes('warm'),
+      kitchen_shape: plannerThemes('stone'),
+      household: plannerThemes('earth'),
+      cooking: plannerThemes('warm'),
+      storage: plannerThemes('sand'),
+      appliances: plannerThemes('stone'),
+      extractor_type: plannerThemes('dark'),
+      extractor_style: plannerThemes('dark'),
+      waste_separation: plannerThemes('sage'),
+      lighting: plannerThemes('cloud'),
+      project_time: plannerThemes('warm'),
+      budget: plannerThemes('earth')
+    };
+
+    const generators = {
+      handles: () => handleArt(themeByQuestion.handles, optionId),
+      room_concept: () => roomConceptArt(themeByQuestion.room_concept, optionId),
+      kitchen_shape: () => kitchenShapeArt(themeByQuestion.kitchen_shape, optionId),
+      household: () => householdArt(themeByQuestion.household, optionId),
+      cooking: () => cookingArt(themeByQuestion.cooking, optionId),
+      storage: () => storageArt(themeByQuestion.storage, optionId),
+      appliances: () => applianceArt(themeByQuestion.appliances, optionId),
+      extractor_type: () => extractorTypeArt(themeByQuestion.extractor_type, optionId),
+      extractor_style: () => extractorStyleArt(themeByQuestion.extractor_style, optionId),
+      waste_separation: () => wasteArt(themeByQuestion.waste_separation, optionId),
+      lighting: () => lightingArt(themeByQuestion.lighting, optionId),
+      project_time: () => timeArt(themeByQuestion.project_time, optionId),
+      budget: () => budgetArt(themeByQuestion.budget, optionId)
+    };
+
+    return generators[questionId] ? generators[questionId]() : '';
+  }
+
+  function optionImage(questionId, optionId) {
+    const path = {
+      feeling: {
+        calm: 'assets/images/feeling-calm-clear.webp',
+        warm: 'assets/images/feeling-warm-homely.webp',
+        bold: 'assets/images/feeling-bold-character.webp',
+        elegant: 'assets/images/feeling-elegant-timeless.webp'
+      },
+      visual_language: {
+        flat: 'assets/images/form-straight-lined.webp',
+        soft: 'assets/images/form-soft-natural.webp',
+        framed: 'assets/images/form-framed-details.webp',
+        architectural: 'assets/images/form-architectural.webp'
+      },
+      palette: {
+        sand: 'assets/images/palette-sand-greige.webp',
+        light: 'assets/images/palette-light-clear.webp',
+        earth: 'assets/images/palette-earth-rich.webp',
+        dark: 'assets/images/palette-dark-contrast.webp'
+      },
+      materials: {
+        wood: 'assets/images/material-wood-feel.webp',
+        stone: 'assets/images/material-stone-mineral.webp',
+        lacquer: 'assets/images/material-matte-lacquer.webp',
+        metal: 'assets/images/material-metal-accents.webp',
+        glass: 'assets/images/material-glass-transparency.webp'
+      },
+      handles: {
+        handleless: 'assets/images/handle-handleless.webp',
+        edge: 'assets/images/handle-edge-pull.webp',
+        handle: 'assets/images/handle-character-handles.webp'
+      },
+      room_concept: {
+        open: 'assets/images/room-open-plan.webp',
+        separate: 'assets/images/room-separate-kitchen.webp',
+        unsure: 'assets/images/room-concept-unsure.webp'
+      },
+      kitchen_shape: {
+        single_row: 'assets/images/shape-single-row.webp',
+        double_row: 'assets/images/shape-double-row.webp',
+        u_shape: 'assets/images/shape-u-form.webp',
+        l_shape: 'assets/images/shape-l-form.webp',
+        island: 'assets/images/shape-island.webp',
+        unknown: 'assets/images/shape-unknown.webp'
+      },
+      household: {
+        solo: 'assets/images/household-solo.webp',
+        couple: 'assets/images/household-couple.webp',
+        family: 'assets/images/household-family.webp',
+        guests: 'assets/images/household-guests.webp'
+      },
+      cooking: {
+        fresh: 'assets/images/cooking-fresh-daily.webp',
+        quick: 'assets/images/cooking-quick-easy.webp',
+        baking: 'assets/images/cooking-baking-dough.webp',
+        hosting: 'assets/images/cooking-hosting-enjoying.webp'
+      },
+      storage: {
+        order: 'assets/images/storage-order.webp',
+        workspace: 'assets/images/storage-workspace.webp',
+        ergonomics: 'assets/images/storage-ergonomics.webp',
+        together: 'assets/images/storage-together.webp'
+      },
+      appliances: {
+        oven: 'assets/images/appliance-oven.webp',
+        steamer: 'assets/images/appliance-steamer.webp',
+        hob: 'assets/images/appliance-hob.webp',
+        fridge: 'assets/images/appliance-fridge.webp',
+        fridge_freezer: 'assets/images/appliance-fridge-freezer.webp',
+        dishwasher: 'assets/images/appliance-dishwasher.webp',
+        design_hood: 'assets/images/appliance-design-hood.webp',
+        microwave: 'assets/images/appliance-microwave.webp'
+      },
+      extractor_type: {
+        exhaust: 'assets/images/extractor-exhaust.webp',
+        recirculation: 'assets/images/extractor-recirculation.webp'
+      },
+      extractor_style: {
+        cabinet: 'assets/images/extractor-cabinet.webp',
+        hood: 'assets/images/extractor-hood.webp',
+        hob_integrated: 'assets/images/extractor-hob-integrated.webp',
+        unsure: 'assets/images/extractor-unsure.webp'
+      },
+      waste_separation: {
+        integrated: 'assets/images/waste-integrated.webp',
+        separate: 'assets/images/waste-separate.webp',
+        open: 'assets/images/waste-open.webp'
+      },
+      lighting: {
+        niche: 'assets/images/lighting-niche.webp',
+        cabinet_light: 'assets/images/lighting-cabinet-light.webp',
+        drawer_light: 'assets/images/lighting-drawer-light.webp',
+        plinth_light: 'assets/images/lighting-plinth-light.webp',
+        ceiling_spots: 'assets/images/lighting-ceiling-spots.webp'
+      },
+      project_time: {
+        '0_3': 'assets/images/timeframe-0-3.webp',
+        '3_6': 'assets/images/timeframe-3-6.webp',
+        '6_12': 'assets/images/timeframe-6-12.webp',
+        ideas: 'assets/images/timeframe-ideas.webp'
+      },
+      budget: {
+        under_15: 'assets/images/budget-under-15.webp',
+        '15_25': 'assets/images/budget-15-25.webp',
+        '25_40': 'assets/images/budget-25-40.webp',
+        over_40: 'assets/images/budget-over-40.webp',
+        unknown: 'assets/images/budget-unknown.webp'
+      }
+    }[questionId]?.[optionId] || '';
+    return path ? new URL(path, document.baseURI).href : generatedOptionImage(questionId, optionId);
   }
 
   function renderBars(result) {

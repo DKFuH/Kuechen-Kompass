@@ -9,6 +9,7 @@ session_start([
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
+$embedMode = ($_GET['embed'] ?? '') === '1';
 ?>
 <!doctype html>
 <html lang="de">
@@ -18,10 +19,11 @@ if (empty($_SESSION['csrf_token'])) {
     <meta name="description" content="Entdecken Sie Ihren Küchenstil und erstellen Sie Ihr persönliches Küchenprofil.">
     <meta name="theme-color" content="#8c6a4f">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
+    <?php if ($embedMode): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>
     <title>Küchen-Kompass | Klas Küchen</title>
     <link rel="stylesheet" href="assets/app.css">
 </head>
-<body>
+<body<?= $embedMode ? ' class="embed-mode"' : '' ?>>
 <div class="app-shell">
     <header class="topbar">
         <a class="brand" href="/" aria-label="Küchen-Kompass Startseite">
@@ -46,13 +48,11 @@ if (empty($_SESSION['csrf_token'])) {
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
                     <li>Zwischenergebnis ohne Kontaktdaten</li>
-                    <li>Fortschritt wird lokal gespeichert</li>
+                    <li>Fortschritt bleibt auf diesem Gerät gespeichert</li>
                 </ul>
             </div>
             <div class="intro-visual" aria-hidden="true">
-                <div class="material-card material-card--stone"></div>
-                <div class="material-card material-card--wood"></div>
-                <div class="material-card material-card--sand"></div>
+                <img src="assets/images/hero-kitchen.webp" alt="" width="900" height="1125" fetchpriority="high">
                 <div class="compass"><span>Ihr Stil</span></div>
             </div>
         </section>
@@ -82,6 +82,7 @@ if (empty($_SESSION['csrf_token'])) {
                 </div>
                 <div class="result-seal"><strong id="profileProgress">0%</strong><span>Profil</span></div>
             </div>
+            <div id="resultImage" class="result-image" role="img"></div>
             <div id="styleBars" class="style-bars"></div>
             <div class="result-layout">
                 <div>
@@ -99,23 +100,23 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
             <div class="result-actions">
                 <button class="primary-button" id="continuePlanningButton" type="button">Küchenprofil vervollständigen</button>
-                <button class="secondary-button" id="openContactButton" type="button">Ergebnis sichern</button>
+                <button class="secondary-button" id="openContactButton" type="button">Profil zur Beratung übermitteln</button>
             </div>
         </section>
 
         <section class="contact panel hidden" data-view="contact">
             <div class="contact-layout">
                 <div>
-                    <span class="eyebrow">Ihr Küchenprofil sichern</span>
+                    <span class="eyebrow">Ihr Küchenprofil übermitteln</span>
                     <h2>Aus Inspiration wird eine Grundlage für Ihre Planung.</h2>
-                    <p>Wir speichern Ihr Küchenprofil bei Klas Küchen. Persönlich melden wir uns nur, wenn Sie die Rückmeldung auswählen.</p>
+                    <p>Wir speichern Ihr Küchenprofil bei Klas Küchen, damit wir Ihre Angaben zuordnen und für eine spätere Beratung wieder aufgreifen können. Eine persönliche Rückmeldung erfolgt nur, wenn Sie sie unten ausdrücklich wünschen.</p>
                     <div id="contactSummary" class="contact-summary"></div>
                 </div>
                 <form id="leadForm" novalidate>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
                     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
                     <label>Ihr Name <input name="name" required autocomplete="name"></label>
-                    <label>E-Mail-Adresse <input name="email" type="email" required autocomplete="email"></label>
+                    <label>E-Mail-Adresse <span>für die Zuordnung Ihres Küchenprofils</span><input name="email" type="email" required autocomplete="email"></label>
                     <label>Telefon <span>optional</span><input name="phone" type="tel" autocomplete="tel"></label>
                     <div class="form-row">
                         <label>Postleitzahl <span>optional</span><input name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="10"></label>
