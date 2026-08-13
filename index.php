@@ -17,6 +17,7 @@ if (empty($_SESSION['csrf_token'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Entdecken Sie Ihren Küchenstil und erstellen Sie Ihr persönliches Küchenprofil.">
     <meta name="theme-color" content="#8c6a4f">
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
     <title>Küchen-Kompass | Klas Küchen</title>
     <link rel="stylesheet" href="assets/app.css">
 </head>
@@ -63,6 +64,7 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
             <h2 id="questionTitle"></h2>
             <p id="questionHelp" class="question-help"></p>
+            <p id="selectionMessage" class="selection-message" role="status" aria-live="polite"></p>
             <div id="answers" class="answer-grid"></div>
             <div class="quiz-footer">
                 <button class="secondary-button" id="backButton" type="button">Zurück</button>
@@ -106,7 +108,7 @@ if (empty($_SESSION['csrf_token'])) {
                 <div>
                     <span class="eyebrow">Ihr Küchenprofil sichern</span>
                     <h2>Aus Inspiration wird eine Grundlage für Ihre Planung.</h2>
-                    <p>Wir speichern Ihr Ergebnis und senden es an Klas Küchen. Eine Kontaktaufnahme erfolgt nur entsprechend Ihrer Auswahl.</p>
+                    <p>Wir speichern Ihr Küchenprofil bei Klas Küchen. Persönlich melden wir uns nur, wenn Sie die Rückmeldung auswählen.</p>
                     <div id="contactSummary" class="contact-summary"></div>
                 </div>
                 <form id="leadForm" novalidate>
@@ -120,7 +122,7 @@ if (empty($_SESSION['csrf_token'])) {
                         <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120"></label>
                     </div>
                     <label class="check-label"><input name="callback" type="checkbox"> Ich wünsche eine persönliche Rückmeldung zu meinem Küchenprofil.</label>
-                    <label class="check-label"><input name="consent" type="checkbox" required> Ich habe die Datenschutzhinweise gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung zu.</label>
+                    <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meines Küchenprofils zu.</span></label>
                     <p id="formError" class="form-error" role="alert"></p>
                     <button class="primary-button" type="submit">Küchenprofil übermitteln</button>
                 </form>
@@ -129,15 +131,26 @@ if (empty($_SESSION['csrf_token'])) {
 
         <section class="success panel hidden" data-view="success">
             <div class="success-mark">✓</div>
-            <span class="eyebrow">Sicher übermittelt</span>
-            <h2>Ihr Küchenprofil ist angekommen.</h2>
-            <p>Sie können Ihr Ergebnis weiterhin ansehen oder Ihre Antworten noch einmal durchgehen.</p>
+            <span class="eyebrow" id="successEyebrow">Sicher übermittelt</span>
+            <h2 id="successTitle">Ihr Küchenprofil ist angekommen.</h2>
+            <p id="successMessage">Sie können Ihr Ergebnis weiterhin ansehen oder Ihre Antworten noch einmal durchgehen.</p>
             <button class="primary-button" id="successResultButton" type="button">Ergebnis ansehen</button>
         </section>
     </main>
+
+    <footer class="site-footer">
+        <div>
+            <strong>Klas Küchen</strong>
+            <span>Daniel Klas · Hauptstraße 31A · 55487 Sohren</span>
+        </div>
+        <div class="footer-links">
+            <a href="tel:+4967635189970">06763 5189970</a>
+            <a href="mailto:kontakt@kuechen-klas.de">kontakt@kuechen-klas.de</a>
+            <a href="https://kuechen-klas.de/impressum/">Impressum</a>
+            <a href="https://kuechen-klas.de/datenschutz/">Datenschutz</a>
+        </div>
+    </footer>
 </div>
-<script>window.KK_CSRF = <?= json_encode($_SESSION['csrf_token']) ?>;</script>
 <script src="assets/app.js" defer></script>
 </body>
 </html>
-

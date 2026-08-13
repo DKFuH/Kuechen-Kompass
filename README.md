@@ -43,8 +43,8 @@ php -S localhost:8080
 
 Dann `http://localhost:8080` öffnen.
 
-PHPs eingebauter Entwicklungsserver liest `.env` nicht automatisch. Für einen
-schnellen Test können die Variablen vorher in PowerShell gesetzt werden:
+Die Anwendung lädt eine vorhandene `.env` beim ersten Zugriff. Alternativ
+können die Variablen für einen einzelnen Testlauf in PowerShell gesetzt werden:
 
 ```powershell
 $env:MAIL_TO = "kontakt@kuechen-klas.de"
@@ -58,13 +58,19 @@ php -S localhost:8080
 
 Den Document Root auf den Projektordner setzen. Der Ordner `storage` muss für
 den PHP-Prozess beschreibbar, aber von außen nicht abrufbar sein. Bei Apache
-oder Nginx sollte der direkte HTTP-Zugriff auf folgende Dateien und Ordner
-gesperrt werden:
+übernimmt die enthaltene `.htaccess` den Zugriffsschutz. Bei Nginx oder einer
+anderen Serverkonfiguration muss der direkte HTTP-Zugriff mindestens auf
+folgende Dateien und Ordner gesperrt werden:
 
 - `storage/`
 - `config.php`
 - `bootstrap.php`
 - `.env`
+- `.git/`
+- `README.md`
+
+PHPs eingebauter Entwicklungsserver wertet `.htaccess` nicht aus und darf
+daher nicht als öffentlicher Produktivserver verwendet werden.
 
 Empfohlen ist zusätzlich ein tägliches, externes Backup der SQLite-Datei.
 
@@ -79,6 +85,13 @@ Die Anwendung nutzt Umgebungsvariablen:
 | `N8N_WEBHOOK_URL` | optionaler n8n-Webhook |
 | `N8N_WEBHOOK_SECRET` | optionaler Schlüssel für die HMAC-Signatur |
 
+Eine Anfrage gilt als „übermittelt“, sobald PHP-Mail oder der konfigurierte
+n8n-Webhook die Nachricht angenommen hat. Ist noch keine Zustellung bestätigt,
+bleibt das Profil in SQLite gespeichert und die Oberfläche weist transparent
+auf die ausstehende interne Benachrichtigung hin. Der technische Status wird in
+`delivery_status` und `delivery_error` protokolliert, damit ausstehende Fälle
+gezielt geprüft werden können.
+
 Fragen, Antworten und Stilgewichtungen stehen am Anfang von `assets/app.js`.
 Die sichtbaren Farben und das Erscheinungsbild werden in `assets/app.css`
 über CSS-Variablen gesteuert.
@@ -86,8 +99,6 @@ Die sichtbaren Farben und das Erscheinungsbild werden in `assets/app.css`
 ## Noch vor dem Livegang
 
 - echte Küchen- und Materialbilder mit geklärten Nutzungsrechten einsetzen
-- Link zu den finalen Datenschutzhinweisen ergänzen
 - Mailzustellung und n8n-Webhook im Zielhosting testen
 - serverseitigen Schutz des `storage`-Ordners prüfen
 - Ergebnis-PDF und Datei-/Grundriss-Upload in einer nächsten Ausbaustufe ergänzen
-

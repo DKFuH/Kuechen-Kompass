@@ -224,18 +224,21 @@
     answers: {},
     details: {},
     skipped: [],
-    submitted: false
+    submitted: false,
+    deliveryPending: false
   };
 
   const views = [...document.querySelectorAll('[data-view]')];
   const journey = document.getElementById('journey');
   const answersEl = document.getElementById('answers');
   const nextButton = document.getElementById('nextButton');
+  const selectionMessage = document.getElementById('selectionMessage');
 
   restore();
   bind();
   renderJourney();
   showView(state.started ? (state.submitted ? 'success' : 'quiz') : 'intro');
+  if (state.submitted) renderSuccess(state.deliveryPending);
   if (state.started && !state.submitted) renderQuestion();
 
   function bind() {
@@ -261,12 +264,12 @@
   function restart() {
     if (!confirm('Möchten Sie alle bisherigen Antworten löschen und neu beginnen?')) return;
     localStorage.removeItem('kuechenKompassV1');
-    Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false });
+    Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false });
     renderJourney();
     showView('intro');
   }
 
-  function renderQuestion() {
+  function renderQuestion(focusOptionId = '') {
     const q = questions[state.current];
     if (!q) return showResult();
     showView('quiz');
@@ -274,6 +277,7 @@
     document.getElementById('questionCounter').textContent = `${state.current + 1} von ${questions.length}`;
     document.getElementById('questionTitle').textContent = q.title;
     document.getElementById('questionHelp').textContent = q.help || '';
+    selectionMessage.textContent = '';
     answersEl.innerHTML = '';
     answersEl.className = q.type === 'dimensions' ? 'dimension-grid' : q.type === 'text' ? 'text-grid' : 'answer-grid';
     if (q.type === 'dimensions') {
@@ -286,6 +290,8 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `answer-card${selected.includes(opt.id) ? ' is-selected' : ''}`;
+        button.dataset.optionId = opt.id;
+        button.setAttribute('aria-pressed', selected.includes(opt.id) ? 'true' : 'false');
         button.innerHTML = `<span class="answer-swatch"></span><strong>${escapeHtml(opt.label)}</strong><small>${escapeHtml(opt.description)}</small>`;
         button.querySelector('.answer-swatch').style.setProperty('--swatch', opt.swatch);
         button.addEventListener('click', () => choose(q, opt.id));
@@ -296,7 +302,11 @@
     document.getElementById('skipButton').hidden = Boolean(q.required);
     updateNext(q);
     renderJourney();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (focusOptionId) {
+      answersEl.querySelector(`[data-option-id="${CSS.escape(focusOptionId)}"]`)?.focus();
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   function renderDimensionFields(q) {
@@ -331,11 +341,14 @@
   function renderTextField(q) {
     const wrap = document.createElement('label');
     wrap.className = 'text-field';
+    const caption = document.createElement('span');
+    caption.textContent = 'Besondere Wünsche (optional)';
     const textarea = document.createElement('textarea');
     textarea.rows = 4;
     textarea.placeholder = q.placeholder || '';
     textarea.value = state.details[q.id] || '';
     textarea.addEventListener('input', () => updateText(q, textarea.value));
+    wrap.appendChild(caption);
     wrap.appendChild(textarea);
     answersEl.appendChild(wrap);
   }
@@ -350,15 +363,21 @@
   function choose(q, optionId) {
     let selected = state.answers[q.id] || [];
     if (q.multiple) {
-      selected = selected.includes(optionId) ? selected.filter(id => id !== optionId) : [...selected, optionId];
-      if (q.max && selected.length > q.max) selected = selected.slice(1);
+      if (selected.includes(optionId)) {
+        selected = selected.filter(id => id !== optionId);
+      } else if (q.max && selected.length >= q.max) {
+        selectionMessage.textContent = `Sie können höchstens ${q.max} Antworten auswählen. Entfernen Sie zuerst eine Auswahl.`;
+        return;
+      } else {
+        selected = [...selected, optionId];
+      }
     } else {
       selected = [optionId];
     }
     state.answers[q.id] = selected;
     state.skipped = state.skipped.filter(id => id !== q.id);
     save();
-    renderQuestion();
+    renderQuestion(optionId);
   }
 
   function updateNext(q) {
@@ -430,10 +449,8 @@
 
   function renderBars(result) {
     const top = result.ranked.slice(0, 3);
-    const normalizedTotal = top.reduce((sum, item) => sum + item.percent, 0) || 1;
     document.getElementById('styleBars').innerHTML = top.map(item => {
-      const percent = Math.round(item.percent / normalizedTotal * 100);
-      return `<div class="style-bar"><span>${escapeHtml(item.label)}</span><div class="style-bar-track"><div class="style-bar-fill" style="width:${percent}%"></div></div><strong>${percent}%</strong></div>`;
+      return `<div class="style-bar"><span>${escapeHtml(item.label)}</span><div class="style-bar-track" role="meter" aria-label="${escapeHtml(item.label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.percent}"><div class="style-bar-fill" style="width:${item.percent}%"></div></div><strong>${item.percent}%</strong></div>`;
     }).join('');
   }
 
@@ -520,11 +537,16 @@
         method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         credentials: 'same-origin', body: JSON.stringify(payload)
       });
-      const body = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const body = contentType.includes('application/json')
+        ? await response.json()
+        : { ok: false, message: 'Der Server hat unerwartet geantwortet. Bitte versuchen Sie es später erneut.' };
       if (!response.ok || !body.ok) throw new Error(body.message || 'Übermittlung fehlgeschlagen.');
       state.submitted = true;
+      state.deliveryPending = body.delivery_pending === true;
       save();
       renderJourney('result');
+      renderSuccess(state.deliveryPending);
       showView('success');
     } catch (e) {
       error.textContent = e.message || 'Bitte versuchen Sie es später erneut.';
@@ -532,6 +554,21 @@
       submit.disabled = false;
       submit.textContent = 'Küchenprofil übermitteln';
     }
+  }
+
+  function renderSuccess(deliveryPending) {
+    const eyebrow = document.getElementById('successEyebrow');
+    const title = document.getElementById('successTitle');
+    const message = document.getElementById('successMessage');
+    if (deliveryPending) {
+      eyebrow.textContent = 'Sicher gespeichert';
+      title.textContent = 'Ihr Küchenprofil ist gespeichert.';
+      message.textContent = 'Die interne Benachrichtigung ist noch nicht bestätigt. Ihre Angaben sind gesichert; bitte senden Sie das Formular nicht erneut.';
+      return;
+    }
+    eyebrow.textContent = 'Sicher übermittelt';
+    title.textContent = 'Ihr Küchenprofil ist angekommen.';
+    message.textContent = 'Sie können Ihr Ergebnis weiterhin ansehen oder Ihre Antworten noch einmal durchgehen.';
   }
 
   function renderJourney(forceSection) {
@@ -542,7 +579,9 @@
     sections.forEach((section, index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `journey-step${section.id === currentSection ? ' is-current' : ''}${sectionComplete(section.id) ? ' is-complete' : ''}`;
+      const answered = sectionAnswered(section.id);
+      const addressed = sectionAddressed(section.id);
+      btn.className = `journey-step${section.id === currentSection ? ' is-current' : ''}${answered ? ' is-complete' : ''}${addressed && !answered ? ' is-skipped' : ''}`;
       btn.textContent = section.label;
       btn.disabled = index > furthestUnlockedSection();
       btn.addEventListener('click', () => jumpTo(section.id));
@@ -559,7 +598,13 @@
     renderQuestion();
   }
 
-  function sectionComplete(sectionId) {
+  function sectionAnswered(sectionId) {
+    if (sectionId === 'result') return false;
+    const qs = questions.filter(q => q.section === sectionId);
+    return qs.length > 0 && qs.every(q => (state.answers[q.id] || []).length > 0);
+  }
+
+  function sectionAddressed(sectionId) {
     if (sectionId === 'result') return false;
     const qs = questions.filter(q => q.section === sectionId);
     return qs.length > 0 && qs.every(q => (state.answers[q.id] || []).length > 0 || state.skipped.includes(q.id));
@@ -569,16 +614,16 @@
     const currentSection = sections.findIndex(s => s.id === questions[state.current]?.section);
     let unlocked = Math.max(1, currentSection);
     for (let i = 0; i < sections.length - 1; i += 1) {
-      if (sectionComplete(sections[i].id)) unlocked = Math.max(unlocked, i + 1);
+      if (sectionAddressed(sections[i].id)) unlocked = Math.max(unlocked, i + 1);
     }
-    if (sectionComplete('inspiration') && sectionComplete('style') && sectionComplete('materials')) {
+    if (sectionAnswered('inspiration') && sectionAnswered('style') && sectionAnswered('materials')) {
       unlocked = sections.length - 1;
     }
     return Math.min(unlocked, sections.length - 1);
   }
 
   function planningComplete() {
-    return ['space', 'everyday', 'technik', 'framework'].every(sectionComplete);
+    return ['space', 'everyday', 'technik', 'framework'].every(sectionAnswered);
   }
 
   function completion() {
@@ -592,8 +637,46 @@
   function restore() {
     try {
       const saved = JSON.parse(localStorage.getItem('kuechenKompassV1'));
-      if (saved && typeof saved === 'object') Object.assign(state, saved);
-      if (!state.details || typeof state.details !== 'object') state.details = {};
+      if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return;
+      const questionIds = new Set(questions.map(q => q.id));
+      const answers = {};
+      if (saved.answers && typeof saved.answers === 'object' && !Array.isArray(saved.answers)) {
+        questions.forEach(q => {
+          const allowed = new Set(q.options.map(answer => answer.id).concat(q.type ? ['filled'] : []));
+          const values = Array.isArray(saved.answers[q.id])
+            ? [...new Set(saved.answers[q.id].filter(value => typeof value === 'string' && allowed.has(value)))]
+            : [];
+          answers[q.id] = q.max ? values.slice(0, q.max) : q.multiple ? values : values.slice(0, 1);
+        });
+      }
+      const details = {};
+      if (saved.details && typeof saved.details === 'object' && !Array.isArray(saved.details)) {
+        const dimensions = saved.details.room_dimensions;
+        if (dimensions && typeof dimensions === 'object' && !Array.isArray(dimensions)) {
+          details.room_dimensions = {};
+          ['length', 'width', 'height'].forEach(field => {
+            if (typeof dimensions[field] === 'string' || typeof dimensions[field] === 'number') {
+              details.room_dimensions[field] = String(dimensions[field]).slice(0, 12);
+            }
+          });
+        }
+        if (typeof saved.details.special_wishes === 'string') {
+          details.special_wishes = saved.details.special_wishes.slice(0, 1000);
+        }
+      }
+      answers.room_dimensions = details.room_dimensions && Object.values(details.room_dimensions).some(Boolean) ? ['filled'] : [];
+      answers.special_wishes = details.special_wishes?.trim() ? ['filled'] : [];
+      Object.assign(state, {
+        started: saved.started === true,
+        submitted: saved.submitted === true,
+        deliveryPending: saved.deliveryPending === true,
+        current: Number.isInteger(saved.current) ? Math.max(0, Math.min(questions.length - 1, saved.current)) : 0,
+        answers,
+        details,
+        skipped: Array.isArray(saved.skipped)
+          ? [...new Set(saved.skipped.filter(id => typeof id === 'string' && questionIds.has(id)))]
+          : []
+      });
     } catch (_) { localStorage.removeItem('kuechenKompassV1'); }
   }
   function escapeHtml(value) {

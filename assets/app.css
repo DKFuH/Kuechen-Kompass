@@ -44,8 +44,8 @@
     --sand: #f0ebe2;
     --paper: #faf7f2;
 
-    --success: #22c55e;
-    --error: #ef4444;
+    --success: #16733c;
+    --error: #b42318;
 
     --font-family: "Space Grotesk", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-editorial: "Instrument Serif", "Georgia", serif;
@@ -73,8 +73,10 @@ body {
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
 }
-button, input { font: inherit; }
+button, input, textarea { font: inherit; }
 button { cursor: pointer; }
+a { color: var(--accent-dark); }
+:focus-visible { outline: 3px solid rgba(118, 83, 61, .35); outline-offset: 3px; }
 .hidden { display: none !important; }
 .app-shell { width: min(1240px, calc(100% - 32px)); margin: 0 auto; }
 
@@ -93,6 +95,7 @@ button { cursor: pointer; }
 .journey-step.is-current { background: var(--accent); border-color: var(--accent); color: white; }
 .journey-step.is-complete { border-color: var(--accent-light); color: var(--ink); }
 .journey-step.is-complete::before { content: "✓ "; color: var(--accent); }
+.journey-step.is-skipped::before { content: "– "; color: var(--muted); }
 .journey-step:disabled { opacity: .5; cursor: default; }
 
 .main { padding-bottom: 40px; }
@@ -141,6 +144,7 @@ p { line-height: 1.65; }
 .quiz { display: flex; flex-direction: column; }
 .question-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; font-weight: 700; }
 .question-help { color: var(--muted); max-width: 700px; margin-bottom: 30px; }
+.selection-message { min-height: 1.4em; margin: -20px 0 12px; color: var(--error); font-size: 13px; font-weight: 700; }
 
 .answer-grid, .dimension-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 12px 0 34px; }
 .answer-card { min-height: 175px; padding: 22px; border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-align: left; position: relative; overflow: hidden; transition: .18s ease; }
@@ -157,6 +161,7 @@ p { line-height: 1.65; }
 
 .text-grid { margin: 12px 0 34px; }
 .text-field { display: block; }
+.text-field > span { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
 .text-field textarea { width: 100%; min-height: 140px; padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; resize: vertical; }
 .text-field textarea:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-light); }
 
@@ -197,13 +202,21 @@ input { width: 100%; border: 1px solid var(--line); border-radius: var(--radius-
 input:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-light); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .check-label { grid-template-columns: 20px 1fr; align-items: start; font-weight: 400; line-height: 1.45; }
-.check-label input { margin-top: 3px; }
+.check-label input { margin-top: 3px; width: 20px; height: 20px; }
+.check-label span { color: inherit; }
 .honeypot { position: absolute; left: -10000px; }
 .form-error { min-height: 1.4em; color: var(--error); margin: 0; font-size: 13px; font-weight: 700; }
 
 .success { text-align: center; display: grid; place-content: center; }
 .success p { color: var(--muted); }
 .success-mark { width: 68px; height: 68px; margin: 0 auto 22px; border-radius: var(--radius-full); display: grid; place-items: center; color: white; background: var(--success); font-size: 30px; }
+
+.site-footer { display: flex; justify-content: space-between; gap: 24px; padding: 26px 4px 34px; color: var(--muted); font-size: 13px; }
+.site-footer > div { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.site-footer strong { color: var(--ink); }
+.footer-links { justify-content: flex-end; }
+.footer-links a { color: var(--muted); text-underline-offset: 3px; }
+.footer-links a:hover { color: var(--accent-dark); }
 
 @media (max-width: 850px) {
     .intro, .contact-layout, .result-layout { grid-template-columns: 1fr; }
@@ -227,4 +240,11 @@ input:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-
     .result-seal { width: 88px; }
     .style-bar { grid-template-columns: 105px 1fr 35px; }
     .form-row { grid-template-columns: 1fr; }
+    .site-footer { flex-direction: column; }
+    .footer-links { justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }

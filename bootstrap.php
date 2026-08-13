@@ -4,7 +4,29 @@ declare(strict_types=1);
 function app_config(): array
 {
     static $config;
+    load_environment(__DIR__ . '/.env');
     return $config ??= require __DIR__ . '/config.php';
+}
+
+function load_environment(string $path): void
+{
+    static $loaded = false;
+    if ($loaded || !is_file($path) || !is_readable($path)) {
+        return;
+    }
+    $loaded = true;
+    $values = parse_ini_file($path, false, INI_SCANNER_RAW);
+    if (!is_array($values)) {
+        return;
+    }
+    foreach ($values as $name => $value) {
+        if (!is_string($name) || !preg_match('/^[A-Z][A-Z0-9_]*$/', $name) || getenv($name) !== false) {
+            continue;
+        }
+        $value = (string) $value;
+        putenv($name . '=' . $value);
+        $_ENV[$name] = $value;
+    }
 }
 
 function database(): PDO
@@ -43,20 +65,23 @@ function database(): PDO
             details_json TEXT NOT NULL DEFAULT "{}",
             project_json TEXT NOT NULL,
             consent_at TEXT NOT NULL,
+            delivery_status TEXT NOT NULL DEFAULT "pending",
+            delivery_error TEXT,
             n8n_status TEXT NOT NULL DEFAULT "pending",
             n8n_error TEXT
         )'
     );
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_created_at ON submissions(created_at)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_email ON submissions(email)');
+    $columns = array_column($pdo->query('PRAGMA table_info(submissions)')->fetchAll(), 'name');
     foreach ([
-        'ALTER TABLE submissions ADD COLUMN details_json TEXT NOT NULL DEFAULT "{}"',
-        'ALTER TABLE submissions ADD COLUMN city TEXT',
-    ] as $migration) {
-        try {
+        'details_json' => 'ALTER TABLE submissions ADD COLUMN details_json TEXT NOT NULL DEFAULT "{}"',
+        'city' => 'ALTER TABLE submissions ADD COLUMN city TEXT',
+        'delivery_status' => 'ALTER TABLE submissions ADD COLUMN delivery_status TEXT NOT NULL DEFAULT "pending"',
+        'delivery_error' => 'ALTER TABLE submissions ADD COLUMN delivery_error TEXT',
+    ] as $column => $migration) {
+        if (!in_array($column, $columns, true)) {
             $pdo->exec($migration);
-        } catch (PDOException) {
-            // Spalte existiert bereits – bestehende Datenbank, kein Fehler.
         }
     }
 
@@ -83,4 +108,3 @@ function client_ip_hash(): string
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     return hash('sha256', $ip . '|kuechen-kompass-v1');
 }
-
