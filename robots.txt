@@ -1,0 +1,4 @@
+# Die App-Subdomain soll crawlbar bleiben, damit Suchmaschinen den domainweiten
+# X-Robots-Tag "noindex" verarbeiten koennen.
+User-agent: *
+Allow: /

@@ -19,7 +19,7 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
     <meta name="description" content="Entdecken Sie Ihren Küchenstil und erstellen Sie Ihr persönliches Küchenprofil.">
     <meta name="theme-color" content="#8c6a4f">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
-    <?php if ($embedMode): ?><meta name="robots" content="noindex, nofollow"><?php endif; ?>
+    <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Küchen-Kompass | Klas Küchen</title>
     <link rel="stylesheet" href="assets/app.css">
 </head>
