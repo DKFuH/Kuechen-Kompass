@@ -2,3 +2,5 @@
 /storage/*.sqlite-*
 /.env
 
+
+/storage/.rate-limit-secret

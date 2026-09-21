@@ -7,6 +7,7 @@ session_start([
     'cookie_secure' => !empty($_SERVER['HTTPS']),
 ]);
 require dirname(__DIR__) . '/bootstrap.php';
+require dirname(__DIR__) . '/delivery.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(['ok' => false, 'message' => 'Methode nicht erlaubt.'], 405);
@@ -34,6 +35,7 @@ $phone = clean_text($input['phone'] ?? '', 60);
 $postalCode = clean_text($input['postal_code'] ?? '', 16);
 $city = clean_text($input['city'] ?? '', 120);
 $consent = filter_var($input['consent'] ?? false, FILTER_VALIDATE_BOOLEAN);
+$visitorId = normalize_visitor_id($input['visitor_id'] ?? '');
 $rawAnswers = is_array($input['answers'] ?? null) ? $input['answers'] : [];
 $rawDetails = is_array($input['details'] ?? null) ? $input['details'] : [];
 
@@ -43,11 +45,12 @@ if ($name === '' || !$email || !$consent) {
 if (count($rawAnswers) > 30 || strlen((string) json_encode($rawAnswers)) > 30000 || strlen((string) json_encode($rawDetails)) > 5000) {
     json_response(['ok' => false, 'message' => 'Die Anfrage ist zu umfangreich.'], 413);
 }
+
 $answers = normalize_answers($rawAnswers);
 $details = normalize_details($rawDetails);
 $answers['room_dimensions'] = isset($details['room_dimensions']) ? ['filled'] : [];
 $answers['special_wishes'] = isset($details['special_wishes']) ? ['filled'] : [];
-foreach (['feeling', 'visual_language', 'palette', 'materials', 'handles'] as $requiredAnswer) {
+foreach (style_question_ids() as $requiredAnswer) {
     if (empty($answers[$requiredAnswer])) {
         json_response(['ok' => false, 'message' => 'Das Stilprofil ist unvollständig. Bitte prüfen Sie Ihre Antworten.'], 422);
     }
@@ -55,6 +58,7 @@ foreach (['feeling', 'visual_language', 'palette', 'materials', 'handles'] as $r
 $result = calculate_result($answers);
 
 $pdo = database();
+prune_submissions($pdo);
 $ipHash = client_ip_hash();
 $rate = $pdo->prepare("SELECT COUNT(*) FROM submissions WHERE ip_hash = :ip AND created_at >= datetime('now', '-15 minutes')");
 $rate->execute(['ip' => $ipHash]);
@@ -64,21 +68,23 @@ if ((int) $rate->fetchColumn() >= 5) {
 
 $publicId = bin2hex(random_bytes(8));
 $createdAt = gmdate('Y-m-d H:i:s');
-$answeredCount = count(array_filter($answers, static fn (array $values): bool => $values !== []));
+$countedQuestionIds = array_values(array_filter(array_keys(answer_schema()), static fn (string $id): bool => $id !== 'special_wishes'));
+$answeredCount = count(array_filter($countedQuestionIds, static fn (string $id): bool => !empty($answers[$id])));
 $project = [
     'callback' => filter_var($input['callback'] ?? false, FILTER_VALIDATE_BOOLEAN),
-    'completion' => (int) round($answeredCount / count(answer_schema()) * 100),
+    'completion' => (int) round($answeredCount / max(1, count($countedQuestionIds)) * 100),
     'skipped' => normalize_skipped($input['skipped'] ?? [], $answers),
     'source' => clean_text($input['source'] ?? 'kuechen-kompass', 80),
+    'visitor_id' => $visitorId,
 ];
 
 $statement = $pdo->prepare(
     'INSERT INTO submissions (
         public_id, created_at, ip_hash, name, email, phone, postal_code, city,
-        result_title, result_json, answers_json, details_json, project_json, consent_at
+        result_title, result_json, answers_json, details_json, project_json, consent_at, visitor_id
     ) VALUES (
         :public_id, :created_at, :ip_hash, :name, :email, :phone, :postal_code, :city,
-        :result_title, :result_json, :answers_json, :details_json, :project_json, :consent_at
+        :result_title, :result_json, :answers_json, :details_json, :project_json, :consent_at, :visitor_id
     )'
 );
 $statement->execute([
@@ -90,12 +96,13 @@ $statement->execute([
     'phone' => $phone ?: null,
     'postal_code' => $postalCode ?: null,
     'city' => $city ?: null,
-    'result_title' => clean_text($result['title'], 120),
+    'result_title' => clean_text($result['title'], 180),
     'result_json' => json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     'answers_json' => json_encode($answers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     'details_json' => json_encode($details, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     'project_json' => json_encode($project, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     'consent_at' => $createdAt,
+    'visitor_id' => $visitorId ?: null,
 ]);
 
 $payload = [
@@ -109,145 +116,12 @@ $payload = [
     'project' => $project,
 ];
 
-$config = app_config();
-$mailStatus = send_notification($config, $payload);
-$n8nStatus = send_to_n8n($pdo, $config, $publicId, $payload);
-$deliveryPending = $mailStatus !== true && $n8nStatus !== true;
-$deliveryErrors = [];
-if ($mailStatus === false) {
-    $deliveryErrors[] = 'PHP-Mail wurde nicht angenommen.';
-}
-if ($n8nStatus === false) {
-    $deliveryErrors[] = 'n8n-Webhook wurde nicht angenommen.';
-}
-if ($mailStatus === null && $n8nStatus === null) {
-    $deliveryErrors[] = 'Kein Zustellweg konfiguriert.';
-}
-$deliveryUpdate = $pdo->prepare('UPDATE submissions SET delivery_status = :status, delivery_error = :error WHERE public_id = :id');
-$deliveryUpdate->execute([
-    'status' => $deliveryPending ? 'pending' : 'sent',
-    'error' => $deliveryErrors === [] ? null : implode(' ', $deliveryErrors),
-    'id' => $publicId,
-]);
-
+$delivery = attempt_delivery($pdo, app_config(), $publicId, $payload);
 json_response([
     'ok' => true,
     'submission_id' => $publicId,
-    'delivery_pending' => $deliveryPending,
-], $deliveryPending ? 202 : 201);
-
-function send_notification(array $config, array $payload): ?bool
-{
-    if ($config['mail_to'] === '') {
-        return null;
-    }
-    if (!filter_var($config['mail_to'], FILTER_VALIDATE_EMAIL) || !filter_var($config['mail_from'], FILTER_VALIDATE_EMAIL)) {
-        return false;
-    }
-    $contact = $payload['contact'];
-    $subject = 'Neues Küchenprofil: ' . clean_text($payload['result']['title'] ?? 'Unbekannt');
-    $lines = [
-        'Neues Küchenprofil',
-        '',
-        'ID: ' . $payload['submission_id'],
-        'Name: ' . $contact['name'],
-        'E-Mail: ' . $contact['email'],
-        'Telefon: ' . ($contact['phone'] ?: '–'),
-        'PLZ / Ort: ' . trim(($contact['postal_code'] ?: '–') . ' ' . ($contact['city'] ?: '')),
-        'Stil: ' . ($payload['result']['title'] ?? '–'),
-        'Profil vollständig: ' . ($payload['project']['completion'] ?? 0) . ' %',
-        'Rückmeldung gewünscht: ' . (!empty($payload['project']['callback']) ? 'Ja' : 'Nein'),
-    ];
-    $roomDimensions = $payload['details']['room_dimensions'] ?? null;
-    if (is_array($roomDimensions) && array_filter($roomDimensions)) {
-        $parts = array_filter([$roomDimensions['length'] ?? null, $roomDimensions['width'] ?? null, $roomDimensions['height'] ?? null]);
-        $lines[] = 'Raummaße (L×B×H): ' . implode(' × ', $parts) . ' cm';
-    }
-    $body = implode("\n", $lines);
-
-    // PHP mail() liefert auf vielen Hosts nicht zuverlässig zu (kein
-    // konfigurierter MTA) - mit SMTP_HOST bevorzugt PHPMailer/SMTP nutzen,
-    // gleiches Muster wie im Hauptprojekt kuechen-klas.de-2026 (app/mailer.php).
-    if ($config['smtp_host'] !== '') {
-        return send_via_smtp($config, $contact['email'], $subject, $body);
-    }
-    $headers = [
-        'From: ' . $config['mail_from'],
-        'Reply-To: ' . $contact['email'],
-        'Content-Type: text/plain; charset=UTF-8',
-    ];
-    return @mail($config['mail_to'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
-}
-
-function send_via_smtp(array $config, string $replyTo, string $subject, string $body): bool
-{
-    require_once dirname(__DIR__) . '/lib/phpmailer/Exception.php';
-    require_once dirname(__DIR__) . '/lib/phpmailer/SMTP.php';
-    require_once dirname(__DIR__) . '/lib/phpmailer/PHPMailer.php';
-
-    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->Host = $config['smtp_host'];
-        $mail->Port = $config['smtp_port'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $config['smtp_username'];
-        $mail->Password = $config['smtp_password'];
-        $mail->SMTPSecure = strtolower($config['smtp_encryption']) === 'ssl'
-            ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
-            : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->CharSet = 'UTF-8';
-
-        $mail->setFrom($config['smtp_from_email'], $config['smtp_from_name']);
-        $mail->addAddress($config['mail_to']);
-        if ($replyTo !== '') $mail->addReplyTo($replyTo);
-
-        $mail->isHTML(false);
-        $mail->Subject = $subject;
-        $mail->Body = $body;
-
-        $mail->send();
-        return true;
-    } catch (\Throwable) {
-        return false;
-    }
-}
-
-function send_to_n8n(PDO $pdo, array $config, string $publicId, array $payload): ?bool
-{
-    if ($config['n8n_webhook_url'] === '') {
-        return null;
-    }
-    if (!function_exists('curl_init')) {
-        return false;
-    }
-    $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    $headers = ['Content-Type: application/json'];
-    if ($config['n8n_webhook_secret'] !== '') {
-        $headers[] = 'X-Kuechen-Kompass-Signature: sha256=' . hash_hmac('sha256', $body, $config['n8n_webhook_secret']);
-    }
-    $curl = curl_init($config['n8n_webhook_url']);
-    curl_setopt_array($curl, [
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => $body,
-        CURLOPT_HTTPHEADER => $headers,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CONNECTTIMEOUT => 3,
-        CURLOPT_TIMEOUT => 8,
-    ]);
-    $response = curl_exec($curl);
-    $status = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $ok = $response !== false && $status >= 200 && $status < 300;
-    $update = $pdo->prepare('UPDATE submissions SET n8n_status = :status, n8n_error = :error WHERE public_id = :id');
-    $update->execute([
-        'status' => $ok ? 'sent' : 'failed',
-        'error' => $ok ? null : mb_substr($error ?: 'HTTP ' . $status, 0, 500),
-        'id' => $publicId,
-    ]);
-    return $ok;
-}
+    'delivery_pending' => $delivery['pending'],
+], $delivery['pending'] ? 202 : 201);
 
 function answer_schema(): array
 {
@@ -263,8 +137,8 @@ function answer_schema(): array
         'household' => [['solo', 'couple', 'family', 'guests'], 4],
         'cooking' => [['fresh', 'quick', 'baking', 'hosting'], 4],
         'storage' => [['order', 'workspace', 'ergonomics', 'together'], 1],
-        'appliances' => [['oven', 'steamer', 'hob', 'fridge', 'fridge_freezer', 'dishwasher', 'design_hood', 'microwave'], 8],
-        'extractor_type' => [['exhaust', 'recirculation'], 1],
+        'appliances' => [['oven', 'steamer', 'hob', 'fridge', 'fridge_freezer', 'dishwasher', 'microwave'], 7],
+        'extractor_type' => [['exhaust', 'recirculation', 'unsure'], 1],
         'extractor_style' => [['cabinet', 'hood', 'hob_integrated', 'unsure'], 1],
         'waste_separation' => [['integrated', 'separate', 'open'], 1],
         'lighting' => [['niche', 'cabinet_light', 'drawer_light', 'plinth_light', 'ceiling_spots'], 5],
@@ -272,6 +146,11 @@ function answer_schema(): array
         'budget' => [['under_15', '15_25', '25_40', 'over_40', 'unknown'], 1],
         'special_wishes' => [['filled'], 1],
     ];
+}
+
+function style_question_ids(): array
+{
+    return ['feeling', 'visual_language', 'palette', 'materials', 'handles'];
 }
 
 function normalize_answers(array $answers): array
@@ -283,6 +162,9 @@ function normalize_answers(array $answers): array
             $values,
             static fn (mixed $value): bool => is_string($value) && in_array($value, $allowed, true)
         )));
+        if ($questionId === 'appliances' && in_array('fridge_freezer', $values, true)) {
+            $values = array_values(array_filter($values, static fn (string $value): bool => $value !== 'fridge'));
+        }
         $normalized[$questionId] = array_slice($values, 0, $max);
     }
     return $normalized;
@@ -321,6 +203,12 @@ function normalize_skipped(mixed $skipped, array $answers): array
     )));
 }
 
+function normalize_visitor_id(mixed $value): string
+{
+    $value = trim((string) $value);
+    return preg_match('/^[A-Za-z0-9._:-]{8,128}$/', $value) ? $value : '';
+}
+
 function calculate_result(array $answers): array
 {
     $styles = [
@@ -331,35 +219,86 @@ function calculate_result(array $answers): array
         'classic' => ['label' => 'Modern Classic', 'description' => 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.'],
     ];
     $weights = [
-        'calm' => ['minimal' => 3, 'japandi' => 2], 'warm' => ['natural' => 3, 'classic' => 1],
-        'bold' => ['urban' => 3, 'minimal' => 1], 'elegant' => ['classic' => 3, 'minimal' => 1],
-        'flat' => ['minimal' => 3, 'urban' => 1], 'soft' => ['natural' => 3, 'japandi' => 2],
-        'framed' => ['classic' => 3], 'architectural' => ['urban' => 3, 'minimal' => 2],
-        'sand' => ['natural' => 2, 'japandi' => 2, 'minimal' => 1], 'light' => ['minimal' => 3],
-        'earth' => ['natural' => 3, 'classic' => 1], 'dark' => ['urban' => 3, 'classic' => 1],
-        'wood' => ['natural' => 3, 'japandi' => 2], 'stone' => ['minimal' => 2, 'urban' => 2],
-        'lacquer' => ['minimal' => 3, 'classic' => 1], 'metal' => ['urban' => 3, 'classic' => 1],
-        'glass' => ['classic' => 2, 'urban' => 1], 'handleless' => ['minimal' => 3, 'japandi' => 1],
-        'edge' => ['minimal' => 2, 'urban' => 1], 'handle' => ['classic' => 3, 'natural' => 1],
+        'calm' => ['japandi' => 3, 'minimal' => 2],
+        'warm' => ['natural' => 3, 'japandi' => 1, 'classic' => 1],
+        'bold' => ['urban' => 3, 'minimal' => 1],
+        'elegant' => ['classic' => 3, 'minimal' => 1],
+        'flat' => ['minimal' => 3, 'urban' => 1],
+        'soft' => ['natural' => 3, 'japandi' => 2],
+        'framed' => ['classic' => 3, 'natural' => 1],
+        'architectural' => ['urban' => 3, 'minimal' => 1],
+        'sand' => ['japandi' => 3, 'natural' => 2, 'minimal' => 1],
+        'light' => ['minimal' => 3, 'japandi' => 1],
+        'earth' => ['natural' => 3, 'classic' => 1],
+        'dark' => ['urban' => 3, 'classic' => 1],
+        'wood' => ['natural' => 3, 'japandi' => 2],
+        'stone' => ['japandi' => 3, 'minimal' => 2, 'urban' => 1],
+        'lacquer' => ['minimal' => 3, 'classic' => 1],
+        'metal' => ['urban' => 3, 'classic' => 1],
+        'glass' => ['classic' => 3, 'urban' => 1],
+        'handleless' => ['japandi' => 3, 'minimal' => 2],
+        'edge' => ['minimal' => 3, 'urban' => 1],
+        'handle' => ['classic' => 3, 'natural' => 2],
     ];
-    $scores = array_fill_keys(array_keys($styles), 0);
-    foreach ($answers as $values) {
+
+    $scores = array_fill_keys(array_keys($styles), 0.0);
+    $strongMatches = array_fill_keys(array_keys($styles), 0.0);
+    foreach (style_question_ids() as $questionId) {
+        $values = $answers[$questionId] ?? [];
+        if ($values === []) {
+            continue;
+        }
+        $questionScores = array_fill_keys(array_keys($styles), 0.0);
+        $count = count($values);
         foreach ($values as $answer) {
-            foreach ($weights[$answer] ?? [] as $style => $points) {
-                $scores[$style] += $points;
+            $optionWeights = $weights[$answer] ?? [];
+            $optionMax = $optionWeights === [] ? 0 : max($optionWeights);
+            foreach ($optionWeights as $style => $points) {
+                $questionScores[$style] += $points / 3;
+                if ($optionMax > 0 && $points === $optionMax) {
+                    $strongMatches[$style] += 1 / $count;
+                }
             }
         }
+        foreach ($scores as $style => $_) {
+            $scores[$style] += $questionScores[$style] / $count;
+        }
     }
-    $total = max(1, array_sum($scores));
+
+    $total = max(0.000001, array_sum($scores));
     $ranked = [];
     foreach ($scores as $id => $score) {
-        $ranked[] = ['id' => $id, 'score' => $score, 'percent' => (int) round($score / $total * 100)] + $styles[$id];
+        $ranked[] = [
+            'id' => $id,
+            'score' => round($score, 6),
+            'strongMatches' => round($strongMatches[$id], 6),
+            'percent' => (int) round($score / $total * 100),
+        ] + $styles[$id];
     }
-    usort($ranked, static fn (array $a, array $b): int => $b['score'] <=> $a['score']);
+    usort($ranked, static function (array $a, array $b): int {
+        $byScore = $b['score'] <=> $a['score'];
+        if ($byScore !== 0) return $byScore;
+        $byStrong = $b['strongMatches'] <=> $a['strongMatches'];
+        if ($byStrong !== 0) return $byStrong;
+        return strcmp($a['label'], $b['label']);
+    });
+
+    $primary = $ranked[0];
+    $secondary = $ranked[1];
+    $isBlend = $primary['score'] > 0 && ($secondary['score'] / $primary['score']) >= 0.82;
+    $title = $isBlend
+        ? $primary['label'] . ' mit ' . $secondary['label'] . '-Anteil'
+        : $primary['label'];
+    $description = $isBlend
+        ? $primary['description'] . ' ' . $secondary['label'] . ' ergänzt Ihr Profil deutlich und sollte bei Material, Farbe und Details mitgedacht werden.'
+        : $primary['description'];
+
     return [
-        'title' => $ranked[0]['label'],
-        'description' => $ranked[0]['description'],
+        'title' => $title,
+        'description' => $description,
         'ranked' => $ranked,
-        'primary' => $ranked[0]['id'],
+        'primary' => $primary['id'],
+        'secondary' => $secondary['id'],
+        'isBlend' => $isBlend,
     ];
 }

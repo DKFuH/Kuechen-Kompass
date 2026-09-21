@@ -7,7 +7,7 @@
   const containerId = script.dataset.container || 'kuechen-kompass';
   const container = document.getElementById(containerId);
   if (!container) {
-    console.error(`Küchen-Stilfinder: Container #${containerId} wurde nicht gefunden.`);
+    console.error(`Küchen-Kompass: Container #${containerId} wurde nicht gefunden.`);
     return;
   }
 
@@ -17,7 +17,7 @@
 
   const iframe = document.createElement('iframe');
   iframe.src = iframeUrl.href;
-  iframe.title = script.dataset.title || 'Küchen-Stilfinder – persönlichen Küchenstil finden';
+  iframe.title = script.dataset.title || 'Küchen-Kompass – Stil und Planungsprofil erstellen';
   iframe.loading = script.dataset.loading || 'lazy';
   iframe.style.display = 'block';
   iframe.style.width = '100%';
@@ -27,6 +27,29 @@
   iframe.setAttribute('allow', 'clipboard-write');
 
   container.replaceChildren(iframe);
+
+  let visitorId = String(script.dataset.visitorId || '').trim();
+  const validVisitorId = value => /^[A-Za-z0-9._:-]{8,128}$/.test(value);
+
+  const sendContext = () => {
+    if (!iframe.contentWindow || !validVisitorId(visitorId)) return;
+    iframe.contentWindow.postMessage({
+      type: 'kuechen-kompass:context',
+      visitor_id: visitorId
+    }, iframeUrl.origin);
+  };
+
+  iframe.addEventListener('load', sendContext);
+
+  // Die Hauptseite kann die opaque visitor_id nach Consent bzw. nach Initialisierung
+  // des eigenen Attribution-Trackings nachreichen, ohne dass der Kompass selbst
+  // Cookies oder Tracking-Skripte lesen muss.
+  window.addEventListener('kuechen-kompass:set-context', event => {
+    const nextVisitorId = String(event.detail?.visitor_id || '').trim();
+    if (!validVisitorId(nextVisitorId)) return;
+    visitorId = nextVisitorId;
+    sendContext();
+  });
 
   window.addEventListener('message', event => {
     if (event.source !== iframe.contentWindow || event.origin !== iframeUrl.origin) return;

@@ -68,22 +68,35 @@ function database(): PDO
             delivery_status TEXT NOT NULL DEFAULT "pending",
             delivery_error TEXT,
             n8n_status TEXT NOT NULL DEFAULT "pending",
-            n8n_error TEXT
+            n8n_error TEXT,
+            visitor_id TEXT,
+            delivery_attempts INTEGER NOT NULL DEFAULT 0,
+            last_attempt_at TEXT,
+            next_retry_at TEXT
         )'
     );
-    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_created_at ON submissions(created_at)');
-    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_email ON submissions(email)');
     $columns = array_column($pdo->query('PRAGMA table_info(submissions)')->fetchAll(), 'name');
     foreach ([
         'details_json' => 'ALTER TABLE submissions ADD COLUMN details_json TEXT NOT NULL DEFAULT "{}"',
         'city' => 'ALTER TABLE submissions ADD COLUMN city TEXT',
         'delivery_status' => 'ALTER TABLE submissions ADD COLUMN delivery_status TEXT NOT NULL DEFAULT "pending"',
         'delivery_error' => 'ALTER TABLE submissions ADD COLUMN delivery_error TEXT',
+        'n8n_status' => 'ALTER TABLE submissions ADD COLUMN n8n_status TEXT NOT NULL DEFAULT "pending"',
+        'n8n_error' => 'ALTER TABLE submissions ADD COLUMN n8n_error TEXT',
+        'visitor_id' => 'ALTER TABLE submissions ADD COLUMN visitor_id TEXT',
+        'delivery_attempts' => 'ALTER TABLE submissions ADD COLUMN delivery_attempts INTEGER NOT NULL DEFAULT 0',
+        'last_attempt_at' => 'ALTER TABLE submissions ADD COLUMN last_attempt_at TEXT',
+        'next_retry_at' => 'ALTER TABLE submissions ADD COLUMN next_retry_at TEXT',
     ] as $column => $migration) {
         if (!in_array($column, $columns, true)) {
             $pdo->exec($migration);
         }
     }
+
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_created_at ON submissions(created_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_email ON submissions(email)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_delivery_retry ON submissions(delivery_status, next_retry_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_submissions_visitor_id ON submissions(visitor_id)');
 
     return $pdo;
 }
@@ -106,5 +119,36 @@ function clean_text(mixed $value, int $maxLength = 200): string
 function client_ip_hash(): string
 {
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    return hash('sha256', $ip . '|kuechen-kompass-v1');
+    return hash_hmac('sha256', $ip, rate_limit_secret());
+}
+
+function rate_limit_secret(): string
+{
+    $configured = trim((string) (getenv('RATE_LIMIT_SECRET') ?: ''));
+    if ($configured !== '') {
+        return $configured;
+    }
+
+    $path = __DIR__ . '/storage/.rate-limit-secret';
+    if (is_file($path)) {
+        $secret = trim((string) file_get_contents($path));
+        if (strlen($secret) >= 32) {
+            return $secret;
+        }
+    }
+
+    $secret = bin2hex(random_bytes(32));
+    if (@file_put_contents($path, $secret . PHP_EOL, LOCK_EX) === false) {
+        throw new RuntimeException('Rate-Limit-Secret konnte nicht erzeugt werden.');
+    }
+    @chmod($path, 0600);
+    return $secret;
+}
+
+function prune_submissions(PDO $pdo): void
+{
+    $days = max(1, min(3650, (int) (app_config()['retention_days'] ?? 180)));
+    $cutoff = gmdate('Y-m-d H:i:s', time() - ($days * 86400));
+    $stmt = $pdo->prepare('DELETE FROM submissions WHERE created_at < :cutoff');
+    $stmt->execute(['cutoff' => $cutoff]);
 }

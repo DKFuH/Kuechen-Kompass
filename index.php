@@ -20,19 +20,19 @@ $assetVersion = static function (string $path): string {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Entdecken Sie Ihren Küchenstil und erstellen Sie Ihr persönliches Küchenprofil.">
+    <meta name="description" content="Entdecken Sie Ihren Küchenstil und erstellen Sie Schritt für Schritt Ihr persönliches Planungsprofil.">
     <meta name="theme-color" content="#8c6a4f">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
     <meta name="robots" content="noindex, nofollow, noarchive">
-    <title>Küchen-Stilfinder | Klas Küchen</title>
+    <title>Küchen-Kompass | Klas Küchen</title>
     <link rel="stylesheet" href="assets/app.css?v=<?= $assetVersion('assets/app.css') ?>">
 </head>
 <body<?= $embedMode ? ' class="embed-mode"' : '' ?>>
 <div class="app-shell">
     <header class="topbar">
-        <a class="brand" href="/" aria-label="Küchen-Stilfinder Startseite">
+        <a class="brand" href="/" aria-label="Küchen-Kompass Startseite">
             <span class="brand-mark">K</span>
-            <span><strong>Küchen-Stilfinder</strong><small>von Klas Küchen</small></span>
+            <span><strong>Küchen-Kompass</strong><small>von Klas Küchen</small></span>
         </a>
         <button class="quiet-button" id="restartButton" type="button">Neu starten</button>
     </header>
@@ -46,8 +46,8 @@ $assetVersion = static function (string $path): string {
                 <h1>Finden Sie heraus, welche Küche <em>wirklich</em> zu Ihnen passt.</h1>
                 <p>Entdecken Sie zuerst Ihre persönliche Stilwelt. Danach können Sie Raum, Alltag und Wünsche ergänzen – in Ihrem Tempo und jederzeit änderbar.</p>
                 <div class="intro-actions">
-                    <button class="primary-button" id="startButton" type="button">Küchenreise starten</button>
-                    <span>ca. 3 Minuten bis zum ersten Ergebnis</span>
+                    <button class="primary-button" id="startButton" type="button">Stilprofil starten</button>
+                    <span>ca. 3 Minuten bis zu Ihrem Stilprofil</span>
                 </div>
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
@@ -90,7 +90,18 @@ $assetVersion = static function (string $path): string {
                 <div class="result-seal"><strong id="profileProgress">0%</strong><span>Profil</span></div>
             </div>
             <div id="resultImage" class="result-image" role="img"></div>
+            <div class="style-mix-heading"><strong>Ihre Stilanteile</strong><span>Orientierungswerte aus Ihren Antworten – keine Messwerte.</span></div>
             <div id="styleBars" class="style-bars"></div>
+            <section class="result-guidance" aria-label="Konkrete Stilhinweise">
+                <div>
+                    <span class="eyebrow">So wird der Stil stimmig</span>
+                    <ul id="resultPrinciples"></ul>
+                </div>
+                <aside>
+                    <span class="eyebrow">Darauf achten</span>
+                    <p id="resultWatchout"></p>
+                </aside>
+            </section>
             <div class="result-layout">
                 <div>
                     <h3>Ihre Material- und Farbwelt</h3>
@@ -108,18 +119,18 @@ $assetVersion = static function (string $path): string {
             <section class="decision-card">
                 <div class="decision-card__intro">
                     <span class="eyebrow">Wie möchten Sie weitermachen?</span>
-                    <h3>Ihr Profil ist zu <span id="decisionProgress">0%</span> vollständig</h3>
+                    <h3><span id="decisionProgress">0%</span> der Planungsfragen sind beantwortet</h3>
                 </div>
                 <div class="decision-card__paths">
                     <div class="decision-path decision-path--continue" id="decisionPathContinue">
-                        <h4>Profil vervollständigen</h4>
-                        <p>Beantworten Sie noch ein paar Fragen zu Raum, Alltag und Technik – für eine noch genauere, persönliche Beratung.</p>
+                        <h4>Planungsprofil ergänzen</h4>
+                        <p>Ergänzen Sie noch offene Punkte zu Raum, Alltag und Technik. Übersprungene Fragen können Sie jederzeit über die Navigation wieder öffnen.</p>
                         <button class="primary-button" id="continuePlanningButton" type="button">Weiter planen</button>
                     </div>
                     <div class="decision-path decision-path--submit">
-                        <h4>Jetzt Beratung anfragen</h4>
-                        <p>Ihr aktuelles Profil reicht bereits aus – ein Küchenexperte meldet sich persönlich bei Ihnen.</p>
-                        <button class="secondary-button" id="openContactButton" type="button">Profil übermitteln</button>
+                        <h4>Persönliche Beratung anfragen</h4>
+                        <p>Ihr aktuelles Profil reicht für den Einstieg aus. Daniel Klas meldet sich persönlich bei Ihnen und klärt die nächsten Schritte.</p>
+                        <button class="secondary-button" id="openContactButton" type="button">Beratung anfragen</button>
                     </div>
                 </div>
             </section>
@@ -130,7 +141,7 @@ $assetVersion = static function (string $path): string {
                 <div>
                     <span class="eyebrow">Ihr Küchenprofil übermitteln</span>
                     <h2>Aus Inspiration wird eine Grundlage für Ihre Planung.</h2>
-                    <p>Wir speichern Ihr Küchenprofil bei Klas Küchen, damit wir Ihre Angaben zuordnen und für eine spätere Beratung wieder aufgreifen können. Eine persönliche Rückmeldung erfolgt nur, wenn Sie sie unten ausdrücklich wünschen.</p>
+                    <p>Mit der Übermittlung speichern wir Ihr Küchenprofil bei Klas Küchen. Der Wunsch nach persönlicher Rückmeldung ist bereits ausgewählt, weil Sie über „Beratung anfragen“ hierher gelangt sind. Sie können ihn unten jederzeit wieder abwählen.</p>
                     <div id="contactSummary" class="contact-summary"></div>
                 </div>
                 <form id="leadForm" novalidate>
@@ -143,7 +154,7 @@ $assetVersion = static function (string $path): string {
                         <label>Postleitzahl <span>optional</span><input name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="10"></label>
                         <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120"></label>
                     </div>
-                    <label class="check-label"><input name="callback" type="checkbox"> Ich wünsche eine persönliche Rückmeldung zu meinem Küchenprofil.</label>
+                    <label class="check-label"><input name="callback" type="checkbox" checked> Ich wünsche eine persönliche Rückmeldung von Daniel Klas zu meinem Küchenprofil.</label>
                     <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meines Küchenprofils zu.</span></label>
                     <p id="formError" class="form-error" role="alert"></p>
                     <button class="primary-button" type="submit">Küchenprofil übermitteln</button>

@@ -1,124 +1,96 @@
-# Küchen-Stilfinder
+# Küchen-Kompass v1.1
 
-Eigenständiger Küchenstil-Finder und Planungsvorbereitung für
-`stilfinder.kuechen-klas.de`.
+Eigenständiger Stilfinder und Planungsvorbereitung für Klas Küchen. Die App liefert zuerst ein Stilprofil und kann anschließend als strukturierter Vorqualifizierer für Raum, Alltag, Technik und Budget genutzt werden.
 
-## Enthalten
+## Was v1.1 verbessert
 
-- visuelle Einzelfragen statt langem Formular
-- frei anwählbare Entscheidungs-Zeitleiste
-- Zurückspringen und Ändern früherer Antworten
-- Bearbeitung ohne Analyse-, Marketing- oder dauerhafte Browser-Speicherung
-- gewichteter Stil-Mix mit persönlichem Ergebnis
-- optionale zweite Etappe für Raum, Alltag, Technik und Rahmen
-- Technik-Fragen aus der bisherigen Küchencheckliste integriert: Raummaße,
-  Elektrogeräte, Dunstabzug (Betriebsart und Bauart), Mülltrennung, Beleuchtung
-- Planungsübersicht mit allen technischen Angaben auf der Ergebnisseite
-- sichere serverseitige Speicherung in SQLite
-- Benachrichtigung per PHP-Mail (inklusive Raummaße, falls angegeben)
-- optionale Weitergabe an n8n mit HMAC-Signatur
-- CSRF-Schutz, Honeypot, Validierung und einfaches Rate-Limit
-
-## Gestaltung
-
-Farben, Schriften (Space Grotesk / Instrument Serif) und Radien sind an die CI
-von `kuechen-klas.de-2026` angelehnt (Terrakotta-Akzent `#8c6a4f`). Die
-Schriftdateien liegen selbst gehostet unter `assets/fonts/`, es werden keine
-externen Font-Anfragen ausgelöst.
+- Stilscoring pro Frage normalisiert: Mehrfachauswahl zählt nicht mehr stärker als Einzelauswahl.
+- Stilgewichte neu ausbalanciert; Soft Japandi hat jetzt eigenständige, starke Signalantworten.
+- Nahe Stilwerte werden als Mischprofil ausgegeben, z. B. „Warm Minimal mit Soft-Japandi-Anteil“.
+- Ergebnis um konkrete Gestaltungsprinzipien und einen „Darauf achten“-Hinweis erweitert.
+- Prozentwerte ausdrücklich als Stilanteile/Orientierung ausgewiesen, nicht als wissenschaftliche Messung.
+- Fehlende Bilder für U-Form, L-Form, Insel und „noch offen“ durch lokale SVG-Fallbacks ersetzt; keine 404-Abhängigkeit mehr.
+- Budgetauswahl bewusst ohne Küchenfotos, damit Bildgeschmack die Budgetantwort nicht verfälscht.
+- „Besondere Wünsche“ ist wirklich optional und blockiert kein abgeschlossen bearbeitetes Planungsprofil mehr.
+- Teilweise eingegebene Raummaße werden als vorhandene Planungsinformation anerkannt.
+- Kühlschrank und Kühl-Gefrierkombination schließen sich gegenseitig aus.
+- „Designhaube“ wird nicht mehr doppelt als Elektrogerät und Dunstabzugsart abgefragt.
+- Abluft/Umluft besitzt jetzt die Option „Noch offen“.
+- Beratungs-CTA und Kontaktformular sind konsistent: Wer „Beratung anfragen“ wählt, landet mit vorausgewähltem Rückmeldewunsch bei Daniel Klas.
+- Optionale Übergabe einer pseudonymen `visitor_id` aus der Elternseite per `postMessage` für die bestehende Attribution.
+- IP-Rate-Limit nutzt HMAC mit zufälligem serverseitigem Secret statt festem Salt im Quellcode.
+- Automatische Datenaufbewahrung (`RETENTION_DAYS`, Standard 180 Tage).
+- Zustell-Outbox mit Wiederholungsversuchen für gespeicherte Leads sowie CLI-Healthcheck.
 
 ## Voraussetzungen
 
 - PHP 8.1 oder neuer
 - PHP-Erweiterungen `pdo_sqlite` und `mbstring`
 - optional `curl` für n8n
-- Schreibrechte für den Ordner `storage/`
+- Schreibrechte für `storage/`
+- für zuverlässige E-Mail-Benachrichtigung: SMTP oder n8n konfigurieren
 
-## Lokal unter Windows starten
+## Installation
+
+`.env.example` nach `.env` kopieren und mindestens den gewünschten Zustellweg konfigurieren.
 
 ```powershell
-cd C:\dev\kuechen-kompass
 Copy-Item .env.example .env
 php -S localhost:8080
 ```
 
-Dann `http://localhost:8080` öffnen.
+Produktiv darf der eingebaute PHP-Server nicht verwendet werden. Bei Apache schützt die enthaltene `.htaccess` `storage/`, `bin/`, `.env`, `bootstrap.php`, `config.php` und `delivery.php`. Bei Nginx muss derselbe Schutz in der Serverkonfiguration abgebildet werden.
 
-Die Anwendung lädt eine vorhandene `.env` beim ersten Zugriff. Alternativ
-können die Variablen für einen einzelnen Testlauf in PowerShell gesetzt werden:
+## Lead-Zustellung und Retry-Queue
 
-```powershell
-$env:MAIL_TO = "kontakt@kuechen-klas.de"
-$env:MAIL_FROM = "stilfinder@kuechen-klas.de"
-$env:N8N_WEBHOOK_URL = "https://n8n.example.de/webhook/kuechen-kompass"
-$env:N8N_WEBHOOK_SECRET = "einen-langen-zufaelligen-wert-eintragen"
-php -S localhost:8080
+Jeder Lead wird zuerst in SQLite gespeichert. Erst danach werden E-Mail und/oder n8n angesprochen. Scheitern alle konfigurierten Zustellwege, bleibt der Datensatz `pending` und erhält einen `next_retry_at`-Zeitpunkt. Die Retry-Abstände steigen schrittweise an; nach acht erfolglosen Versuchen wird der Datensatz als `failed` markiert.
+
+Für den Produktivbetrieb sollte `bin/retry-deliveries.php` alle fünf Minuten per Cron ausgeführt werden, z. B.:
+
+```cron
+*/5 * * * * /usr/bin/php /pfad/zum/kuechen-kompass/bin/retry-deliveries.php >/dev/null 2>&1
 ```
 
-## Produktivbetrieb
+Zusätzlich kann der Healthcheck überwacht werden:
 
-Den Document Root auf den Projektordner setzen. Der Ordner `storage` muss für
-den PHP-Prozess beschreibbar, aber von außen nicht abrufbar sein. Bei Apache
-übernimmt die enthaltene `.htaccess` den Zugriffsschutz. Bei Nginx oder einer
-anderen Serverkonfiguration muss der direkte HTTP-Zugriff mindestens auf
-folgende Dateien und Ordner gesperrt werden:
+```bash
+php bin/healthcheck.php
+```
 
-- `storage/`
-- `config.php`
-- `bootstrap.php`
-- `.env`
-- `.git/`
-- `README.md`
+Er liefert einen Fehlerstatus, wenn wesentliche PHP-Erweiterungen fehlen, kein Zustellweg eingerichtet ist oder ein `pending`-Lead älter als 15 Minuten ist.
 
-PHPs eingebauter Entwicklungsserver wertet `.htaccess` nicht aus und darf
-daher nicht als öffentlicher Produktivserver verwendet werden.
+## Datenschutz und Aufbewahrung
 
-Empfohlen ist zusätzlich ein tägliches, externes Backup der SQLite-Datei.
+`RETENTION_DAYS` steuert die maximale Aufbewahrungsdauer der Einträge in SQLite. Standard sind 180 Tage. Alte Datensätze werden bei neuen Einreichungen und beim Retry-Lauf entfernt.
 
-## Konfiguration
+Für das Rate-Limit wird die IP nicht im Klartext gespeichert. Die App bildet einen HMAC. Wenn `RATE_LIMIT_SECRET` nicht gesetzt ist, wird automatisch ein zufälliges Secret in `storage/.rate-limit-secret` erzeugt.
 
-Die Anwendung nutzt Umgebungsvariablen:
+## Attribution / visitor_id
 
-| Variable | Funktion |
-| --- | --- |
-| `MAIL_TO` | Empfänger der internen Benachrichtigung |
-| `MAIL_FROM` | Absenderadresse der Benachrichtigung (nur relevant, solange kein SMTP konfiguriert ist) |
-| `N8N_WEBHOOK_URL` | optionaler n8n-Webhook |
-| `N8N_WEBHOOK_SECRET` | optionaler Schlüssel für die HMAC-Signatur |
-| `SMTP_HOST` | wenn gesetzt: Versand über PHPMailer/SMTP statt PHP `mail()` (empfohlen, siehe unten) |
-| `SMTP_PORT` | Standard `587` |
-| `SMTP_USERNAME` / `SMTP_PASSWORD` | SMTP-Zugangsdaten |
-| `SMTP_ENCRYPTION` | `tls` (STARTTLS, Standard) oder `ssl` |
-| `SMTP_FROM_EMAIL` / `SMTP_FROM_NAME` | Absender bei SMTP-Versand |
+Der Küchen-Kompass liest selbst keine Tracking-Cookies. Eine bereits vorhandene opaque `visitor_id` kann von der Elternseite nach Consent übergeben werden.
 
-PHP `mail()` liefert auf den meisten Hosts nicht zuverlässig zu, weil kein
-lokaler MTA konfiguriert ist (Erfahrungswert aus dem Hauptprojekt
-`kuechen-klas.de-2026`). Sobald `SMTP_HOST` gesetzt ist, nutzt
-`send_notification()` in `api/submit.php` stattdessen PHPMailer über SMTP
-(Bibliothek liegt vendored unter `lib/phpmailer/`, gleiches Muster wie
-`app/mailer.php` im Hauptprojekt). Ohne `SMTP_HOST` bleibt `mail()` als
-Fallback aktiv.
+Direkt beim Einbinden:
 
-Eine Anfrage gilt als „übermittelt“, sobald der Mailversand (SMTP oder
-`mail()`) oder der konfigurierte n8n-Webhook die Nachricht angenommen hat. Ist noch keine Zustellung bestätigt,
-bleibt das Profil in SQLite gespeichert und die Oberfläche weist transparent
-auf die ausstehende interne Benachrichtigung hin. Der technische Status wird in
-`delivery_status` und `delivery_error` protokolliert, damit ausstehende Fälle
-gezielt geprüft werden können.
+```html
+<script
+  src="https://stilfinder.kuechen-klas.de/assets/embed.js"
+  data-container="kuechen-kompass"
+  data-visitor-id="OPAQUE_VISITOR_ID"
+  defer
+></script>
+```
 
-Fragen, Antworten und Stilgewichtungen stehen am Anfang von `assets/app.js`.
-Die sichtbaren Farben und das Erscheinungsbild werden in `assets/app.css`
-über CSS-Variablen gesteuert.
+Oder nachträglich, sobald die ID im Hauptprojekt verfügbar ist:
 
-Der Fragebogen speichert seinen Zustand nicht dauerhaft im Browser. Er bleibt
-nur während des geöffneten Besuchs im Arbeitsspeicher. Eine spätere Funktion
-zum Fortsetzen auf diesem Gerät darf `localStorage` erst nach einer
-ausdrücklichen Auswahl verwenden.
+```js
+window.dispatchEvent(new CustomEvent('kuechen-kompass:set-context', {
+  detail: { visitor_id: visitorId }
+}));
+```
 
-## In eine Website einbetten
+Die ID wird serverseitig validiert und im Lead-Datensatz sowie im n8n-Payload gespeichert. Erlaubt sind 8–128 Zeichen aus Buchstaben, Zahlen sowie `. _ : -`.
 
-Der Parameter `?embed=1` aktiviert die rahmenlose Ansicht ohne eigenen Kopf-
-und Fußbereich. Für eine automatisch angepasste Höhe auf `kuechen-klas.de`
-kann die Seite so eingebunden werden:
+## Einbetten ohne Attribution
 
 ```html
 <div id="kuechen-kompass"></div>
@@ -130,28 +102,8 @@ kann die Seite so eingebunden werden:
 ></script>
 ```
 
-Alternativ funktioniert ein direktes Iframe mit fester Mindesthöhe:
+Die `frame-ancestors`-Richtlinie erlaubt die Einbettung auf `kuechen-klas.de`, `www.kuechen-klas.de`, deren HTTPS-Subdomains sowie der lokalen Entwicklungsdomain `kuechen-klas-2026.test`.
 
-```html
-<iframe
-  src="https://stilfinder.kuechen-klas.de/?embed=1"
-  title="Küchen-Stilfinder – persönlichen Küchenstil finden"
-  loading="lazy"
-  style="display:block;width:100%;min-height:900px;border:0"
-></iframe>
-```
+## Wichtiger Hinweis zum Deployment
 
-Die `frame-ancestors`-Richtlinie erlaubt die Einbettung ausschließlich auf
-`kuechen-klas.de`, `www.kuechen-klas.de`, deren HTTPS-Subdomains sowie auf der
-lokalen Entwicklungsdomain `kuechen-klas-2026.test`.
-
-## Offene Punkte
-
-- echte Küchen- und Materialbilder mit geklärten Nutzungsrechten einsetzen
-- **`SMTP_HOST` (und `MAIL_TO`) auf `stilfinder.kuechen-klas.de` eintragen** –
-  ohne SMTP-Konfiguration nutzt die App `mail()`, das dort nachweislich nicht
-  zustellt (Leads landen zwar in der SQLite-DB, aber `delivery_status` bleibt
-  dauerhaft `pending`, niemand wird benachrichtigt). Alternativ `N8N_WEBHOOK_URL`
-  setzen, falls die Benachrichtigung stattdessen über n8n laufen soll.
-- serverseitigen Schutz des `storage`-Ordners prüfen
-- Ergebnis-PDF und Datei-/Grundriss-Upload in einer nächsten Ausbaustufe ergänzen
+Das ausgelieferte v1.1-ZIP enthält absichtlich **keine** bestehende SQLite-Datenbank und kein `.git`-Verzeichnis. Beim Update einer laufenden Installation die vorhandene `storage/kuechen-kompass.sqlite` beibehalten und nur den Code ersetzen. `database()` ergänzt die neuen Spalten automatisch.

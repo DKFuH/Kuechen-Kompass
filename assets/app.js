@@ -17,8 +17,8 @@
       id: 'feeling', section: 'inspiration', title: 'Wie soll sich Ihre neue Küche anfühlen?',
       help: 'Wählen Sie spontan. Mehrere Antworten sind möglich.', multiple: true, required: true,
       options: [
-        option('calm', 'Ruhig und klar', 'Weniger Reize, harmonische Flächen', '#c6beb0', { minimal: 3, japandi: 2 }),
-        option('warm', 'Warm und wohnlich', 'Holz, Textur und weiche Kontraste', '#a77d5b', { natural: 3, classic: 1 }),
+        option('calm', 'Ruhig und klar', 'Weniger Reize, harmonische Flächen', '#c6beb0', { japandi: 3, minimal: 2 }),
+        option('warm', 'Warm und wohnlich', 'Holz, Textur und weiche Kontraste', '#a77d5b', { natural: 3, japandi: 1, classic: 1 }),
         option('bold', 'Markant und charaktervoll', 'Kontraste und starke Materialien', '#56504c', { urban: 3, minimal: 1 }),
         option('elegant', 'Elegant und zeitlos', 'Ruhige Wertigkeit ohne Modedruck', '#b3a48f', { classic: 3, minimal: 1 })
       ]
@@ -29,16 +29,16 @@
       options: [
         option('flat', 'Geradlinig', 'Flächenbündig, reduziert, präzise', '#c9c4ba', { minimal: 3, urban: 1 }),
         option('soft', 'Weich und natürlich', 'Rundungen, Holz und sanfte Übergänge', '#b89976', { natural: 3, japandi: 2 }),
-        option('framed', 'Rahmen und Details', 'Klassische Gliederung modern interpretiert', '#d6c7b1', { classic: 3 }),
-        option('architectural', 'Architektonisch', 'Monolithisch, dunkel und konsequent', '#4f4b48', { urban: 3, minimal: 2 })
+        option('framed', 'Rahmen und Details', 'Klassische Gliederung modern interpretiert', '#d6c7b1', { classic: 3, natural: 1 }),
+        option('architectural', 'Architektonisch', 'Monolithisch, dunkel und konsequent', '#4f4b48', { urban: 3, minimal: 1 })
       ]
     },
     {
       id: 'palette', section: 'style', title: 'In welcher Farbwelt fühlen Sie sich zuhause?',
       help: 'Sie können zwei Farbwelten kombinieren.', multiple: true, max: 2, required: true,
       options: [
-        option('sand', 'Sand und Greige', 'Warm, ruhig und wandelbar', '#c9b79f', { natural: 2, japandi: 2, minimal: 1 }),
-        option('light', 'Hell und klar', 'Cremeweiß bis helles Grau', '#e6e2d8', { minimal: 3 }),
+        option('sand', 'Sand und Greige', 'Warm, ruhig und wandelbar', '#c9b79f', { japandi: 3, natural: 2, minimal: 1 }),
+        option('light', 'Hell und klar', 'Cremeweiß bis helles Grau', '#e6e2d8', { minimal: 3, japandi: 1 }),
         option('earth', 'Erdig und satt', 'Ton, Olive und warmes Braun', '#89715d', { natural: 3, classic: 1 }),
         option('dark', 'Dunkel und kontrastreich', 'Graphit, Schwarz und Rauchglas', '#4a4846', { urban: 3, classic: 1 })
       ]
@@ -48,19 +48,19 @@
       help: 'Bis zu drei Favoriten auswählen.', multiple: true, max: 3, required: true,
       options: [
         option('wood', 'Echtes Holzgefühl', 'Lebendige Maserung und Wärme', 'repeating-linear-gradient(95deg,#967152 0 9px,#815f46 10px 17px)', { natural: 3, japandi: 2 }),
-        option('stone', 'Stein und Mineralik', 'Ruhig, massiv und dauerhaft', 'linear-gradient(145deg,#c8c2b8,#8f8b85)', { minimal: 2, urban: 2 }),
+        option('stone', 'Stein und Mineralik', 'Ruhig, massiv und dauerhaft', 'linear-gradient(145deg,#c8c2b8,#8f8b85)', { japandi: 3, minimal: 2, urban: 1 }),
         option('lacquer', 'Samtmatte Flächen', 'Weiche Haptik, homogene Farbe', '#8e887f', { minimal: 3, classic: 1 }),
         option('metal', 'Metallische Akzente', 'Dunkler Stahl, Messing oder Bronze', 'linear-gradient(135deg,#9a8465,#4f4942)', { urban: 3, classic: 1 }),
-        option('glass', 'Glas und Transparenz', 'Leichtigkeit und inszenierte Details', 'linear-gradient(145deg,#bdc6c5,#6f7776)', { classic: 2, urban: 1 })
+        option('glass', 'Glas und Transparenz', 'Leichtigkeit und inszenierte Details', 'linear-gradient(145deg,#bdc6c5,#6f7776)', { classic: 3, urban: 1 })
       ]
     },
     {
       id: 'handles', section: 'materials', title: 'Wie möchten Sie Schränke öffnen?',
       help: 'Diese Entscheidung prägt die Wirkung stärker, als man zunächst denkt.', multiple: false, required: true,
       options: [
-        option('handleless', 'Grifflos', 'Ruhige, durchgängige Flächen', '#b8ada0', { minimal: 3, japandi: 1 }),
-        option('edge', 'Dezente Griffkante', 'Reduziert, aber direkt greifbar', '#8f8175', { minimal: 2, urban: 1 }),
-        option('handle', 'Charaktervolle Griffe', 'Ein bewusstes Detail in der Fläche', '#716355', { classic: 3, natural: 1 })
+        option('handleless', 'Grifflos', 'Ruhige, durchgängige Flächen', '#b8ada0', { japandi: 3, minimal: 2 }),
+        option('edge', 'Dezente Griffkante', 'Reduziert, aber direkt greifbar', '#8f8175', { minimal: 3, urban: 1 }),
+        option('handle', 'Charaktervolle Griffe', 'Ein bewusstes Detail in der Fläche', '#716355', { classic: 3, natural: 2 })
       ]
     },
     {
@@ -73,14 +73,14 @@
       ]
     },
     {
-      id: 'kitchen_shape', section: 'space', title: 'Welche Küchenform passt am ehesten zu Ihrem Grundriss?',
-      help: 'Wählen Sie die Form, die Ihrem Raum heute am nächsten kommt. Wenn noch nichts feststeht, nehmen Sie „Noch unsicher“.', multiple: false,
+      id: 'kitchen_shape', section: 'space', title: 'Welche Anordnung wünschen Sie sich im Moment am ehesten?',
+      help: 'Es geht um Ihre aktuelle Wunschrichtung, nicht um eine fertige Grundrissentscheidung. Die passende Form wird später anhand des Raums geprüft.', multiple: false,
       options: [
         option('single_row', 'Einzeilige Küche', 'Eine durchgehende Zeile an einer Wand', '#c9a17c', {}),
         option('double_row', 'Zweizeilige Küche', 'Zwei parallele Zeilen mit Mittelgang', '#b9a48c', {}),
         option('u_shape', 'U-Form', 'Drei Seiten, viel Stauraum und Arbeitsfläche', '#a98a67', {}),
         option('l_shape', 'L-Form', 'Zwei Seiten im rechten Winkel', '#8c6a4f', {}),
-        option('island', 'Kücheninsel', 'Freistehendes Element als Mittelpunkt', '#d8c3a5', {}),
+        option('island', 'Insel als Mittelpunkt', 'Eine Insel oder Halbinsel soll die Planung prägen', '#d8c3a5', {}),
         option('unknown', 'Noch unsicher', 'Die Form soll sich aus der Planung ergeben', '#e3d5c3', {})
       ]
     },
@@ -135,16 +135,16 @@
         option('fridge', 'Kühlschrank', 'Einzelgerät für kompakte Grundrisse', '#8c6a4f', {}),
         option('fridge_freezer', 'Kühl-Gefrierkombination', 'Kühlen und Gefrieren in einem Gerät', '#d8c3a5', {}),
         option('dishwasher', 'Geschirrspüler', 'Vollintegriert oder teilintegriert', '#e3d5c3', {}),
-        option('design_hood', 'Designhaube', 'Dunstabzug als sichtbares Element', '#76533d', {}),
         option('microwave', 'Mikrowelle', 'Kombigerät oder separate Einheit', '#c49a7a', {})
       ]
     },
     {
       id: 'extractor_type', section: 'technik', title: 'Welche Betriebsart soll der Dunstabzug haben?',
-      help: 'Entscheidend für den späteren Anschluss.', multiple: false,
+      help: 'Wenn die baulichen Möglichkeiten noch nicht geklärt sind, wählen Sie „Noch offen“.', multiple: false,
       options: [
         option('exhaust', 'Abluft', 'Führt Dunst direkt nach außen ab', '#a98a67', {}),
-        option('recirculation', 'Umluft', 'Reinigt die Luft über einen Filter', '#c9a17c', {})
+        option('recirculation', 'Umluft', 'Reinigt die Luft über einen Filter', '#c9a17c', {}),
+        option('unsure', 'Noch offen', 'Wird anhand des Raums und der technischen Möglichkeiten geklärt', '#e3d5c3', {})
       ]
     },
     {
@@ -188,10 +188,10 @@
       ]
     },
     {
-      id: 'budget', section: 'framework', title: 'Welcher Rahmen fühlt sich realistisch an?',
-      help: 'Die Angabe hilft, Material- und Ausstattungsoptionen passend zu priorisieren. Wenn Sie noch offen sind, wählen Sie den letzten Punkt.', multiple: false,
+      id: 'budget', section: 'framework', title: 'Welches Küchenbudget möchten Sie einplanen?',
+      help: 'Gemeint ist der Rahmen für Küchenmöbel, Geräte, Arbeitsplatte und Montage. Bauliche Zusatzarbeiten werden später separat geklärt.', multiple: false,
       options: [
-        option('under_15', 'Bis 15.000 €', 'Klar priorisiert und effizient geplant', '#d3c6b7', {}),
+        option('under_15', 'Bis 15.000 €', 'Je nach Raum und Ausstattung nur mit klarer Priorisierung', '#d3c6b7', {}),
         option('15_25', '15.000 bis 25.000 €', 'Solide Ausstattung mit individuellen Akzenten', '#bea98f', {}),
         option('25_40', '25.000 bis 40.000 €', 'Hohe Individualität bei Material und Funktion', '#a28a71', {}),
         option('over_40', 'Über 40.000 €', 'Konsequentes Raum- und Materialkonzept', '#765f4d', {}),
@@ -202,7 +202,7 @@
       id: 'special_wishes', section: 'framework', type: 'text',
       title: 'Gibt es besondere Wünsche für Ihre Küche?',
       help: 'Zum Beispiel eine bevorzugte Marke der Hausgeräte, ein Apothekerschrank oder ein hoch eingebauter Backofen. Optional.',
-      multiple: false, options: [], placeholder: 'Ihre Notiz an uns …'
+      multiple: false, optional: true, options: [], placeholder: 'Ihre Notiz an uns …'
     }
   ];
 
@@ -211,12 +211,43 @@
   }
 
   const styleCopy = {
-    minimal: { label: 'Warm Minimal', description: 'Klare Linien, ruhige Flächen und eine warme Grundstimmung bilden Ihre ideale Küchenwelt.', image: 'assets/images/style-warm-minimal.webp' },
-    natural: { label: 'Natürlich Wohnlich', description: 'Authentische Materialien und eine wohnliche Atmosphäre stehen bei Ihnen im Mittelpunkt.', image: 'assets/images/style-natural-living.webp' },
-    japandi: { label: 'Soft Japandi', description: 'Reduktion, handwerkliche Details und natürliche Ruhe prägen Ihre persönliche Stilwelt.', image: 'assets/images/style-soft-japandi.webp' },
-    urban: { label: 'Urban Architecture', description: 'Starke Materialien, klare Architektur und bewusste Kontraste geben Ihrer Küche Charakter.', image: 'assets/images/style-urban-architecture.webp' },
-    classic: { label: 'Modern Classic', description: 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.', image: 'assets/images/style-modern-classic.webp' }
+    minimal: {
+      label: 'Warm Minimal',
+      description: 'Klare Linien, ruhige Flächen und eine warme Grundstimmung bilden Ihre ideale Küchenwelt.',
+      image: 'assets/images/style-warm-minimal.webp',
+      principles: ['wenige, durchgängige Frontlinien', 'warme Neutraltöne statt hartem Reinweiß', 'Licht und Funktion möglichst ruhig integrieren'],
+      watchout: 'Zu viele Einzelmaterialien oder sichtbare Technik nehmen diesem Stil schnell seine Ruhe.'
+    },
+    natural: {
+      label: 'Natürlich Wohnlich',
+      description: 'Authentische Materialien und eine wohnliche Atmosphäre stehen bei Ihnen im Mittelpunkt.',
+      image: 'assets/images/style-natural-living.webp',
+      principles: ['Holz oder Holzstruktur gezielt fühlbar einsetzen', 'matte, erdige Oberflächen kombinieren', 'Küche und Wohnraum über wiederkehrende Materialien verbinden'],
+      watchout: 'Zu viele unterschiedliche Holzdekore wirken schnell unruhig – besser wenige Materialien konsequent wiederholen.'
+    },
+    japandi: {
+      label: 'Soft Japandi',
+      description: 'Reduktion, handwerkliche Details und natürliche Ruhe prägen Ihre persönliche Stilwelt.',
+      image: 'assets/images/style-soft-japandi.webp',
+      principles: ['helle Hölzer mit warmen Naturtönen verbinden', 'klare Flächen durch feine handwerkliche Details ergänzen', 'Stauraum geschlossen und visuell ruhig organisieren'],
+      watchout: 'Der Stil lebt von Zurückhaltung. Dekoration und Kontraste sollten bewusst dosiert werden.'
+    },
+    urban: {
+      label: 'Urban Architecture',
+      description: 'Starke Materialien, klare Architektur und bewusste Kontraste geben Ihrer Küche Charakter.',
+      image: 'assets/images/style-urban-architecture.webp',
+      principles: ['dunkle oder mineralische Flächen klar gliedern', 'Metall und Glas als gezielte Akzente nutzen', 'Licht zur Betonung von Architektur statt nur zur Ausleuchtung einsetzen'],
+      watchout: 'Große dunkle Flächen brauchen ausreichend Licht und warme Gegengewichte, damit der Raum nicht schwer wirkt.'
+    },
+    classic: {
+      label: 'Modern Classic',
+      description: 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.',
+      image: 'assets/images/style-modern-classic.webp',
+      principles: ['klassische Details mit ruhigen modernen Flächen verbinden', 'Griffe, Glas und Metall als wiederkehrende Akzente einsetzen', 'Farben eher zeitlos als trendgetrieben wählen'],
+      watchout: 'Zu viele dekorative Details können die moderne Wirkung überlagern – ein klares Grundraster hält den Stil zeitgemäß.'
+    }
   };
+  const styleQuestionIds = ['feeling', 'visual_language', 'palette', 'materials', 'handles'];
 
   const state = {
     started: false,
@@ -225,7 +256,8 @@
     details: {},
     skipped: [],
     submitted: false,
-    deliveryPending: false
+    deliveryPending: false,
+    visitorId: ''
   };
 
   const views = [...document.querySelectorAll('[data-view]')];
@@ -236,6 +268,7 @@
   let autoAdvanceTimer = null;
 
   bind();
+  bindEmbedContext();
   bindEmbedResize();
   renderJourney();
   showView(state.started ? (state.submitted ? 'success' : 'quiz') : 'intro');
@@ -252,6 +285,26 @@
     document.getElementById('openContactButton').addEventListener('click', openContact);
     document.getElementById('successResultButton').addEventListener('click', showResult);
     document.getElementById('leadForm').addEventListener('submit', submitLead);
+  }
+
+  function bindEmbedContext() {
+    if (!document.body.classList.contains('embed-mode') || window.parent === window) return;
+    window.addEventListener('message', event => {
+      if (event.source !== window.parent || !isAllowedParentOrigin(event.origin)) return;
+      if (event.data?.type !== 'kuechen-kompass:context') return;
+      const visitorId = String(event.data.visitor_id || '').trim();
+      if (/^[A-Za-z0-9._:-]{8,128}$/.test(visitorId)) state.visitorId = visitorId;
+    });
+  }
+
+  function isAllowedParentOrigin(origin) {
+    try {
+      const url = new URL(origin);
+      return url.protocol === 'https:' && (url.hostname === 'kuechen-klas.de' || url.hostname.endsWith('.kuechen-klas.de'))
+        || url.origin === 'http://kuechen-klas-2026.test';
+    } catch (_) {
+      return false;
+    }
   }
 
   function bindEmbedResize() {
@@ -365,7 +418,7 @@
     const cleaned = value.trim().replace(/[^\d]/g, '').slice(0, 4);
     state.details[q.id][fieldId] = cleaned;
     const filledCount = q.fields.filter(field => (state.details[q.id]?.[field.id] || '').trim()).length;
-    state.answers[q.id] = filledCount === q.fields.length ? ['filled'] : [];
+    state.answers[q.id] = filledCount > 0 ? ['filled'] : [];
     state.skipped = state.skipped.filter(id => id !== q.id);
     save();
     updateNext(q);
@@ -399,6 +452,9 @@
     if (q.multiple) {
       if (selected.includes(optionId)) {
         selected = selected.filter(id => id !== optionId);
+      } else if (q.id === 'appliances' && ['fridge', 'fridge_freezer'].includes(optionId)) {
+        selected = selected.filter(id => !['fridge', 'fridge_freezer'].includes(id));
+        selected = [...selected, optionId];
       } else if (q.max && selected.length >= q.max) {
         selectionMessage.classList.remove('is-confirm');
         selectionMessage.textContent = `Sie können höchstens ${q.max} Antworten auswählen. Entfernen Sie zuerst eine Auswahl.`;
@@ -498,6 +554,7 @@
     document.getElementById('decisionProgress').textContent = `${completion()}%`;
     document.querySelector('.decision-card__paths').classList.toggle('is-single', continueComplete);
     renderBars(result);
+    renderStyleGuidance(result);
     renderMoodboard();
     renderPlanningSummary();
     renderJourney('result');
@@ -507,15 +564,44 @@
 
   function calculateResult() {
     const scores = Object.fromEntries(Object.keys(styleCopy).map(id => [id, 0]));
-    questions.forEach(q => (state.answers[q.id] || []).forEach(id => {
-      const opt = q.options.find(item => item.id === id);
-      Object.entries(opt?.scores || {}).forEach(([style, points]) => { scores[style] += points; });
-    }));
+    const strongMatches = Object.fromEntries(Object.keys(styleCopy).map(id => [id, 0]));
+
+    styleQuestionIds.forEach(questionId => {
+      const q = questions.find(item => item.id === questionId);
+      const selectedIds = state.answers[questionId] || [];
+      if (!q || selectedIds.length === 0) return;
+
+      const questionScores = Object.fromEntries(Object.keys(styleCopy).map(id => [id, 0]));
+      selectedIds.forEach(id => {
+        const opt = q.options.find(item => item.id === id);
+        if (!opt) return;
+        const optionScores = opt.scores || {};
+        const optionMax = Math.max(0, ...Object.values(optionScores));
+        Object.entries(optionScores).forEach(([style, points]) => {
+          questionScores[style] += points / 3;
+          if (points === optionMax && optionMax > 0) strongMatches[style] += 1 / selectedIds.length;
+        });
+      });
+
+      Object.keys(scores).forEach(style => {
+        scores[style] += questionScores[style] / selectedIds.length;
+      });
+    });
+
     const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
     const ranked = Object.entries(scores)
-      .map(([id, score]) => ({ id, score, percent: Math.round((score / total) * 100), ...styleCopy[id] }))
-      .sort((a, b) => b.score - a.score);
-    return { title: ranked[0].label, description: ranked[0].description, ranked, primary: ranked[0].id };
+      .map(([id, score]) => ({ id, score, strongMatches: strongMatches[id], percent: Math.round((score / total) * 100), ...styleCopy[id] }))
+      .sort((a, b) => b.score - a.score || b.strongMatches - a.strongMatches || a.label.localeCompare(b.label, 'de'));
+
+    const primary = ranked[0];
+    const secondary = ranked[1];
+    const isBlend = primary.score > 0 && secondary.score / primary.score >= 0.82;
+    const title = isBlend ? `${primary.label} mit ${secondary.label}-Anteil` : primary.label;
+    const description = isBlend
+      ? `${primary.description} ${secondary.label} ergänzt Ihr Profil deutlich und sollte bei Material, Farbe und Details mitgedacht werden.`
+      : primary.description;
+
+    return { title, description, ranked, primary: primary.id, secondary: secondary.id, isBlend };
   }
 
   function svgDataUrl(svg) {
@@ -888,6 +974,7 @@
   }
 
   function optionImage(questionId, optionId) {
+    if (questionId === 'budget') return '';
     const path = {
       feeling: {
         calm: 'assets/images/feeling-calm-clear.webp',
@@ -927,10 +1014,8 @@
       kitchen_shape: {
         single_row: 'assets/images/shape-single-row.webp',
         double_row: 'assets/images/shape-double-row.webp',
-        u_shape: 'assets/images/shape-u-form.webp',
-        l_shape: 'assets/images/shape-l-form.webp',
-        island: 'assets/images/shape-island.webp',
-        unknown: 'assets/images/shape-unknown.webp'
+        // U-, L-Form, Insel und 'noch offen' werden bewusst als lokale SVG-Grafiken erzeugt.
+        // So gibt es keine 404-Abhängigkeit von nicht vorhandenen Bilddateien.
       },
       household: {
         solo: 'assets/images/household-solo.webp',
@@ -957,12 +1042,12 @@
         fridge: 'assets/images/appliance-fridge.webp',
         fridge_freezer: 'assets/images/appliance-fridge-freezer.webp',
         dishwasher: 'assets/images/appliance-dishwasher.webp',
-        design_hood: 'assets/images/appliance-design-hood.webp',
         microwave: 'assets/images/appliance-microwave.webp'
       },
       extractor_type: {
         exhaust: 'assets/images/extractor-exhaust.webp',
-        recirculation: 'assets/images/extractor-recirculation.webp'
+        recirculation: 'assets/images/extractor-recirculation.webp',
+        unsure: 'assets/images/extractor-unsure.webp'
       },
       extractor_style: {
         cabinet: 'assets/images/extractor-cabinet.webp',
@@ -988,13 +1073,6 @@
         '6_12': 'assets/images/timeframe-6-12.webp',
         ideas: 'assets/images/timeframe-ideas.webp'
       },
-      budget: {
-        under_15: 'assets/images/budget-under-15.webp',
-        '15_25': 'assets/images/budget-15-25.webp',
-        '25_40': 'assets/images/budget-25-40.webp',
-        over_40: 'assets/images/budget-over-40.webp',
-        unknown: 'assets/images/budget-unknown.webp'
-      }
     }[questionId]?.[optionId] || '';
     return path ? new URL(path, document.baseURI).href : generatedOptionImage(questionId, optionId);
   }
@@ -1004,6 +1082,14 @@
     document.getElementById('styleBars').innerHTML = top.map(item => {
       return `<div class="style-bar"><span>${escapeHtml(item.label)}</span><div class="style-bar-track" role="meter" aria-label="${escapeHtml(item.label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.percent}"><div class="style-bar-fill" style="width:${item.percent}%"></div></div><strong>${item.percent}%</strong></div>`;
     }).join('');
+  }
+
+  function renderStyleGuidance(result) {
+    const profile = styleCopy[result.primary];
+    const list = document.getElementById('resultPrinciples');
+    const watchout = document.getElementById('resultWatchout');
+    if (list) list.innerHTML = profile.principles.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    if (watchout) watchout.textContent = profile.watchout;
   }
 
   function renderMoodboard() {
@@ -1056,7 +1142,9 @@
 
   function openContact() {
     const result = calculateResult();
-    document.getElementById('contactSummary').innerHTML = `<strong>${escapeHtml(result.title)}</strong><p>${completion()} % Ihres Küchenprofils sind bereits ausgefüllt.</p>`;
+    const form = document.getElementById('leadForm');
+    form.elements.callback.checked = true;
+    document.getElementById('contactSummary').innerHTML = `<strong>${escapeHtml(result.title)}</strong><p>${completion()} % der Planungsfragen sind bereits beantwortet.</p>`;
     renderJourney('result');
     showView('contact');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1082,7 +1170,8 @@
       skipped: state.skipped,
       result,
       completion: completion(),
-      source: 'kuechen-kompass'
+      source: 'kuechen-kompass',
+      visitor_id: state.visitorId
     };
     try {
       const response = await fetch('api/submit.php', {
@@ -1154,13 +1243,13 @@
   function sectionAnswered(sectionId) {
     if (sectionId === 'result') return false;
     const qs = questions.filter(q => q.section === sectionId);
-    return qs.length > 0 && qs.every(q => (state.answers[q.id] || []).length > 0);
+    return qs.length > 0 && qs.every(q => q.optional || (state.answers[q.id] || []).length > 0);
   }
 
   function sectionAddressed(sectionId) {
     if (sectionId === 'result') return false;
     const qs = questions.filter(q => q.section === sectionId);
-    return qs.length > 0 && qs.every(q => (state.answers[q.id] || []).length > 0 || state.skipped.includes(q.id));
+    return qs.length > 0 && qs.every(q => q.optional || (state.answers[q.id] || []).length > 0 || state.skipped.includes(q.id));
   }
 
   function furthestUnlockedSection() {
@@ -1176,12 +1265,13 @@
   }
 
   function planningComplete() {
-    return ['space', 'everyday', 'technik', 'framework'].every(sectionAnswered);
+    return ['space', 'everyday', 'technik', 'framework'].every(sectionAddressed);
   }
 
   function completion() {
-    const done = questions.filter(q => (state.answers[q.id] || []).length > 0).length;
-    return Math.round(done / questions.length * 100);
+    const counted = questions.filter(q => !q.optional);
+    const done = counted.filter(q => (state.answers[q.id] || []).length > 0).length;
+    return Math.round(done / counted.length * 100);
   }
 
   function sectionLabel(id) { return sections.find(s => s.id === id)?.label || ''; }
