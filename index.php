@@ -10,6 +10,10 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(24));
 }
 $embedMode = ($_GET['embed'] ?? '') === '1';
+$assetVersion = static function (string $path): string {
+    $file = __DIR__ . '/' . $path;
+    return (string) (@filemtime($file) ?: time());
+};
 ?>
 <!doctype html>
 <html lang="de">
@@ -21,7 +25,7 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Küchen-Stilfinder | Klas Küchen</title>
-    <link rel="stylesheet" href="assets/app.css">
+    <link rel="stylesheet" href="assets/app.css?v=<?= $assetVersion('assets/app.css') ?>">
 </head>
 <body<?= $embedMode ? ' class="embed-mode"' : '' ?>>
 <div class="app-shell">
@@ -66,6 +70,7 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
                 <span id="questionCounter"></span>
             </div>
             <h2 id="questionTitle" tabindex="-1"></h2>
+            <span id="multipleHint" class="multiple-hint hidden">Mehrfachauswahl möglich</span>
             <p id="questionHelp" class="question-help"></p>
             <p id="selectionMessage" class="selection-message" role="status" aria-live="polite"></p>
             <div id="answers" class="answer-grid"></div>
@@ -168,6 +173,6 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
         </div>
     </footer>
 </div>
-<script src="assets/app.js" defer></script>
+<script src="assets/app.js?v=<?= $assetVersion('assets/app.js') ?>" defer></script>
 </body>
 </html>

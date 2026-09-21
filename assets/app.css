@@ -150,6 +150,8 @@ p { line-height: 1.65; }
 .back-arrow { flex-shrink: 0; border: 0; background: transparent; color: var(--muted); padding: 10px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-full); }
 .back-arrow:hover:not(:disabled) { background: var(--panel); color: var(--accent-dark); }
 .back-arrow:disabled { opacity: .35; cursor: default; }
+.multiple-hint { display: inline-flex; align-items: center; gap: 6px; margin: 12px 0 0; padding: 5px 12px; border-radius: var(--radius-full); background: var(--accent-glow); color: var(--accent-dark); font-size: 12px; font-weight: 700; }
+.multiple-hint::before { content: "✓✓"; font-size: 10px; letter-spacing: -1px; }
 .question-help { color: var(--muted); max-width: 700px; margin-bottom: 30px; }
 .selection-message { min-height: 1.4em; margin: -20px 0 12px; color: var(--error); font-size: 13px; font-weight: 700; }
 .selection-message.is-confirm { color: var(--accent-dark); }

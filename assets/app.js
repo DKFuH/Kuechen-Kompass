@@ -297,6 +297,11 @@
     document.getElementById('sectionLabel').textContent = sectionLabel(q.section);
     document.getElementById('questionCounter').textContent = `${state.current + 1} von ${questions.length}`;
     document.getElementById('questionTitle').textContent = q.title;
+    const multipleHint = document.getElementById('multipleHint');
+    multipleHint.hidden = !q.multiple;
+    if (q.multiple) {
+      multipleHint.textContent = q.max ? `Mehrfachauswahl möglich · bis zu ${q.max}` : 'Mehrfachauswahl möglich';
+    }
     document.getElementById('questionHelp').textContent = q.help || '';
     selectionMessage.textContent = '';
     selectionMessage.classList.remove('is-confirm');
