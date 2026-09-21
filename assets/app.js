@@ -233,8 +233,8 @@
   const answersEl = document.getElementById('answers');
   const nextButton = document.getElementById('nextButton');
   const selectionMessage = document.getElementById('selectionMessage');
+  let autoAdvanceTimer = null;
 
-  restore();
   bind();
   bindEmbedResize();
   renderJourney();
@@ -245,7 +245,7 @@
   function bind() {
     document.getElementById('startButton').addEventListener('click', start);
     document.getElementById('restartButton').addEventListener('click', restart);
-    document.getElementById('backButton').addEventListener('click', back);
+    document.getElementById('backButtonTop').addEventListener('click', back);
     document.getElementById('skipButton').addEventListener('click', skip);
     nextButton.addEventListener('click', next);
     document.getElementById('continuePlanningButton').addEventListener('click', continuePlanning);
@@ -284,7 +284,7 @@
 
   function restart() {
     if (!confirm('Möchten Sie alle bisherigen Antworten löschen und neu beginnen?')) return;
-    localStorage.removeItem('kuechenKompassV1');
+    cancelAutoAdvance();
     Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false });
     renderJourney();
     showView('intro');
@@ -299,6 +299,7 @@
     document.getElementById('questionTitle').textContent = q.title;
     document.getElementById('questionHelp').textContent = q.help || '';
     selectionMessage.textContent = '';
+    selectionMessage.classList.remove('is-confirm');
     answersEl.innerHTML = '';
     answersEl.className = q.type === 'dimensions' ? 'dimension-grid' : q.type === 'text' ? 'text-grid' : 'answer-grid';
     if (q.type === 'dimensions') {
@@ -321,7 +322,7 @@
         answersEl.appendChild(button);
       });
     }
-    document.getElementById('backButton').disabled = state.current === 0;
+    document.getElementById('backButtonTop').disabled = state.current === 0;
     document.getElementById('skipButton').hidden = Boolean(q.required);
     updateNext(q);
     renderJourney();
@@ -329,6 +330,7 @@
       answersEl.querySelector(`[data-option-id="${CSS.escape(focusOptionId)}"]`)?.focus();
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('questionTitle').focus({ preventScroll: true });
     }
   }
 
@@ -387,27 +389,54 @@
   }
 
   function choose(q, optionId) {
+    cancelAutoAdvance();
     let selected = state.answers[q.id] || [];
     if (q.multiple) {
       if (selected.includes(optionId)) {
         selected = selected.filter(id => id !== optionId);
       } else if (q.max && selected.length >= q.max) {
+        selectionMessage.classList.remove('is-confirm');
         selectionMessage.textContent = `Sie können höchstens ${q.max} Antworten auswählen. Entfernen Sie zuerst eine Auswahl.`;
         return;
       } else {
         selected = [...selected, optionId];
       }
+      state.answers[q.id] = selected;
+      state.skipped = state.skipped.filter(id => id !== q.id);
+      save();
+      renderQuestion(optionId);
     } else {
       selected = [optionId];
+      state.answers[q.id] = selected;
+      state.skipped = state.skipped.filter(id => id !== q.id);
+      save();
+      renderQuestion(optionId);
+      scheduleAutoAdvance(q, optionId);
     }
-    state.answers[q.id] = selected;
-    state.skipped = state.skipped.filter(id => id !== q.id);
-    save();
-    renderQuestion(optionId);
+  }
+
+  function scheduleAutoAdvance(q, optionId) {
+    const opt = q.options.find(item => item.id === optionId);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    selectionMessage.classList.add('is-confirm');
+    selectionMessage.textContent = `${opt ? opt.label + ' ausgewählt. ' : ''}Weiter zur nächsten Frage.`;
+    autoAdvanceTimer = window.setTimeout(() => {
+      autoAdvanceTimer = null;
+      next();
+    }, reducedMotion ? 150 : 420);
+  }
+
+  function cancelAutoAdvance() {
+    if (autoAdvanceTimer) {
+      window.clearTimeout(autoAdvanceTimer);
+      autoAdvanceTimer = null;
+    }
   }
 
   function updateNext(q) {
     const hasAnswer = (state.answers[q.id] || []).length > 0;
+    const isSingleSelect = !q.multiple && q.type !== 'dimensions' && q.type !== 'text';
+    nextButton.hidden = isSingleSelect;
     nextButton.disabled = Boolean(q.required && !hasAnswer);
     nextButton.textContent = state.current === questions.length - 1 ? 'Ergebnis aktualisieren' : 'Weiter';
   }
@@ -426,6 +455,7 @@
   }
 
   function back() {
+    cancelAutoAdvance();
     if (state.current <= 0) return;
     state.current -= 1;
     save();
@@ -433,12 +463,14 @@
   }
 
   function skip() {
+    cancelAutoAdvance();
     const q = questions[state.current];
     if (!state.skipped.includes(q.id)) state.skipped.push(q.id);
     next();
   }
 
   function continuePlanning() {
+    cancelAutoAdvance();
     const firstPlanning = questions.findIndex(q => q.section === 'space');
     state.current = firstPlanning;
     save();
@@ -446,6 +478,7 @@
   }
 
   function showResult() {
+    cancelAutoAdvance();
     const result = calculateResult();
     document.getElementById('resultTitle').textContent = result.title;
     document.getElementById('resultDescription').textContent = result.description;
@@ -454,7 +487,11 @@
     const resultImage = document.getElementById('resultImage');
     resultImage.style.backgroundImage = `url("${new URL(styleCopy[result.primary].image, document.baseURI).href}")`;
     resultImage.setAttribute('aria-label', `Beispielküche für den Stil ${result.title}`);
-    document.getElementById('continuePlanningButton').hidden = planningComplete();
+    const continueComplete = planningComplete();
+    document.getElementById('continuePlanningButton').hidden = continueComplete;
+    document.getElementById('decisionPathContinue').hidden = continueComplete;
+    document.getElementById('decisionProgress').textContent = `${completion()}%`;
+    document.querySelector('.decision-card__paths').classList.toggle('is-single', continueComplete);
     renderBars(result);
     renderMoodboard();
     renderPlanningSummary();
@@ -1100,6 +1137,7 @@
   }
 
   function jumpTo(sectionId) {
+    cancelAutoAdvance();
     if (sectionId === 'result') return showResult();
     const index = questions.findIndex(q => q.section === sectionId);
     if (index < 0) return;
@@ -1143,52 +1181,9 @@
 
   function sectionLabel(id) { return sections.find(s => s.id === id)?.label || ''; }
   function showView(name) { views.forEach(view => view.classList.toggle('hidden', view.dataset.view !== name)); }
-  function save() { localStorage.setItem('kuechenKompassV1', JSON.stringify(state)); }
-  function restore() {
-    try {
-      const saved = JSON.parse(localStorage.getItem('kuechenKompassV1'));
-      if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return;
-      const questionIds = new Set(questions.map(q => q.id));
-      const answers = {};
-      if (saved.answers && typeof saved.answers === 'object' && !Array.isArray(saved.answers)) {
-        questions.forEach(q => {
-          const allowed = new Set(q.options.map(answer => answer.id).concat(q.type ? ['filled'] : []));
-          const values = Array.isArray(saved.answers[q.id])
-            ? [...new Set(saved.answers[q.id].filter(value => typeof value === 'string' && allowed.has(value)))]
-            : [];
-          answers[q.id] = q.max ? values.slice(0, q.max) : q.multiple ? values : values.slice(0, 1);
-        });
-      }
-      const details = {};
-      if (saved.details && typeof saved.details === 'object' && !Array.isArray(saved.details)) {
-        const dimensions = saved.details.room_dimensions;
-        if (dimensions && typeof dimensions === 'object' && !Array.isArray(dimensions)) {
-          details.room_dimensions = {};
-          ['length', 'width', 'height'].forEach(field => {
-            if (typeof dimensions[field] === 'string' || typeof dimensions[field] === 'number') {
-              details.room_dimensions[field] = String(dimensions[field]).slice(0, 12);
-            }
-          });
-        }
-        if (typeof saved.details.special_wishes === 'string') {
-          details.special_wishes = saved.details.special_wishes.slice(0, 1000);
-        }
-      }
-      answers.room_dimensions = details.room_dimensions && Object.values(details.room_dimensions).some(Boolean) ? ['filled'] : [];
-      answers.special_wishes = details.special_wishes?.trim() ? ['filled'] : [];
-      Object.assign(state, {
-        started: saved.started === true,
-        submitted: saved.submitted === true,
-        deliveryPending: saved.deliveryPending === true,
-        current: Number.isInteger(saved.current) ? Math.max(0, Math.min(questions.length - 1, saved.current)) : 0,
-        answers,
-        details,
-        skipped: Array.isArray(saved.skipped)
-          ? [...new Set(saved.skipped.filter(id => typeof id === 'string' && questionIds.has(id)))]
-          : []
-      });
-    } catch (_) { localStorage.removeItem('kuechenKompassV1'); }
-  }
+  // State stays in memory for the current visit. Persistent browser storage is
+  // intentionally disabled until an explicit opt-in flow is implemented.
+  function save() {}
   function escapeHtml(value) {
     const div = document.createElement('div');
     div.textContent = String(value ?? '');

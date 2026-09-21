@@ -164,12 +164,53 @@ function send_notification(array $config, array $payload): ?bool
         $lines[] = 'Raummaße (L×B×H): ' . implode(' × ', $parts) . ' cm';
     }
     $body = implode("\n", $lines);
+
+    // PHP mail() liefert auf vielen Hosts nicht zuverlässig zu (kein
+    // konfigurierter MTA) - mit SMTP_HOST bevorzugt PHPMailer/SMTP nutzen,
+    // gleiches Muster wie im Hauptprojekt kuechen-klas.de-2026 (app/mailer.php).
+    if ($config['smtp_host'] !== '') {
+        return send_via_smtp($config, $contact['email'], $subject, $body);
+    }
     $headers = [
         'From: ' . $config['mail_from'],
         'Reply-To: ' . $contact['email'],
         'Content-Type: text/plain; charset=UTF-8',
     ];
     return @mail($config['mail_to'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+}
+
+function send_via_smtp(array $config, string $replyTo, string $subject, string $body): bool
+{
+    require_once dirname(__DIR__) . '/lib/phpmailer/Exception.php';
+    require_once dirname(__DIR__) . '/lib/phpmailer/SMTP.php';
+    require_once dirname(__DIR__) . '/lib/phpmailer/PHPMailer.php';
+
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = $config['smtp_host'];
+        $mail->Port = $config['smtp_port'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $config['smtp_username'];
+        $mail->Password = $config['smtp_password'];
+        $mail->SMTPSecure = strtolower($config['smtp_encryption']) === 'ssl'
+            ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
+            : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->CharSet = 'UTF-8';
+
+        $mail->setFrom($config['smtp_from_email'], $config['smtp_from_name']);
+        $mail->addAddress($config['mail_to']);
+        if ($replyTo !== '') $mail->addReplyTo($replyTo);
+
+        $mail->isHTML(false);
+        $mail->Subject = $subject;
+        $mail->Body = $body;
+
+        $mail->send();
+        return true;
+    } catch (\Throwable) {
+        return false;
+    }
 }
 
 function send_to_n8n(PDO $pdo, array $config, string $publicId, array $payload): ?bool

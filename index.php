@@ -20,15 +20,15 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
     <meta name="theme-color" content="#8c6a4f">
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
     <meta name="robots" content="noindex, nofollow, noarchive">
-    <title>Küchen-Kompass | Klas Küchen</title>
+    <title>Küchen-Stilfinder | Klas Küchen</title>
     <link rel="stylesheet" href="assets/app.css">
 </head>
 <body<?= $embedMode ? ' class="embed-mode"' : '' ?>>
 <div class="app-shell">
     <header class="topbar">
-        <a class="brand" href="/" aria-label="Küchen-Kompass Startseite">
+        <a class="brand" href="/" aria-label="Küchen-Stilfinder Startseite">
             <span class="brand-mark">K</span>
-            <span><strong>Küchen-Kompass</strong><small>von Klas Küchen</small></span>
+            <span><strong>Küchen-Stilfinder</strong><small>von Klas Küchen</small></span>
         </a>
         <button class="quiet-button" id="restartButton" type="button">Neu starten</button>
     </header>
@@ -48,7 +48,7 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
                     <li>Zwischenergebnis ohne Kontaktdaten</li>
-                    <li>Fortschritt bleibt auf diesem Gerät gespeichert</li>
+                    <li>Keine Analyse- oder Marketingdienste</li>
                 </ul>
             </div>
             <div class="intro-visual" aria-hidden="true">
@@ -59,15 +59,17 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
 
         <section class="quiz panel hidden" data-view="quiz">
             <div class="question-meta">
+                <button class="back-arrow" id="backButtonTop" type="button" aria-label="Zurück zur vorherigen Frage">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
                 <span id="sectionLabel" class="eyebrow"></span>
                 <span id="questionCounter"></span>
             </div>
-            <h2 id="questionTitle"></h2>
+            <h2 id="questionTitle" tabindex="-1"></h2>
             <p id="questionHelp" class="question-help"></p>
             <p id="selectionMessage" class="selection-message" role="status" aria-live="polite"></p>
             <div id="answers" class="answer-grid"></div>
             <div class="quiz-footer">
-                <button class="secondary-button" id="backButton" type="button">Zurück</button>
                 <button class="text-button" id="skipButton" type="button">Später beantworten</button>
                 <button class="primary-button" id="nextButton" type="button">Weiter</button>
             </div>
@@ -98,10 +100,24 @@ $embedMode = ($_GET['embed'] ?? '') === '1';
                 <h3>Ihre Planungsangaben</h3>
                 <div id="planningGrid" class="planning-grid"></div>
             </div>
-            <div class="result-actions">
-                <button class="primary-button" id="continuePlanningButton" type="button">Küchenprofil vervollständigen</button>
-                <button class="secondary-button" id="openContactButton" type="button">Profil zur Beratung übermitteln</button>
-            </div>
+            <section class="decision-card">
+                <div class="decision-card__intro">
+                    <span class="eyebrow">Wie möchten Sie weitermachen?</span>
+                    <h3>Ihr Profil ist zu <span id="decisionProgress">0%</span> vollständig</h3>
+                </div>
+                <div class="decision-card__paths">
+                    <div class="decision-path decision-path--continue" id="decisionPathContinue">
+                        <h4>Profil vervollständigen</h4>
+                        <p>Beantworten Sie noch ein paar Fragen zu Raum, Alltag und Technik – für eine noch genauere, persönliche Beratung.</p>
+                        <button class="primary-button" id="continuePlanningButton" type="button">Weiter planen</button>
+                    </div>
+                    <div class="decision-path decision-path--submit">
+                        <h4>Jetzt Beratung anfragen</h4>
+                        <p>Ihr aktuelles Profil reicht bereits aus – ein Küchenexperte meldet sich persönlich bei Ihnen.</p>
+                        <button class="secondary-button" id="openContactButton" type="button">Profil übermitteln</button>
+                    </div>
+                </div>
+            </section>
         </section>
 
         <section class="contact panel hidden" data-view="contact">

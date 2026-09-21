@@ -1,4 +1,4 @@
-# Küchen-Kompass
+# Küchen-Stilfinder
 
 Eigenständiger Küchenstil-Finder und Planungsvorbereitung für
 `stilfinder.kuechen-klas.de`.
@@ -8,7 +8,7 @@ Eigenständiger Küchenstil-Finder und Planungsvorbereitung für
 - visuelle Einzelfragen statt langem Formular
 - frei anwählbare Entscheidungs-Zeitleiste
 - Zurückspringen und Ändern früherer Antworten
-- lokales Fortsetzen über `localStorage`
+- Bearbeitung ohne Analyse-, Marketing- oder dauerhafte Browser-Speicherung
 - gewichteter Stil-Mix mit persönlichem Ergebnis
 - optionale zweite Etappe für Raum, Alltag, Technik und Rahmen
 - Technik-Fragen aus der bisherigen Küchencheckliste integriert: Raummaße,
@@ -81,12 +81,25 @@ Die Anwendung nutzt Umgebungsvariablen:
 | Variable | Funktion |
 | --- | --- |
 | `MAIL_TO` | Empfänger der internen Benachrichtigung |
-| `MAIL_FROM` | Absenderadresse der Benachrichtigung |
+| `MAIL_FROM` | Absenderadresse der Benachrichtigung (nur relevant, solange kein SMTP konfiguriert ist) |
 | `N8N_WEBHOOK_URL` | optionaler n8n-Webhook |
 | `N8N_WEBHOOK_SECRET` | optionaler Schlüssel für die HMAC-Signatur |
+| `SMTP_HOST` | wenn gesetzt: Versand über PHPMailer/SMTP statt PHP `mail()` (empfohlen, siehe unten) |
+| `SMTP_PORT` | Standard `587` |
+| `SMTP_USERNAME` / `SMTP_PASSWORD` | SMTP-Zugangsdaten |
+| `SMTP_ENCRYPTION` | `tls` (STARTTLS, Standard) oder `ssl` |
+| `SMTP_FROM_EMAIL` / `SMTP_FROM_NAME` | Absender bei SMTP-Versand |
 
-Eine Anfrage gilt als „übermittelt“, sobald PHP-Mail oder der konfigurierte
-n8n-Webhook die Nachricht angenommen hat. Ist noch keine Zustellung bestätigt,
+PHP `mail()` liefert auf den meisten Hosts nicht zuverlässig zu, weil kein
+lokaler MTA konfiguriert ist (Erfahrungswert aus dem Hauptprojekt
+`kuechen-klas.de-2026`). Sobald `SMTP_HOST` gesetzt ist, nutzt
+`send_notification()` in `api/submit.php` stattdessen PHPMailer über SMTP
+(Bibliothek liegt vendored unter `lib/phpmailer/`, gleiches Muster wie
+`app/mailer.php` im Hauptprojekt). Ohne `SMTP_HOST` bleibt `mail()` als
+Fallback aktiv.
+
+Eine Anfrage gilt als „übermittelt“, sobald der Mailversand (SMTP oder
+`mail()`) oder der konfigurierte n8n-Webhook die Nachricht angenommen hat. Ist noch keine Zustellung bestätigt,
 bleibt das Profil in SQLite gespeichert und die Oberfläche weist transparent
 auf die ausstehende interne Benachrichtigung hin. Der technische Status wird in
 `delivery_status` und `delivery_error` protokolliert, damit ausstehende Fälle
@@ -95,6 +108,11 @@ gezielt geprüft werden können.
 Fragen, Antworten und Stilgewichtungen stehen am Anfang von `assets/app.js`.
 Die sichtbaren Farben und das Erscheinungsbild werden in `assets/app.css`
 über CSS-Variablen gesteuert.
+
+Der Fragebogen speichert seinen Zustand nicht dauerhaft im Browser. Er bleibt
+nur während des geöffneten Besuchs im Arbeitsspeicher. Eine spätere Funktion
+zum Fortsetzen auf diesem Gerät darf `localStorage` erst nach einer
+ausdrücklichen Auswahl verwenden.
 
 ## In eine Website einbetten
 
@@ -117,7 +135,7 @@ Alternativ funktioniert ein direktes Iframe mit fester Mindesthöhe:
 ```html
 <iframe
   src="https://stilfinder.kuechen-klas.de/?embed=1"
-  title="Küchen-Kompass – persönlichen Küchenstil finden"
+  title="Küchen-Stilfinder – persönlichen Küchenstil finden"
   loading="lazy"
   style="display:block;width:100%;min-height:900px;border:0"
 ></iframe>
@@ -127,9 +145,13 @@ Die `frame-ancestors`-Richtlinie erlaubt die Einbettung ausschließlich auf
 `kuechen-klas.de`, `www.kuechen-klas.de`, deren HTTPS-Subdomains sowie auf der
 lokalen Entwicklungsdomain `kuechen-klas-2026.test`.
 
-## Noch vor dem Livegang
+## Offene Punkte
 
 - echte Küchen- und Materialbilder mit geklärten Nutzungsrechten einsetzen
-- Mailzustellung und n8n-Webhook im Zielhosting testen
+- **`SMTP_HOST` (und `MAIL_TO`) auf `stilfinder.kuechen-klas.de` eintragen** –
+  ohne SMTP-Konfiguration nutzt die App `mail()`, das dort nachweislich nicht
+  zustellt (Leads landen zwar in der SQLite-DB, aber `delivery_status` bleibt
+  dauerhaft `pending`, niemand wird benachrichtigt). Alternativ `N8N_WEBHOOK_URL`
+  setzen, falls die Benachrichtigung stattdessen über n8n laufen soll.
 - serverseitigen Schutz des `storage`-Ordners prüfen
 - Ergebnis-PDF und Datei-/Grundriss-Upload in einer nächsten Ausbaustufe ergänzen

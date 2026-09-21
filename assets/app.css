@@ -88,10 +88,11 @@ a { color: var(--accent-dark); }
 .brand small { margin-top: 2px; color: var(--muted); font-size: 12px; }
 .quiet-button, .text-button { border: 0; background: transparent; color: var(--muted); font-weight: 700; }
 .quiet-button:hover, .text-button:hover { color: var(--accent-dark); }
+.text-button { min-height: 44px; padding: 10px 8px; display: inline-flex; align-items: center; }
 
-.journey { display: flex; gap: 8px; overflow-x: auto; padding: 18px 2px; scrollbar-width: thin; }
+.journey { display: flex; gap: 8px; overflow-x: auto; padding: 18px 2px; scrollbar-width: thin; position: relative; -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent); mask-image: linear-gradient(to right, black calc(100% - 24px), transparent); }
 .journey:empty { display: none; }
-.journey-step { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-full); padding: 9px 14px; white-space: nowrap; color: var(--muted); font-size: 13px; font-weight: 700; transition: .18s ease; }
+.journey-step { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-full); padding: 10px 16px; min-height: 40px; white-space: nowrap; color: var(--muted); font-size: 13px; font-weight: 700; transition: .18s ease; }
 .journey-step.is-current { background: var(--accent); border-color: var(--accent); color: white; }
 .journey-step.is-complete { border-color: var(--accent-light); color: var(--ink); }
 .journey-step.is-complete::before { content: "✓ "; color: var(--accent); }
@@ -111,12 +112,13 @@ h3 { font-size: 22px; }
 p { line-height: 1.65; }
 .intro-copy > p { max-width: 640px; color: var(--muted); font-size: 18px; }
 
-.intro-actions, .result-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 30px; }
+.intro-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 30px; }
 .intro-actions span { color: var(--muted); font-size: 13px; }
 
 .primary-button, .secondary-button {
     border-radius: var(--radius-full);
     padding: 14px 24px;
+    min-height: 48px;
     border: 1px solid var(--accent);
     font-weight: 700;
     font-size: 14px;
@@ -143,9 +145,14 @@ p { line-height: 1.65; }
 .compass span { margin-top: 55px; color: var(--muted); font-size: 12px; font-weight: 700; }
 
 .quiz { display: flex; flex-direction: column; }
-.question-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; font-weight: 700; }
+.question-meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.question-meta #questionCounter { margin-left: auto; }
+.back-arrow { flex-shrink: 0; border: 0; background: transparent; color: var(--muted); padding: 10px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-full); }
+.back-arrow:hover:not(:disabled) { background: var(--panel); color: var(--accent-dark); }
+.back-arrow:disabled { opacity: .35; cursor: default; }
 .question-help { color: var(--muted); max-width: 700px; margin-bottom: 30px; }
 .selection-message { min-height: 1.4em; margin: -20px 0 12px; color: var(--error); font-size: 13px; font-weight: 700; }
+.selection-message.is-confirm { color: var(--accent-dark); }
 
 .answer-grid, .dimension-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 12px 0 34px; }
 .answer-card { min-height: 175px; padding: 22px; border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--paper); color: var(--ink); text-align: left; position: relative; overflow: hidden; transition: .18s ease; }
@@ -195,6 +202,18 @@ p { line-height: 1.65; }
 .planning-row span:first-child { color: var(--muted); }
 .planning-row span:last-child { font-weight: 700; text-align: right; }
 
+.decision-card { margin-top: 32px; padding: 28px; border-radius: var(--radius-xl); background: var(--sand); border: 1px solid var(--accent-light); }
+.decision-card__intro { margin-bottom: 20px; }
+.decision-card__intro h3 { font-size: 22px; }
+.decision-card__intro h3 span { color: var(--accent-dark); }
+.decision-card__paths { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.decision-card__paths.is-single { grid-template-columns: 1fr; }
+.decision-path { padding: 20px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.decision-path[hidden] { display: none; }
+.decision-path h4 { margin: 0; font-size: 17px; font-family: var(--font-family); }
+.decision-path p { margin: 0; color: var(--muted); font-size: 14px; flex: 1; }
+.decision-path .primary-button, .decision-path .secondary-button { align-self: flex-start; }
+
 .contact-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; }
 .contact-layout > div > p { color: var(--muted); }
 .contact-summary { margin-top: 28px; border-left: 3px solid var(--accent-light); padding-left: 18px; }
@@ -234,6 +253,7 @@ input:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-
     .answer-grid, .dimension-grid { grid-template-columns: repeat(2, 1fr); }
     .planning-grid { grid-template-columns: 1fr; }
     .panel { min-height: calc(100vh - 130px); }
+    .decision-card__paths { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 560px) {
@@ -244,7 +264,17 @@ input:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-
     .intro-visual { min-height: 235px; }
     .answer-grid, .dimension-grid { grid-template-columns: 1fr; }
     .answer-card { min-height: 145px; }
-    .quiz-footer { flex-wrap: wrap; }
+    .quiz-footer {
+        flex-wrap: wrap;
+        position: sticky;
+        bottom: 0;
+        background: var(--surface);
+        margin-left: -18px;
+        margin-right: -18px;
+        padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, .08);
+        z-index: 5;
+    }
     .quiz-footer .text-button { order: 3; width: 100%; margin: 4px 0 0; }
     .result-header { grid-template-columns: 1fr; }
     .result-seal { width: 88px; }

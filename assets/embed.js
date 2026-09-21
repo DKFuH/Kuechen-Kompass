@@ -7,7 +7,7 @@
   const containerId = script.dataset.container || 'kuechen-kompass';
   const container = document.getElementById(containerId);
   if (!container) {
-    console.error(`Küchen-Kompass: Container #${containerId} wurde nicht gefunden.`);
+    console.error(`Küchen-Stilfinder: Container #${containerId} wurde nicht gefunden.`);
     return;
   }
 
@@ -17,7 +17,7 @@
 
   const iframe = document.createElement('iframe');
   iframe.src = iframeUrl.href;
-  iframe.title = script.dataset.title || 'Küchen-Kompass – persönlichen Küchenstil finden';
+  iframe.title = script.dataset.title || 'Küchen-Stilfinder – persönlichen Küchenstil finden';
   iframe.loading = script.dataset.loading || 'lazy';
   iframe.style.display = 'block';
   iframe.style.width = '100%';
