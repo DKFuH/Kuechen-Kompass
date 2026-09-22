@@ -15,18 +15,39 @@ function load_environment(string $path): void
         return;
     }
     $loaded = true;
-    $values = parse_ini_file($path, false, INI_SCANNER_RAW);
-    if (!is_array($values)) {
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
         return;
     }
-    foreach ($values as $name => $value) {
-        if (!is_string($name) || !preg_match('/^[A-Z][A-Z0-9_]*$/', $name) || getenv($name) !== false) {
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#' || $line[0] === ';') {
             continue;
         }
-        $value = (string) $value;
+        $separator = strpos($line, '=');
+        if ($separator === false) {
+            continue;
+        }
+        $name = trim(substr($line, 0, $separator));
+        if (!preg_match('/^[A-Z][A-Z0-9_]*$/', $name) || getenv($name) !== false) {
+            continue;
+        }
+        $value = parse_env_value(trim(substr($line, $separator + 1)));
         putenv($name . '=' . $value);
         $_ENV[$name] = $value;
     }
+}
+
+function parse_env_value(string $value): string
+{
+    $length = strlen($value);
+    if ($length >= 2 && $value[0] === '"' && $value[$length - 1] === '"') {
+        return str_replace(['\\"', '\\\\', '\\n'], ['"', '\\', "\n"], substr($value, 1, -1));
+    }
+    if ($length >= 2 && $value[0] === "'" && $value[$length - 1] === "'") {
+        return substr($value, 1, -1);
+    }
+    return $value;
 }
 
 function database(): PDO
