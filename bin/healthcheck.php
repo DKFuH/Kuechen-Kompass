@@ -35,4 +35,17 @@ if ($agedPending > 0) {
     fwrite(STDOUT, "Offene Pending-Leads älter als 15 Minuten: {$agedPending}\n");
 }
 
+$latest = $pdo->query(
+    "SELECT delivery_status, delivery_error, last_attempt_at
+     FROM submissions
+     ORDER BY id DESC
+     LIMIT 1"
+)->fetch();
+if (is_array($latest)) {
+    fwrite(STDOUT, "Letzter Lead: {$latest['delivery_status']}" . ($latest['last_attempt_at'] ? " / Versuch {$latest['last_attempt_at']} UTC" : '') . "\n");
+    if (!empty($latest['delivery_error'])) {
+        fwrite(STDOUT, "Letzter Zustellfehler: {$latest['delivery_error']}\n");
+    }
+}
+
 exit($failed ? 1 : 0);

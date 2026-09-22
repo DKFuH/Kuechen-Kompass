@@ -7,7 +7,8 @@ function attempt_delivery(PDO $pdo, array $config, string $publicId, array $payl
     $stmt->execute(['id' => $publicId]);
     $attempts = (int) ($stmt->fetchColumn() ?: 0) + 1;
 
-    $mailStatus = send_notification($config, $payload);
+    $mailError = null;
+    $mailStatus = send_notification($config, $payload, $mailError);
     $n8n = send_to_n8n($config, $payload);
     $n8nStatus = $n8n['status'];
 
@@ -16,7 +17,7 @@ function attempt_delivery(PDO $pdo, array $config, string $publicId, array $payl
     $errors = [];
 
     if ($mailStatus === false) {
-        $errors[] = 'E-Mail-Benachrichtigung wurde nicht angenommen.';
+        $errors[] = 'E-Mail fehlgeschlagen' . ($mailError ? ': ' . $mailError : '.');
     }
     if ($n8nStatus === false) {
         $errors[] = 'n8n-Webhook fehlgeschlagen' . ($n8n['error'] ? ': ' . $n8n['error'] : '.');
@@ -65,18 +66,22 @@ function attempt_delivery(PDO $pdo, array $config, string $publicId, array $payl
     ];
 }
 
-function send_notification(array $config, array $payload): ?bool
+function send_notification(array $config, array $payload, ?string &$error = null): ?bool
 {
+    $error = null;
     if ($config['mail_to'] === '') {
         return null;
     }
     if (!filter_var($config['mail_to'], FILTER_VALIDATE_EMAIL)) {
+        $error = 'MAIL_TO ist keine gültige E-Mail-Adresse.';
         return false;
     }
     if ($config['smtp_host'] !== '' && !filter_var($config['smtp_from_email'], FILTER_VALIDATE_EMAIL)) {
+        $error = 'SMTP_FROM_EMAIL ist keine gültige E-Mail-Adresse.';
         return false;
     }
     if ($config['smtp_host'] === '' && !filter_var($config['mail_from'], FILTER_VALIDATE_EMAIL)) {
+        $error = 'MAIL_FROM ist keine gültige E-Mail-Adresse.';
         return false;
     }
 
@@ -104,7 +109,7 @@ function send_notification(array $config, array $payload): ?bool
     $body = implode("\n", $lines);
 
     if ($config['smtp_host'] !== '') {
-        return send_via_smtp($config, $contact['email'], $subject, $body);
+        return send_via_smtp($config, $contact['email'], $subject, $body, $error);
     }
 
     $headers = [
@@ -112,11 +117,16 @@ function send_notification(array $config, array $payload): ?bool
         'Reply-To: ' . $contact['email'],
         'Content-Type: text/plain; charset=UTF-8',
     ];
-    return @mail($config['mail_to'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+    $ok = @mail($config['mail_to'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+    if (!$ok) {
+        $error = 'PHP mail() hat die Nachricht nicht angenommen.';
+    }
+    return $ok;
 }
 
-function send_via_smtp(array $config, string $replyTo, string $subject, string $body): bool
+function send_via_smtp(array $config, string $replyTo, string $subject, string $body, ?string &$error = null): bool
 {
+    $error = null;
     require_once __DIR__ . '/lib/phpmailer/Exception.php';
     require_once __DIR__ . '/lib/phpmailer/SMTP.php';
     require_once __DIR__ . '/lib/phpmailer/PHPMailer.php';
@@ -129,7 +139,14 @@ function send_via_smtp(array $config, string $replyTo, string $subject, string $
         $mail->SMTPAuth = true;
         $mail->Username = $config['smtp_username'];
         $mail->Password = $config['smtp_password'];
-        $mail->SMTPSecure = strtolower($config['smtp_encryption']) === 'ssl'
+
+        if ($mail->Username === '' || $mail->Password === '') {
+            throw new RuntimeException('SMTP_USERNAME oder SMTP_PASSWORD ist leer.');
+        }
+
+        $encryption = strtolower(trim((string) $config['smtp_encryption']));
+        $implicitTls = in_array($encryption, ['ssl', 'smtps', 'ssl/tls'], true) || (int) $config['smtp_port'] === 465;
+        $mail->SMTPSecure = $implicitTls
             ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
             : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->CharSet = 'UTF-8';
@@ -144,7 +161,12 @@ function send_via_smtp(array $config, string $replyTo, string $subject, string $
         $mail->Body = $body;
         $mail->send();
         return true;
-    } catch (\Throwable) {
+    } catch (\Throwable $e) {
+        $detail = trim((string) $mail->ErrorInfo);
+        if ($detail === '') {
+            $detail = trim($e->getMessage());
+        }
+        $error = mb_substr($detail !== '' ? $detail : get_class($e), 0, 500);
         return false;
     }
 }

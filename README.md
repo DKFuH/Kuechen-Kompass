@@ -107,3 +107,28 @@ Die `frame-ancestors`-Richtlinie erlaubt die Einbettung auf `kuechen-klas.de`, `
 ## Wichtiger Hinweis zum Deployment
 
 Das ausgelieferte v1.1-ZIP enthält absichtlich **keine** bestehende SQLite-Datenbank und kein `.git`-Verzeichnis. Beim Update einer laufenden Installation die vorhandene `storage/kuechen-kompass.sqlite` beibehalten und nur den Code ersetzen. `database()` ergänzt die neuen Spalten automatisch.
+
+## Mail-Diagnose (v1.1.1)
+
+Wenn ein Lead als `pending` gespeichert wird, zeigt `delivery_error` jetzt den konkreten PHPMailer-/SMTP-Fehler statt nur eines generischen Fehlers.
+
+Auf dem Server kann der Versand ohne neuen Lead getestet werden:
+
+```bash
+php bin/test-mail.php
+```
+
+Für ALL-INKL ist typischerweise folgende SMTP-Konfiguration passend:
+
+```dotenv
+MAIL_TO=kontakt@kuechen-klas.de
+SMTP_HOST=<KAS-Login>.kasserver.com
+SMTP_PORT=465
+SMTP_USERNAME=<E-Mail-Adresse des Postfachs>
+SMTP_PASSWORD=<Postfach-Passwort>
+SMTP_ENCRYPTION=ssl
+SMTP_FROM_EMAIL=<dieselbe E-Mail-Adresse wie SMTP_USERNAME>
+SMTP_FROM_NAME="Klas Küchen Küchen-Kompass"
+```
+
+`bin/healthcheck.php` zeigt zusätzlich den Zustellstatus und den letzten gespeicherten Zustellfehler an.
