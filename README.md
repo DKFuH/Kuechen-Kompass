@@ -90,6 +90,13 @@ window.dispatchEvent(new CustomEvent('kuechen-kompass:set-context', {
 
 Die ID wird serverseitig validiert und im Lead-Datensatz sowie im n8n-Payload gespeichert. Erlaubt sind 8–128 Zeichen aus Buchstaben, Zahlen sowie `. _ : -`.
 
+Beim Einbetten übernimmt `embed.js` zusätzlich vorhandene `utm_*`-Parameter
+der Elternseite und reicht sie als Kampagnenkontext an einen späteren Lead
+weiter. Interaktionen werden ohne eigene Tracker als
+`kuechen-kompass:event` an die Elternseite gemeldet. Erst die Elternseite
+entscheidet anhand ihrer Einwilligungslogik, ob daraus Analyse- oder
+Werbeereignisse entstehen.
+
 ## Einbetten ohne Attribution
 
 ```html

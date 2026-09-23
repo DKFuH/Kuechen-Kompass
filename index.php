@@ -52,7 +52,7 @@ $assetVersion = static function (string $path): string {
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
                     <li>Zwischenergebnis ohne Kontaktdaten</li>
-                    <li>Keine Analyse- oder Marketingdienste</li>
+                    <li><?= $embedMode ? 'Optionale Analyse nur mit Ihrer Einwilligung' : 'Keine Analyse- oder Marketingdienste' ?></li>
                 </ul>
             </div>
             <div class="intro-visual" aria-hidden="true">

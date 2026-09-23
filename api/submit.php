@@ -75,6 +75,7 @@ $project = [
     'completion' => (int) round($answeredCount / max(1, count($countedQuestionIds)) * 100),
     'skipped' => normalize_skipped($input['skipped'] ?? [], $answers),
     'source' => clean_text($input['source'] ?? 'kuechen-kompass', 80),
+    'campaign' => normalize_campaign($input['campaign'] ?? []),
     'visitor_id' => $visitorId,
 ];
 
@@ -207,6 +208,21 @@ function normalize_visitor_id(mixed $value): string
 {
     $value = trim((string) $value);
     return preg_match('/^[A-Za-z0-9._:-]{8,128}$/', $value) ? $value : '';
+}
+
+function normalize_campaign(mixed $value): array
+{
+    if (!is_array($value)) {
+        return [];
+    }
+    $campaign = [];
+    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'] as $key) {
+        $entry = clean_text($value[$key] ?? '', 80);
+        if ($entry !== '') {
+            $campaign[$key] = $entry;
+        }
+    }
+    return $campaign;
 }
 
 function calculate_result(array $answers): array

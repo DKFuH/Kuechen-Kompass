@@ -285,6 +285,21 @@ input:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-
     .form-row { grid-template-columns: 1fr; }
     .site-footer { flex-direction: column; }
     .footer-links { justify-content: flex-start; }
+
+    /* Eingebettet ist der Stilfinder selbst der Hero. Das Bild darf den
+       Startknopf auf kleinen Meta-/Social-Viewports nicht verdrängen. */
+    .embed-mode .intro-visual { display: none; }
+    .embed-mode .intro { display: block; }
+    .embed-mode .intro h1 { font-size: clamp(36px, 11vw, 46px); }
+    .embed-mode .intro-copy > p { margin: 16px 0 0; font-size: 16px; }
+    .embed-mode .intro-actions { margin-top: 22px; }
+    .embed-mode .trust-list { gap: 8px 16px; margin-top: 22px; }
+    .embed-mode .quiz-footer { flex-wrap: nowrap; }
+    .embed-mode .quiz-footer .text-button {
+        order: initial;
+        width: auto;
+        margin: 0 0 0 auto;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

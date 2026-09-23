@@ -257,7 +257,9 @@
     skipped: [],
     submitted: false,
     deliveryPending: false,
-    visitorId: ''
+    visitorId: '',
+    source: 'kuechen-kompass',
+    campaign: {}
   };
 
   const views = [...document.querySelectorAll('[data-view]')];
@@ -266,6 +268,7 @@
   const nextButton = document.getElementById('nextButton');
   const selectionMessage = document.getElementById('selectionMessage');
   let autoAdvanceTimer = null;
+  const reportedEmbedEvents = new Set();
 
   bind();
   bindEmbedContext();
@@ -274,6 +277,7 @@
   showView(state.started ? (state.submitted ? 'success' : 'quiz') : 'intro');
   if (state.submitted) renderSuccess(state.deliveryPending);
   if (state.started && !state.submitted) renderQuestion();
+  reportEmbedEvent('view');
 
   function bind() {
     document.getElementById('startButton').addEventListener('click', start);
@@ -294,7 +298,38 @@
       if (event.data?.type !== 'kuechen-kompass:context') return;
       const visitorId = String(event.data.visitor_id || '').trim();
       if (/^[A-Za-z0-9._:-]{8,128}$/.test(visitorId)) state.visitorId = visitorId;
+      const source = String(event.data.source || '').trim();
+      if (/^[A-Za-z0-9._:-]{1,80}$/.test(source)) state.source = source;
+      state.campaign = normalizeCampaign(event.data.campaign);
     });
+  }
+
+  function normalizeCampaign(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    const allowed = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'];
+    return Object.fromEntries(allowed.flatMap(key => {
+      const entry = String(value[key] || '').normalize('NFC').trim();
+      if (entry === '' || entry.length > 80 || /[\r\n\0]/.test(entry)) return [];
+      return [[key, entry]];
+    }));
+  }
+
+  function reportEmbedEvent(name, properties = {}) {
+    if (!document.body.classList.contains('embed-mode') || window.parent === window) return;
+    if (reportedEmbedEvents.has(name)) return;
+    let parentOrigin = '';
+    try {
+      parentOrigin = document.referrer ? new URL(document.referrer).origin : '';
+    } catch (_) {
+      return;
+    }
+    if (!isAllowedParentOrigin(parentOrigin)) return;
+    reportedEmbedEvents.add(name);
+    window.parent.postMessage({
+      type: 'kuechen-kompass:event',
+      name,
+      properties
+    }, parentOrigin);
   }
 
   function isAllowedParentOrigin(origin) {
@@ -331,6 +366,7 @@
     state.started = true;
     state.current = 0;
     save();
+    reportEmbedEvent('start');
     showView('quiz');
     renderQuestion();
   }
@@ -535,6 +571,7 @@
     const firstPlanning = questions.findIndex(q => q.section === 'space');
     state.current = firstPlanning;
     save();
+    reportEmbedEvent('project_questions_start');
     renderQuestion();
   }
 
@@ -559,6 +596,7 @@
     renderPlanningSummary();
     renderJourney('result');
     showView('result');
+    reportEmbedEvent('style_result', { result: result.primary });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1147,6 +1185,7 @@
     document.getElementById('contactSummary').innerHTML = `<strong>${escapeHtml(result.title)}</strong><p>${completion()} % der Planungsfragen sind bereits beantwortet.</p>`;
     renderJourney('result');
     showView('contact');
+    reportEmbedEvent('contact_open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1170,7 +1209,8 @@
       skipped: state.skipped,
       result,
       completion: completion(),
-      source: 'kuechen-kompass',
+      source: state.source,
+      campaign: state.campaign,
       visitor_id: state.visitorId
     };
     try {
@@ -1189,6 +1229,7 @@
       renderJourney('result');
       renderSuccess(state.deliveryPending);
       showView('success');
+      reportEmbedEvent('lead', { result: result.primary });
     } catch (e) {
       error.textContent = e.message || 'Bitte versuchen Sie es später erneut.';
     } finally {
