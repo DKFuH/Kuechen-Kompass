@@ -24,6 +24,23 @@ $check(str_contains($css, '.embed-mode .intro-visual { display: none; }'), 'Mobi
 $index = (string) file_get_contents($root . '/index.php');
 $check(str_contains($index, 'Optionale Analyse nur mit Ihrer Einwilligung'), 'Embedded privacy copy does not match parent-side tracking.');
 
+$shapeAssets = [
+    'single_row' => 'shape-single-row.webp',
+    'double_row' => 'shape-double-row.webp',
+    'u_shape' => 'shape-u-form.webp',
+    'l_shape' => 'shape-l-form.webp',
+    'island' => 'shape-island.webp',
+    'unknown' => 'shape-unknown.webp',
+];
+foreach ($shapeAssets as $option => $filename) {
+    $relativePath = 'assets/images/' . $filename;
+    $check(is_file($root . '/' . $relativePath), 'Missing kitchen-shape image: ' . $relativePath);
+    $check(
+        str_contains($app, $option . ": '" . $relativePath . "'"),
+        'Kitchen-shape option is not mapped to its image: ' . $option
+    );
+}
+
 if ($failures !== []) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);

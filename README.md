@@ -9,7 +9,7 @@ Eigenständiger Stilfinder und Planungsvorbereitung für Klas Küchen. Die App l
 - Nahe Stilwerte werden als Mischprofil ausgegeben, z. B. „Warm Minimal mit Soft-Japandi-Anteil“.
 - Ergebnis um konkrete Gestaltungsprinzipien und einen „Darauf achten“-Hinweis erweitert.
 - Prozentwerte ausdrücklich als Stilanteile/Orientierung ausgewiesen, nicht als wissenschaftliche Messung.
-- Fehlende Bilder für U-Form, L-Form, Insel und „noch offen“ durch lokale SVG-Fallbacks ersetzt; keine 404-Abhängigkeit mehr.
+- Alle sechs Küchenformen besitzen eigene WebP-Motive; lokale SVG-Grafiken bleiben als ausfallsichere Fallbacks erhalten.
 - Budgetauswahl bewusst ohne Küchenfotos, damit Bildgeschmack die Budgetantwort nicht verfälscht.
 - „Besondere Wünsche“ ist wirklich optional und blockiert kein abgeschlossen bearbeitetes Planungsprofil mehr.
 - Teilweise eingegebene Raummaße werden als vorhandene Planungsinformation anerkannt.

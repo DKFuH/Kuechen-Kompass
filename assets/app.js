@@ -1052,8 +1052,10 @@
       kitchen_shape: {
         single_row: 'assets/images/shape-single-row.webp',
         double_row: 'assets/images/shape-double-row.webp',
-        // U-, L-Form, Insel und 'noch offen' werden bewusst als lokale SVG-Grafiken erzeugt.
-        // So gibt es keine 404-Abhängigkeit von nicht vorhandenen Bilddateien.
+        u_shape: 'assets/images/shape-u-form.webp',
+        l_shape: 'assets/images/shape-l-form.webp',
+        island: 'assets/images/shape-island.webp',
+        unknown: 'assets/images/shape-unknown.webp'
       },
       household: {
         solo: 'assets/images/household-solo.webp',
