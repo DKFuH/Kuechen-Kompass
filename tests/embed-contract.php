@@ -18,6 +18,7 @@ $check(str_contains($app, "reportEmbedEvent('start'"), 'Start event is missing.'
 $check(str_contains($app, "reportEmbedEvent('style_result'"), 'Style result event is missing.');
 $check(str_contains($app, "reportEmbedEvent('project_questions_start'"), 'Planning start event is missing.');
 $check(str_contains($app, "reportEmbedEvent('lead'"), 'Successful lead event is missing.');
+$check(str_contains($app, 'event_id: body.submission_id'), 'Successful lead does not expose the stable submission ID to the parent tracking bridge.');
 $check(str_contains($app, 'campaign: state.campaign'), 'Campaign context is not included in the lead payload.');
 $check(str_contains($submit, "'campaign' => normalize_campaign"), 'Server does not normalize campaign context.');
 $check(str_contains($css, '.embed-mode .intro-visual { display: none; }'), 'Mobile embed does not prioritize the start action.');

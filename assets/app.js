@@ -1231,7 +1231,7 @@
       renderJourney('result');
       renderSuccess(state.deliveryPending);
       showView('success');
-      reportEmbedEvent('lead', { result: result.primary });
+      reportEmbedEvent('lead', { result: result.primary, event_id: body.submission_id });
     } catch (e) {
       error.textContent = e.message || 'Bitte versuchen Sie es später erneut.';
     } finally {
