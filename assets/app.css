@@ -292,8 +292,23 @@ input:focus { outline: 3px solid var(--accent-glow); border-color: var(--accent-
     .embed-mode .intro-visual { display: none; }
     .embed-mode .intro { display: block; }
     .embed-mode .intro h1 { font-size: clamp(36px, 11vw, 46px); }
-    .embed-mode .intro-copy > p { margin: 16px 0 0; font-size: 16px; }
-    .embed-mode .intro-actions { margin-top: 22px; }
+    .embed-mode .intro-copy > p { margin: 12px 0 0; font-size: 16px; }
+    .embed-mode .intro-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-top: 22px;
+    }
+    .embed-mode .intro-actions .primary-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 56px;
+        font-size: 15.5px;
+        box-shadow: var(--shadow-md);
+    }
+    .embed-mode .intro-actions span { text-align: center; }
     .embed-mode .trust-list { gap: 8px 16px; margin-top: 22px; }
     .embed-mode .quiz-footer { flex-wrap: nowrap; }
     .embed-mode .quiz-footer .text-button {
