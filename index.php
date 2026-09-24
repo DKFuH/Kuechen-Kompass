@@ -56,8 +56,9 @@ $assetVersion = static function (string $path): string {
                 </ul>
             </div>
             <div class="intro-visual" aria-hidden="true">
-                <img src="assets/images/hero-kitchen.webp" alt="" width="900" height="1125" fetchpriority="high">
+                <img src="assets/images/hero-kitchen.webp?v=<?= $assetVersion('assets/images/hero-kitchen.webp') ?>" alt="" width="1000" height="1000" fetchpriority="high">
                 <div class="compass"><span>Ihr Stil</span></div>
+                <span class="intro-visual-badge">KI-generierte Visualisierung</span>
             </div>
         </section>
 

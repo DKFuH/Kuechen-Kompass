@@ -143,6 +143,7 @@ p { line-height: 1.65; }
 .compass { position: absolute; width: 144px; height: 144px; border-radius: var(--radius-full); background: rgba(255,255,255,.94); left: 35%; top: 36%; display: grid; place-items: center; box-shadow: var(--shadow-lg); }
 .compass::before { content: ""; position: absolute; width: 3px; height: 52px; background: var(--accent); transform-origin: bottom center; transform: translateY(-25px) rotate(35deg); border-radius: 4px; }
 .compass span { margin-top: 55px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.intro-visual-badge { position: absolute; right: 12px; bottom: 12px; padding: 5px 10px; border-radius: 8px; background: rgba(31,27,23,.72); color: #fff; font-size: 11px; line-height: 1.2; }
 
 .quiz { display: flex; flex-direction: column; }
 .question-meta { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; font-weight: 700; }
