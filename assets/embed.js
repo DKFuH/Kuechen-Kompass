@@ -15,6 +15,9 @@
   const iframeUrl = new URL(script.dataset.url || defaultUrl.href, window.location.href);
   iframeUrl.searchParams.set('embed', '1');
 
+  const reducedMotion = typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const iframe = document.createElement('iframe');
   iframe.src = iframeUrl.href;
   iframe.title = script.dataset.title || 'Küchen-Kompass – Stil und Planungsprofil erstellen';
@@ -24,6 +27,10 @@
   iframe.style.minHeight = script.dataset.minHeight || '720px';
   iframe.style.border = '0';
   iframe.style.background = 'transparent';
+  // Jeder Fragen-/Ergebnisschritt hat eine andere Höhe; ohne diesen Übergang
+  // springt die Elternseite bei jedem kuechen-kompass:resize hart statt
+  // weich mitzuwachsen.
+  iframe.style.transition = reducedMotion ? 'none' : 'height 0.25s ease';
   iframe.setAttribute('allow', 'clipboard-write');
 
   container.replaceChildren(iframe);
