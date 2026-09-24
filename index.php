@@ -147,12 +147,12 @@ $assetVersion = static function (string $path): string {
                 <form id="leadForm" novalidate>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>">
                     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
-                    <label>Ihr Name <input name="name" required autocomplete="name"></label>
-                    <label>E-Mail-Adresse <span>für die Zuordnung Ihres Küchenprofils</span><input name="email" type="email" required autocomplete="email"></label>
-                    <label>Telefon <span>optional</span><input name="phone" type="tel" autocomplete="tel"></label>
+                    <label>Ihr Name <input name="name" required autocomplete="name" data-matomo-mask></label>
+                    <label>E-Mail-Adresse <span>für die Zuordnung Ihres Küchenprofils</span><input name="email" type="email" required autocomplete="email" data-matomo-mask></label>
+                    <label>Telefon <span>optional</span><input name="phone" type="tel" autocomplete="tel" data-matomo-mask></label>
                     <div class="form-row">
-                        <label>Postleitzahl <span>optional</span><input name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="10"></label>
-                        <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120"></label>
+                        <label>Postleitzahl <span>optional</span><input name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="10" data-matomo-mask></label>
+                        <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
                     </div>
                     <label class="check-label"><input name="callback" type="checkbox" checked> Ich wünsche eine persönliche Rückmeldung von Daniel Klas zu meinem Küchenprofil.</label>
                     <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meines Küchenprofils zu.</span></label>
