@@ -10,6 +10,7 @@ Eigenständiger Stilfinder und Planungsvorbereitung für Klas Küchen. Die App l
 - Ergebnis um konkrete Gestaltungsprinzipien und einen „Darauf achten“-Hinweis erweitert.
 - Prozentwerte ausdrücklich als Stilanteile/Orientierung ausgewiesen, nicht als wissenschaftliche Messung.
 - Alle sechs Küchenformen besitzen eigene WebP-Motive; lokale SVG-Grafiken bleiben als ausfallsichere Fallbacks erhalten.
+- Kurzzeitig fehlgeschlagene Bildabrufe werden automatisch wiederholt; Karten behalten währenddessen ihre Farbersatzfläche.
 - Budgetauswahl bewusst ohne Küchenfotos, damit Bildgeschmack die Budgetantwort nicht verfälscht.
 - „Besondere Wünsche“ ist wirklich optional und blockiert kein abgeschlossen bearbeitetes Planungsprofil mehr.
 - Teilweise eingegebene Raummaße werden als vorhandene Planungsinformation anerkannt.
@@ -96,6 +97,34 @@ weiter. Interaktionen werden ohne eigene Tracker als
 `kuechen-kompass:event` an die Elternseite gemeldet. Erst die Elternseite
 entscheidet anhand ihrer Einwilligungslogik, ob daraus Analyse- oder
 Werbeereignisse entstehen.
+
+## Consent-gesteuerte Heatmap im Embed
+
+Für eine Matomo-Heatmap innerhalb des Iframes kann die Elternseite ein fest
+allowlistetes Profil angeben:
+
+```html
+<script
+  src="https://stilfinder.kuechen-klas.de/assets/embed.js"
+  data-container="kuechen-kompass"
+  data-analytics-profile="stilfinder"
+  defer
+></script>
+```
+
+Der Slug wird im Kompass intern auf die Matomo Site-ID aufgelöst. Freie
+Site-IDs, Container-IDs oder Tracking-URLs werden nicht aus URL-Parametern
+oder der Elternseite übernommen. Erst das Ereignis `klas:consent-applied`
+mit dem freigegebenen Provider `matomo` lädt den direkten, cookieless
+Matomo-Tracker im Iframe. Der Hauptcontainer wird dort nicht geladen, damit
+Meta- und Google-Tags nicht doppelt auslösen. Ohne Einbettung oder ohne
+Matomo-Einwilligung bleibt das Iframe-Tracking aus.
+
+Der Kompass meldet `ready`, `disabled` oder `error` über
+`kuechen-kompass:analytics-status` an die Elternseite zurück. Damit eine
+Aufzeichnung entsteht, muss in Matomo zusätzlich für Site-ID 4 eine Heatmap
+mit der Regel „URL beginnt mit `https://stilfinder.kuechen-klas.de/`“
+veröffentlicht sein. So wird auch die Embed-URL mit `?embed=1` erfasst.
 
 ## Einbetten ohne Attribution
 

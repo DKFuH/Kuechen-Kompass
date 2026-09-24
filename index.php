@@ -52,13 +52,13 @@ $assetVersion = static function (string $path): string {
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
                     <li>Zwischenergebnis ohne Kontaktdaten</li>
-                    <li><?= $embedMode ? 'Optionale Analyse nur mit Ihrer Einwilligung' : 'Keine Analyse- oder Marketingdienste' ?></li>
+                    <?php if (!$embedMode): ?>
+                        <li>Keine Analyse- oder Marketingdienste</li>
+                    <?php endif; ?>
                 </ul>
             </div>
             <div class="intro-visual" aria-hidden="true">
                 <img src="assets/images/hero-kitchen.webp?v=<?= $assetVersion('assets/images/hero-kitchen.webp') ?>" alt="" width="1000" height="1000" fetchpriority="high">
-                <div class="compass"><span>Ihr Stil</span></div>
-                <span class="intro-visual-badge">KI-generierte Visualisierung</span>
             </div>
         </section>
 
@@ -185,6 +185,8 @@ $assetVersion = static function (string $path): string {
         </div>
     </footer>
 </div>
+<script src="assets/image-loader.js?v=<?= $assetVersion('assets/image-loader.js') ?>" defer></script>
+<script src="assets/analytics.js?v=<?= $assetVersion('assets/analytics.js') ?>" defer></script>
 <script src="assets/app.js?v=<?= $assetVersion('assets/app.js') ?>" defer></script>
 </body>
 </html>

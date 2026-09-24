@@ -280,6 +280,7 @@
   reportEmbedEvent('view');
 
   function bind() {
+    window.KuechenKompassImages?.bindElement?.(document.querySelector('.intro-visual img'));
     document.getElementById('startButton').addEventListener('click', start);
     document.getElementById('restartButton').addEventListener('click', restart);
     document.getElementById('backButtonTop').addEventListener('click', back);
@@ -301,6 +302,7 @@
       const source = String(event.data.source || '').trim();
       if (/^[A-Za-z0-9._:-]{1,80}$/.test(source)) state.source = source;
       state.campaign = normalizeCampaign(event.data.campaign);
+      window.KuechenKompassAnalytics?.applyContext?.(event.data.analytics, event.origin);
     });
   }
 
@@ -411,7 +413,16 @@
         button.innerHTML = `<span class="answer-swatch"></span><strong>${escapeHtml(opt.label)}</strong><small>${escapeHtml(opt.description)}</small>`;
         const swatch = button.querySelector('.answer-swatch');
         const image = optionImage(q.id, opt.id);
-        swatch.style.setProperty('--swatch', image ? `url("${image}") center / cover` : opt.swatch);
+        swatch.style.setProperty('--swatch', opt.swatch);
+        if (image && window.KuechenKompassImages) {
+          button.classList.add('has-image');
+          window.KuechenKompassImages.load(image).then(loadedUrl => {
+            if (button.isConnected) swatch.style.setProperty('--swatch', `url("${loadedUrl}") center / cover`);
+          }).catch(() => { /* Keep the question-specific colour fallback visible. */ });
+        } else if (image) {
+          button.classList.add('has-image');
+          swatch.style.setProperty('--swatch', `url("${image}") center / cover`);
+        }
         button.addEventListener('click', () => choose(q, opt.id));
         answersEl.appendChild(button);
       });
@@ -583,7 +594,18 @@
     document.getElementById('profileProgress').textContent = `${completion()}%`;
     document.getElementById('resultInsight').textContent = insight(result);
     const resultImage = document.getElementById('resultImage');
-    resultImage.style.backgroundImage = `url("${new URL(styleCopy[result.primary].image, document.baseURI).href}")`;
+    const resultImageUrl = new URL(styleCopy[result.primary].image, document.baseURI).href;
+    resultImage.dataset.imageUrl = resultImageUrl;
+    resultImage.style.backgroundImage = '';
+    if (window.KuechenKompassImages) {
+      window.KuechenKompassImages.load(resultImageUrl).then(loadedUrl => {
+        if (resultImage.dataset.imageUrl === resultImageUrl) {
+          resultImage.style.backgroundImage = `url("${loadedUrl}")`;
+        }
+      }).catch(() => { /* The result panel keeps its neutral background. */ });
+    } else {
+      resultImage.style.backgroundImage = `url("${resultImageUrl}")`;
+    }
     resultImage.setAttribute('aria-label', `Beispielküche für den Stil ${result.title}`);
     const continueComplete = planningComplete();
     document.getElementById('continuePlanningButton').hidden = continueComplete;

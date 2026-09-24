@@ -38,6 +38,15 @@
   let visitorId = String(script.dataset.visitorId || '').trim();
   const validVisitorId = value => /^[A-Za-z0-9._:-]{8,128}$/.test(value);
   const source = String(script.dataset.source || 'kuechen-kompass-embed').trim();
+  const analyticsProfiles = ['stilfinder'];
+  const requestedAnalyticsProfile = String(script.dataset.analyticsProfile || '').trim();
+  const analyticsProfile = analyticsProfiles.includes(requestedAnalyticsProfile)
+    ? requestedAnalyticsProfile
+    : '';
+  let matomoAllowed = false;
+  try {
+    matomoAllowed = window.CookieConsent?.acceptedService?.('matomo', 'analytics') === true;
+  } catch (_) { /* Consent event will provide the authoritative state. */ }
   const campaignKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'];
   const parentParameters = new URLSearchParams(window.location.search);
   const campaign = Object.fromEntries(campaignKeys.flatMap(key => {
@@ -52,7 +61,11 @@
       type: 'kuechen-kompass:context',
       visitor_id: validVisitorId(visitorId) ? visitorId : '',
       source: /^[A-Za-z0-9._:-]{1,80}$/.test(source) ? source : 'kuechen-kompass-embed',
-      campaign
+      campaign,
+      analytics: {
+        profile: analyticsProfile,
+        matomo_allowed: analyticsProfile !== '' && matomoAllowed
+      }
     }, iframeUrl.origin);
   };
 
@@ -68,12 +81,31 @@
     sendContext();
   });
 
+  // Die Elternseite bleibt die einzige Consent-Quelle. Der Kompass erhält
+  // nur den aktuellen Matomo-Status, niemals die gesamte Consent-Konfiguration.
+  window.addEventListener('klas:consent-applied', event => {
+    const acceptedProviders = Array.isArray(event.detail?.acceptedProviders)
+      ? event.detail.acceptedProviders
+      : [];
+    matomoAllowed = acceptedProviders.includes('matomo');
+    sendContext();
+  });
+
   window.addEventListener('message', event => {
     if (event.source !== iframe.contentWindow || event.origin !== iframeUrl.origin) return;
     if (event.data?.type === 'kuechen-kompass:resize') {
       const height = Number(event.data.height);
       if (!Number.isFinite(height) || height < 200 || height > 10000) return;
       iframe.style.height = `${Math.ceil(height)}px`;
+      return;
+    }
+    if (event.data?.type === 'kuechen-kompass:analytics-status') {
+      const status = String(event.data.status || '');
+      const profile = String(event.data.profile || '');
+      if (!['ready', 'disabled', 'error'].includes(status) || profile !== analyticsProfile) return;
+      window.dispatchEvent(new CustomEvent('kuechen-kompass:analytics-status', {
+        detail: { status, profile }
+      }));
       return;
     }
     if (event.data?.type !== 'kuechen-kompass:event') return;
