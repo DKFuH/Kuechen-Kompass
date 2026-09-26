@@ -33,8 +33,6 @@
   iframe.style.transition = reducedMotion ? 'none' : 'height 0.25s ease';
   iframe.setAttribute('allow', 'clipboard-write');
 
-  container.replaceChildren(iframe);
-
   let visitorId = String(script.dataset.visitorId || '').trim();
   const validVisitorId = value => /^[A-Za-z0-9._:-]{8,128}$/.test(value);
   const source = String(script.dataset.source || 'kuechen-kompass-embed').trim();
@@ -43,6 +41,7 @@
   const analyticsProfile = analyticsProfiles.includes(requestedAnalyticsProfile)
     ? requestedAnalyticsProfile
     : '';
+  let iframeReady = false;
   let matomoAllowed = false;
   try {
     matomoAllowed = window.CookieConsent?.acceptedService?.('matomo', 'analytics') === true;
@@ -56,7 +55,7 @@
   }));
 
   const sendContext = () => {
-    if (!iframe.contentWindow) return;
+    if (!iframeReady || !iframe.contentWindow) return;
     iframe.contentWindow.postMessage({
       type: 'kuechen-kompass:context',
       visitor_id: validVisitorId(visitorId) ? visitorId : '',
@@ -69,7 +68,10 @@
     }, iframeUrl.origin);
   };
 
-  iframe.addEventListener('load', sendContext);
+  iframe.addEventListener('load', () => {
+    iframeReady = true;
+    sendContext();
+  });
 
   // Die Hauptseite kann die opaque visitor_id nach Consent bzw. nach Initialisierung
   // des eigenen Attribution-Trackings nachreichen, ohne dass der Kompass selbst
@@ -115,4 +117,8 @@
       detail: { name, properties: event.data.properties || {} }
     }));
   });
+
+  // Erst einsetzen, wenn alle Listener registriert sind. Consent- und
+  // Attributionsevents koennen bereits waehrend der Iframe-Navigation feuern.
+  container.replaceChildren(iframe);
 })();

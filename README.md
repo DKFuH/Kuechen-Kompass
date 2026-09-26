@@ -112,19 +112,23 @@ allowlistetes Profil angeben:
 ></script>
 ```
 
-Der Slug wird im Kompass intern auf die Matomo Site-ID aufgelöst. Freie
-Site-IDs, Container-IDs oder Tracking-URLs werden nicht aus URL-Parametern
-oder der Elternseite übernommen. Erst das Ereignis `klas:consent-applied`
-mit dem freigegebenen Provider `matomo` lädt den direkten, cookieless
-Matomo-Tracker im Iframe. Der Hauptcontainer wird dort nicht geladen, damit
-Meta- und Google-Tags nicht doppelt auslösen. Ohne Einbettung oder ohne
-Matomo-Einwilligung bleibt das Iframe-Tracking aus.
+Der Slug wird im Kompass intern auf einen fest allowlisteten Matomo-Tag-
+Manager-Container aufgelöst. Freie Site-IDs, Container-IDs oder Tracking-URLs
+werden nicht aus URL-Parametern oder der Elternseite übernommen. Erst das
+Ereignis `klas:consent-applied` mit dem freigegebenen Provider `matomo` lädt
+den Container im Iframe. An dessen Data Layer wird ausschließlich der Provider
+`matomo` gemeldet; Cookie- und Tracker-Einstellungen stammen aus der Matomo-
+Konfiguration des Containers. Ohne Einbettung oder ohne Matomo-Einwilligung
+bleibt das Iframe-Tracking aus.
 
 Der Kompass meldet `ready`, `disabled` oder `error` über
 `kuechen-kompass:analytics-status` an die Elternseite zurück. Damit eine
 Aufzeichnung entsteht, muss in Matomo zusätzlich für Site-ID 4 eine Heatmap
 mit der Regel „URL beginnt mit `https://stilfinder.kuechen-klas.de/`“
 veröffentlicht sein. So wird auch die Embed-URL mit `?embed=1` erfasst.
+Die CSP erlaubt ausschließlich der selbst gehosteten Domain
+`analytics.kuechen-klas.de`, das Matomo-Script zu laden und Tracking-Requests
+zu empfangen.
 
 ## Einbetten ohne Attribution
 

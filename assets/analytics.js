@@ -3,7 +3,7 @@
 
   const profiles = Object.freeze({
     stilfinder: Object.freeze({
-      siteId: '4',
+      containerId: '1ZzpGfcK',
       baseUrl: 'https://analytics.kuechen-klas.de/'
     })
   });
@@ -12,6 +12,7 @@
   let activeParentOrigin = '';
   let scriptState = 'idle';
   let consentGranted = false;
+  let mtmConsentGranted = false;
 
   function isAllowedParentOrigin(origin) {
     try {
@@ -33,9 +34,21 @@
     }, activeParentOrigin);
   }
 
-  function queue(command) {
+  function queueMatomo(command) {
     window._paq = window._paq || [];
     window._paq.push(command);
+  }
+
+  function queueMtm(value) {
+    window._mtm = window._mtm || [];
+    window._mtm.push(value);
+  }
+
+  function publishMtmConsent() {
+    queueMtm({
+      event: 'klas.consent_ready',
+      consent_providers: 'matomo'
+    });
   }
 
   function initialize(profile) {
@@ -44,19 +57,16 @@
 
     scriptState = 'loading';
     activeProfile = profile;
-    queue(['requireConsent']);
-    queue(['disableCookies']);
-    queue(['setTrackerUrl', `${config.baseUrl}matomo.php`]);
-    queue(['setSiteId', config.siteId]);
-    queue(['setConsentGiven']);
-    queue(['HeatmapSessionRecording::enable']);
-    queue(['trackPageView']);
+    mtmConsentGranted = true;
+
+    publishMtmConsent();
+    queueMtm({ 'mtm.startTime': Date.now(), event: 'mtm.Start' });
 
     const tracker = document.createElement('script');
     tracker.async = true;
     tracker.defer = true;
     tracker.referrerPolicy = 'no-referrer';
-    tracker.src = `${config.baseUrl}matomo.js`;
+    tracker.src = `${config.baseUrl}js/container_${encodeURIComponent(config.containerId)}.js`;
     tracker.addEventListener('load', () => {
       scriptState = 'ready';
       reportStatus(consentGranted ? 'ready' : 'disabled');
@@ -78,9 +88,10 @@
     consentGranted = value?.matomo_allowed === true;
 
     if (!consentGranted) {
-      if (scriptState === 'ready' || scriptState === 'loading') {
-        queue(['HeatmapSessionRecording::disable']);
-        queue(['forgetConsentGiven']);
+      if ((scriptState === 'ready' || scriptState === 'loading') && mtmConsentGranted) {
+        queueMatomo(['HeatmapSessionRecording::disable']);
+        queueMatomo(['forgetConsentGiven']);
+        mtmConsentGranted = false;
       }
       reportStatus('disabled');
       return;
@@ -95,8 +106,12 @@
       return;
     }
 
-    queue(['setConsentGiven']);
-    queue(['HeatmapSessionRecording::enable']);
+    if (!mtmConsentGranted) {
+      queueMatomo(['setConsentGiven']);
+      queueMatomo(['HeatmapSessionRecording::enable']);
+      publishMtmConsent();
+      mtmConsentGranted = true;
+    }
     if (scriptState === 'ready') reportStatus('ready');
   }
 
