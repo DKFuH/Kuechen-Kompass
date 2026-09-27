@@ -35,7 +35,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 </ul>
             </div>
             <div class="intro-visual" aria-hidden="true">
-                <img src="<?= htmlspecialchars($stilfinderAssetBase . 'assets/images/hero-kitchen.webp', ENT_QUOTES, 'UTF-8') ?>" alt="" width="1000" height="1000" fetchpriority="high">
+                <img src="<?= htmlspecialchars($stilfinderAssetBase . 'assets/images/hero-kitchen.webp', ENT_QUOTES, 'UTF-8') ?>" alt="Helle, ruhig geplante Küche als Einstieg in den Küchen-Stilfinder" width="1000" height="1000" fetchpriority="high">
             </div>
         </section>
 
@@ -47,7 +47,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <span id="sectionLabel" class="eyebrow"></span>
                 <span id="questionCounter"></span>
             </div>
-            <h2 id="questionTitle" tabindex="-1"></h2>
+            <h2 id="questionTitle" tabindex="-1">Ihre Fragen zum Küchenstil</h2>
             <span id="multipleHint" class="multiple-hint hidden">Mehrfachauswahl möglich</span>
             <p id="questionHelp" class="question-help"></p>
             <p id="selectionMessage" class="selection-message" role="status" aria-live="polite"></p>
@@ -78,7 +78,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <div class="result-header">
                     <div>
                         <span class="eyebrow">Ihre persönliche Stilwelt</span>
-                        <h2 id="resultTitle"></h2>
+                        <h2 id="resultTitle">Ihr Stilprofil</h2>
                         <p id="resultDescription"></p>
                     </div>
                     <div class="result-seal"><strong id="profileProgress">0%</strong><span>Profil</span></div>
