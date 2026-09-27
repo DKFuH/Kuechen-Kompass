@@ -16,7 +16,8 @@
       source: String(config.source || 'kuechen-kompass'),
       campaign: config.campaign && typeof config.campaign === 'object' ? config.campaign : null,
       visitorId: String(config.visitorId || ''),
-      initialState: config.initialState && typeof config.initialState === 'object' ? config.initialState : null
+      initialState: config.initialState && typeof config.initialState === 'object' ? config.initialState : null,
+      styleLinks: normalizeStyleLinks(config.styleLinks)
     });
     const byId = id => appRoot.querySelector(`#${id}`);
 
@@ -342,6 +343,18 @@
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
+  }
+
+  /* Links come from the embedding page; only same-site paths are accepted. */
+  function normalizeStyleLinks(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).map(([styleId, links]) => [
+      styleId,
+      (Array.isArray(links) ? links : []).filter(link => link
+        && typeof link.href === 'string' && /^\/(?!\/)[A-Za-z0-9._~\/-]*$/.test(link.href)
+        && typeof link.label === 'string' && link.label.trim() !== ''
+      ).slice(0, 4).map(link => ({ href: link.href, label: link.label.trim().slice(0, 120) }))
+    ]));
   }
 
   function normalizeCampaign(value) {
@@ -1232,6 +1245,16 @@
     const watchout = byId('resultWatchout');
     if (list) list.innerHTML = profile.principles.map(item => `<li>${escapeHtml(item)}</li>`).join('');
     if (watchout) watchout.textContent = profile.watchout;
+    renderStyleLinks(result);
+  }
+
+  function renderStyleLinks(result) {
+    const section = byId('resultReading');
+    const list = byId('resultReadingList');
+    if (!section || !list) return;
+    const links = settings.styleLinks[result.primary] || [];
+    list.innerHTML = links.map(link => `<li><a href="${escapeHtml(link.href)}" target="_blank" rel="noopener" data-track="stilfinder_style_link" data-style="${escapeHtml(result.primary)}">${escapeHtml(link.label)}</a></li>`).join('');
+    section.classList.toggle('hidden', links.length === 0);
   }
 
   function renderMoodboard() {

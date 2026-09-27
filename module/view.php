@@ -96,6 +96,12 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         <p id="resultWatchout"></p>
                     </aside>
                 </section>
+                <section class="result-reading hidden" id="resultReading" aria-labelledby="resultReadingTitle">
+                    <span class="eyebrow">Mehr zu Ihrer Stilwelt</span>
+                    <h3 id="resultReadingTitle">Weiterlesen und vergleichen</h3>
+                    <ul id="resultReadingList"></ul>
+                    <p class="result-reading__note">Die Seiten öffnen sich in einem neuen Tab – Ihr Profil bleibt hier erhalten.</p>
+                </section>
                 <div class="result-layout">
                     <div>
                         <h3>Ihre Material- und Farbwelt</h3>
