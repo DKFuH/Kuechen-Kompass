@@ -17,7 +17,8 @@
       campaign: config.campaign && typeof config.campaign === 'object' ? config.campaign : null,
       visitorId: String(config.visitorId || ''),
       initialState: config.initialState && typeof config.initialState === 'object' ? config.initialState : null,
-      styleLinks: normalizeStyleLinks(config.styleLinks)
+      styleLinks: normalizeStyleLinks(config.styleLinks),
+      appointmentUrl: normalizeSitePath(config.appointmentUrl)
     });
     const byId = id => appRoot.querySelector(`#${id}`);
 
@@ -282,7 +283,8 @@
     campaign: {},
     resultUnlocked: false,
     pendingResult: null,
-    gateEmail: ''
+    gateEmail: '',
+    serviceArea: ''
   };
 
   state.visitorId = /^[A-Za-z0-9._:-]{8,128}$/.test(String(settings.visitorId || '')) ? String(settings.visitorId) : '';
@@ -343,6 +345,13 @@
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
+    byId('intentYesButton').addEventListener('click', intentYes);
+    byId('intentNoButton').addEventListener('click', intentNo);
+  }
+
+  function normalizeSitePath(value) {
+    const path = typeof value === 'string' ? value.trim() : '';
+    return /^\/(?!\/)[A-Za-z0-9._~\/-]*$/.test(path) ? path : '';
   }
 
   /* Links come from the embedding page; only same-site paths are accepted. */
@@ -404,7 +413,7 @@
   function restart() {
     if (!confirm('Möchten Sie alle bisherigen Antworten löschen und neu beginnen?')) return;
     cancelAutoAdvance();
-    Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false, resultUnlocked: false, pendingResult: null, gateEmail: '' });
+    Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false, resultUnlocked: false, pendingResult: null, gateEmail: '', serviceArea: '' });
     renderJourney();
     showView('intro');
   }
@@ -627,11 +636,13 @@
       revealResult(result);
     } else {
       reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate' }, 'step_result_gate');
-      showResultGate();
+      showResultGate(result);
     }
   }
 
-  function showResultGate() {
+  /* Only the style name is visible before the e-mail; everything else stays locked. */
+  function showResultGate(result) {
+    byId('resultGateTitle').textContent = result.title;
     byId('resultContent').classList.add('hidden');
     byId('resultGate').classList.remove('hidden');
     byId('resultGateError').textContent = '';
@@ -658,15 +669,66 @@
       resultImage.style.backgroundImage = `url("${resultImageUrl}")`;
     }
     resultImage.setAttribute('aria-label', `Beispielküche für den Stil ${result.title}`);
-    const continueComplete = planningComplete();
-    byId('continuePlanningButton').hidden = continueComplete;
-    byId('decisionPathContinue').hidden = continueComplete;
     byId('decisionProgress').textContent = `${completion()}%`;
-    appRoot.querySelector('.decision-card__paths').classList.toggle('is-single', continueComplete);
+    renderDecision();
     renderBars(result);
     renderStyleGuidance(result);
     renderMoodboard();
     renderPlanningSummary();
+  }
+
+  /* Once all project sections are addressed, the card turns into the intent question. */
+  function renderDecision() {
+    const complete = planningComplete();
+    byId('decisionPaths').classList.toggle('hidden', complete);
+    byId('intentCard').classList.toggle('hidden', !complete);
+    if (!complete) return;
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_gate' }, 'step_intent_gate');
+    const card = byId('decisionCard');
+    window.setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.focus({ preventScroll: true });
+    }, 60);
+  }
+
+  function intentYes() {
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_yes' }, 'step_intent_yes');
+    openContact();
+  }
+
+  /* Stores the completed project answers on the existing progress record; the server sends no second e-mail. */
+  async function intentNo() {
+    const button = byId('intentNoButton');
+    const message = byId('intentNoMessage');
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_no' }, 'step_intent_no');
+    button.disabled = true;
+    const result = state.pendingResult || calculateResult();
+    let saved = false;
+    try {
+      const response = await fetch(settings.progressSaveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          csrf_token: byId('resultGateForm').elements.csrf_token.value,
+          update_only: true,
+          current_step: questions[questions.length - 1].id,
+          answers: state.answers,
+          details: state.details,
+          skipped: state.skipped,
+          result_primary: result.primary
+        })
+      });
+      const body = await response.json().catch(() => ({ ok: false }));
+      saved = response.ok && body.ok === true;
+    } catch (e) {
+      saved = false;
+    }
+    if (saved) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_no_saved' }, 'step_intent_no_saved');
+    message.textContent = saved
+      ? 'Ihr Profil ist gespeichert. Den Link zum Weitermachen haben Sie per E-Mail erhalten. Wenn Sie später doch eine Einschätzung möchten, genügt ein Klick auf „Ja“.'
+      : 'Ihr Profil bleibt auf dieser Seite sichtbar. Über den Link aus Ihrer E-Mail können Sie jederzeit weitermachen.';
+    button.disabled = false;
   }
 
   async function submitResultGate(event) {
@@ -1359,11 +1421,12 @@
       if (!response.ok || !body.ok) throw new Error(body.message || 'Übermittlung fehlgeschlagen.');
       state.submitted = true;
       state.deliveryPending = body.delivery_pending === true;
+      state.serviceArea = ['core', 'outside'].includes(body.service_area) ? body.service_area : '';
       save();
       renderJourney('result');
       renderSuccess(state.deliveryPending);
       showView('success');
-      reportEmbedEvent('lead', { result: result.primary, event_id: body.submission_id });
+      reportEmbedEvent('lead', { result: result.primary, event_id: body.submission_id, service_area: state.serviceArea });
     } catch (e) {
       error.textContent = e.message || 'Bitte versuchen Sie es später erneut.';
     } finally {
@@ -1376,6 +1439,8 @@
     const eyebrow = byId('successEyebrow');
     const title = byId('successTitle');
     const message = byId('successMessage');
+    const appointment = byId('successAppointment');
+    appointment.classList.add('hidden');
     if (deliveryPending) {
       eyebrow.textContent = 'Sicher gespeichert';
       title.textContent = 'Ihr Küchenprofil ist gespeichert.';
@@ -1383,6 +1448,20 @@
       return;
     }
     eyebrow.textContent = 'Sicher übermittelt';
+    if (state.serviceArea === 'core') {
+      title.textContent = 'Das passt zu unserem Planungsgebiet.';
+      message.textContent = 'Ihr Küchenprofil ist angekommen. Wir melden uns für eine erste Einordnung Ihres Projekts – oder Sie wählen direkt einen Termin.';
+      if (settings.appointmentUrl) {
+        appointment.href = settings.appointmentUrl;
+        appointment.classList.remove('hidden');
+      }
+      return;
+    }
+    if (state.serviceArea === 'outside') {
+      title.textContent = 'Ihr Küchenprofil ist angekommen.';
+      message.textContent = 'Ihr Stilprofil können Sie selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an. Wir melden uns und besprechen, was in Ihrem Fall möglich ist.';
+      return;
+    }
     title.textContent = 'Ihr Küchenprofil ist angekommen.';
     message.textContent = 'Sie können Ihr Ergebnis weiterhin ansehen oder Ihre Antworten noch einmal durchgehen.';
   }
