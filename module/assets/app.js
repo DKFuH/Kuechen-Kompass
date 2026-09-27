@@ -626,6 +626,7 @@
     if (state.resultUnlocked) {
       revealResult(result);
     } else {
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate' }, 'step_result_gate');
       showResultGate();
     }
   }
@@ -684,6 +685,8 @@
     state.resultUnlocked = true;
     state.gateEmail = email;
     revealResult(result);
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_unlocked' }, 'step_result_unlocked');
+    if (marketingConsent) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'mailserie_optin' }, 'step_mailserie_optin');
     submit.disabled = false;
     try {
       const response = await fetch(settings.progressSaveUrl, {
@@ -709,9 +712,12 @@
       const body = await response.json().catch(() => ({ ok: false }));
       if (response.ok && body.ok) {
         reportEmbedEvent('progress_save', { result: result.primary, event_id: body.request_id });
+      } else {
+        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
       }
     } catch (e) {
       /* The result stays unlocked for the visitor regardless of network failure; only the resume e-mail is affected. */
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
     }
   }
 
