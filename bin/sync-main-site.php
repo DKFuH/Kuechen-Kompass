@@ -20,12 +20,14 @@ if ($sourceRoot === false || $targetRoot === false) {
     fwrite(STDERR, "Quell- oder Zielpfad existiert nicht.\n");
     exit(66);
 }
-if (!is_file($targetRoot . '/public/lp/stilfinder/index.php') || !is_dir($targetRoot . '/app')) {
+if (!is_file($targetRoot . '/app/stilfinder/bootstrap.php') || !is_dir($targetRoot . '/public/assets')) {
     fwrite(STDERR, "Das Ziel ist kein erwartetes kuechen-klas.de-2026-Repository.\n");
     exit(65);
 }
 
-$destinationRoot = $targetRoot . '/public/lp/stilfinder/tool';
+// Seitenunabhängiger Ort: das Modul wird auf mehreren Seiten eingebunden
+// (/tools/stilfinder/, /lp/stilfinder/) und darf keine davon voraussetzen.
+$destinationRoot = $targetRoot . '/public/assets/stilfinder';
 $iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator($sourceRoot, FilesystemIterator::SKIP_DOTS)
 );
