@@ -342,6 +342,7 @@
     nextButton.addEventListener('click', next);
     byId('continuePlanningButton').addEventListener('click', continuePlanning);
     byId('openContactButton').addEventListener('click', openContact);
+    byId('gateConsultButton').addEventListener('click', gateConsult);
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
@@ -632,7 +633,7 @@
     showView('result');
     reportEmbedEvent('style_result', { result: result.primary });
     scrollToModule();
-    if (state.resultUnlocked) {
+    if (state.resultUnlocked || state.submitted) {
       revealResult(result);
     } else {
       reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate' }, 'step_result_gate');
@@ -689,6 +690,12 @@
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       card.focus({ preventScroll: true });
     }, 60);
+  }
+
+  /* Exit from the gate straight to the consultation form, so the gate is not "e-mail or leave". */
+  function gateConsult() {
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'gate_consult' }, 'step_gate_consult');
+    openContact();
   }
 
   function intentYes() {

@@ -230,6 +230,9 @@
 .kk-stilfinder .result-gate p { color: var(--muted); font-size: 15px; margin-bottom: 22px; }
 .kk-stilfinder .result-gate form { text-align: left; }
 .kk-stilfinder .result-gate .primary-button { width: 100%; }
+.kk-stilfinder .result-gate__consult { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--accent-light); }
+.kk-stilfinder .result-gate__consult p { margin-bottom: 12px; font-size: 14px; }
+.kk-stilfinder .result-gate .secondary-button { width: 100%; }
 .kk-stilfinder .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .kk-stilfinder .contact-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; }

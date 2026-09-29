@@ -80,6 +80,10 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         <li>Keine Werbung ohne Ihre Zustimmung.</li>
                     </ul>
                 </form>
+                <div class="result-gate__consult">
+                    <p>Sie planen schon konkret? Daniel Klas ordnet Ihr Projekt persönlich ein, mit Ihrem Stilprofil als Grundlage.</p>
+                    <button class="secondary-button" id="gateConsultButton" type="button">Direkt Beratung anfragen</button>
+                </div>
             </section>
             <div id="resultContent" class="hidden">
                 <div class="result-header">
