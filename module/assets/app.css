@@ -175,6 +175,8 @@
 
 .kk-stilfinder .quiz-footer { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--line); display: flex; gap: 12px; align-items: center; }
 .kk-stilfinder .quiz-footer .text-button { margin-left: auto; }
+/* Buttons setzen display selbst; ohne diese Regel bleiben per hidden ausgeblendete Buttons sichtbar. */
+.kk-stilfinder .quiz-footer [hidden], .kk-stilfinder .quiz-footer[hidden] { display: none; }
 
 .kk-stilfinder .result-header { display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: start; }
 .kk-stilfinder .result-header p { max-width: 760px; color: var(--muted); font-size: 17px; }
@@ -221,18 +223,15 @@
 .kk-stilfinder .decision-path p { margin: 0; color: var(--muted); font-size: 14px; flex: 1; }
 .kk-stilfinder .decision-path .primary-button, .kk-stilfinder .decision-path .secondary-button { align-self: flex-start; }
 
-.kk-stilfinder .result-gate { max-width: 520px; margin: 0 auto; padding: 36px 32px; border-radius: var(--radius-xl); background: var(--sand); border: 1px solid var(--accent-light); text-align: center; }
-.kk-stilfinder .result-gate__style { margin-bottom: 22px; padding-bottom: 20px; border-bottom: 1px solid var(--accent-light); }
-.kk-stilfinder .result-gate h2 { margin: 8px 0 0; font-family: var(--font-editorial); font-size: 32px; color: var(--accent-dark); }
-.kk-stilfinder .result-gate h3 { margin: 0 0 10px; font-size: 20px; }
-.kk-stilfinder .result-gate__notes { list-style: none; padding: 0; margin: 14px 0 0; color: var(--muted); font-size: 13px; text-align: center; }
-.kk-stilfinder .result-gate__notes li + li { margin-top: 4px; }
-.kk-stilfinder .result-gate p { color: var(--muted); font-size: 15px; margin-bottom: 22px; }
-.kk-stilfinder .result-gate form { text-align: left; }
-.kk-stilfinder .result-gate .primary-button { width: 100%; }
-.kk-stilfinder .result-gate__consult { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--accent-light); }
-.kk-stilfinder .result-gate__consult p { margin-bottom: 12px; font-size: 14px; }
-.kk-stilfinder .result-gate .secondary-button { width: 100%; }
+.kk-stilfinder .profile-save { margin: 0 0 32px; padding: 24px 28px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--line); }
+.kk-stilfinder .profile-save__offer { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+.kk-stilfinder .profile-save__offer h3, .kk-stilfinder .profile-save__form h3 { margin: 6px 0 8px; font-size: 20px; }
+.kk-stilfinder .profile-save__offer p, .kk-stilfinder .profile-save__form > p { margin: 0; color: var(--muted); font-size: 14px; max-width: 700px; }
+.kk-stilfinder .profile-save__offer .secondary-button { flex: 0 0 auto; }
+.kk-stilfinder .profile-save__form { max-width: 620px; }
+.kk-stilfinder .profile-save__form > p { margin-bottom: 18px; }
+.kk-stilfinder .profile-save__form .primary-button { margin-top: 8px; }
+.kk-stilfinder .profile-save__success { margin: 0; color: var(--accent-dark); font-weight: 700; }
 .kk-stilfinder .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .kk-stilfinder .contact-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; }
@@ -277,6 +276,7 @@
     .kk-stilfinder .planning-grid { grid-template-columns: 1fr; }
     .kk-stilfinder .panel { min-height: calc(100vh - 130px); }
     .kk-stilfinder .decision-card__paths { grid-template-columns: 1fr; }
+    .kk-stilfinder .profile-save__offer { align-items: flex-start; flex-direction: column; gap: 18px; }
 }
 
 @media (max-width: 560px) {
@@ -284,11 +284,33 @@
     .kk-stilfinder .topbar { height: 72px; }
     .kk-stilfinder .brand small { display: none; }
     .kk-stilfinder .panel { padding: 24px 18px; border-radius: var(--radius-lg); }
+    /* Kapitelleiste und Fragenkopf enger, damit die Frage samt Weiter-Leiste auf einen Bildschirm passt. */
+    .kk-stilfinder .journey { padding: 8px 2px; }
+    .kk-stilfinder .journey-step { padding: 7px 13px; min-height: 34px; }
+    .kk-stilfinder .quiz.panel { padding-top: 8px; margin-top: 0; }
+    .kk-stilfinder .question-meta .back-arrow { margin-left: -10px; }
+    .kk-stilfinder .quiz h2 { margin-top: 2px; }
     .kk-stilfinder .decision-card { padding: 20px 16px; }
-    .kk-stilfinder .decision-path .primary-button, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .success-actions > * { width: 100%; justify-content: center; align-self: stretch; }
+    .kk-stilfinder .decision-path .primary-button, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__offer .secondary-button, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
+    .kk-stilfinder .profile-save { padding: 20px 16px; }
     .kk-stilfinder .intro-visual { min-height: 235px; }
     .kk-stilfinder .answer-grid, .kk-stilfinder .dimension-grid { grid-template-columns: 1fr; }
-    .kk-stilfinder .answer-card { min-height: 145px; }
+    /* Mobil sollen alle Antworten möglichst auf einen Bildschirm passen: Bildfragen zweispaltig,
+       Textfragen einspaltig ohne Mindesthöhe. So entfällt das Hoch- und Runterscrollen je Frage. */
+    .kk-stilfinder .answer-grid { gap: 10px; margin: 6px 0 20px; }
+    .kk-stilfinder .answer-grid:has(.has-image) { grid-template-columns: 1fr 1fr; }
+    .kk-stilfinder .question-help { margin-bottom: 18px; }
+    .kk-stilfinder .selection-message { margin: -10px 0 8px; }
+    .kk-stilfinder .answer-card { min-height: 0; padding: 14px 16px; }
+    .kk-stilfinder .answer-card:hover { transform: none; }
+    .kk-stilfinder .answer-swatch { height: 36px; margin: -4px -6px 10px; }
+    .kk-stilfinder .answer-card.has-image { padding: 8px 8px 12px; }
+    .kk-stilfinder .answer-card.has-image .answer-swatch { height: auto; aspect-ratio: 4 / 3; margin: 0 0 10px; }
+    .kk-stilfinder .answer-card strong { font-size: 16px; line-height: 1.25; }
+    .kk-stilfinder .answer-card.has-image strong { font-size: 15px; padding: 0 4px; }
+    .kk-stilfinder .answer-card small { font-size: 13px; margin-top: 4px; padding-right: 0; }
+    .kk-stilfinder .answer-card.has-image small { font-size: 12px; line-height: 1.35; padding: 0 4px; }
+    .kk-stilfinder .answer-card.is-selected::after { right: 12px; top: 12px; width: 24px; height: 24px; }
     .kk-stilfinder .quiz-footer {
         flex-wrap: wrap;
         position: sticky;
@@ -301,8 +323,22 @@
         z-index: 5;
     }
     .kk-stilfinder .quiz-footer .text-button { order: 3; width: 100%; margin: 4px 0 0; }
+    .kk-stilfinder .quiz-footer .primary-button { flex: 1; justify-content: center; }
     .kk-stilfinder .result-header { grid-template-columns: 1fr; }
-    .kk-stilfinder .result-seal { width: 88px; }
+    .kk-stilfinder .result-header p { font-size: 16px; margin-bottom: 0; }
+    /* Mobil zuerst die Entscheidung: Stilname, dann direkt die Wege, erst danach Bild und Details.
+       Das Siegel entfällt, der Fortschritt steht bereits in der Entscheidungskarte. */
+    .kk-stilfinder #resultContent:not(.hidden) { display: flex; flex-direction: column; }
+    .kk-stilfinder #resultContent > * { order: 3; }
+    .kk-stilfinder #resultContent > .result-header { order: 1; }
+    .kk-stilfinder #resultContent > .decision-card { order: 2; margin: 18px 0 0; }
+    .kk-stilfinder .result-seal { display: none; }
+    .kk-stilfinder .decision-card__intro { margin-bottom: 14px; }
+    .kk-stilfinder .decision-card__intro h3 { font-size: 18px; line-height: 1.3; }
+    .kk-stilfinder .decision-card__paths { gap: 10px; }
+    .kk-stilfinder .decision-path { padding: 0; gap: 0; background: none; border: 0; }
+    .kk-stilfinder .decision-path h4 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .kk-stilfinder .decision-path p { display: none; }
     .kk-stilfinder .result-image { aspect-ratio: 4 / 3; }
     .kk-stilfinder .style-bar { grid-template-columns: 105px 1fr 35px; }
     .kk-stilfinder .form-row { grid-template-columns: 1fr; }

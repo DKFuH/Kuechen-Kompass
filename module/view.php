@@ -59,36 +59,10 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
         </section>
 
         <section class="result panel hidden" data-view="result">
-            <section class="result-gate" id="resultGate" aria-live="polite">
-                <div class="result-gate__style">
-                    <span class="eyebrow">Ihre Stilwelt steht fest</span>
-                    <h2 id="resultGateTitle">Ihr Stilprofil</h2>
-                </div>
-                <h3>Ihr vollständiges Stilprofil speichern</h3>
-                <p>Sie erhalten sofort hier Ihre Stilanteile, Farb- und Materialempfehlungen und konkrete Stilhinweise. Dazu schicken wir Ihnen einen persönlichen Link, mit dem Sie später an genau dieser Stelle weiterplanen können.</p>
-                <form id="resultGateForm" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
-                    <label class="sr-only" for="resultGateEmail">E-Mail-Adresse</label>
-                    <input id="resultGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
-                    <label class="check-label"><input name="consent" type="checkbox" required> <span>Ja, schicken Sie mir den Link zu meinem Stilprofil per E-Mail. Einmalige Service-Nachricht, kein Newsletter.</span></label>
-                    <label class="check-label"><input name="marketing_consent" type="checkbox"> <span>Zusätzlich möchte ich eine kurze, auf mein Stilprofil abgestimmte Mail-Serie zu Materialien, Planung und nächsten Schritten erhalten. Nach Abschluss dieser Serie erhalte ich ohne neue Einwilligung keine weiteren E-Mails.</span></label>
-                    <button class="primary-button" type="submit">Mein Stilprofil speichern</button>
-                    <p id="resultGateError" class="form-error" role="alert"></p>
-                    <ul class="result-gate__notes">
-                        <li>Einmalige Service-Mail mit Ihrem Zugangslink. Kein Newsletter.</li>
-                        <li>Keine Werbung ohne Ihre Zustimmung.</li>
-                    </ul>
-                </form>
-                <div class="result-gate__consult">
-                    <p>Sie planen schon konkret? Daniel Klas ordnet Ihr Projekt persönlich ein, mit Ihrem Stilprofil als Grundlage.</p>
-                    <button class="secondary-button" id="gateConsultButton" type="button">Direkt Beratung anfragen</button>
-                </div>
-            </section>
             <div id="resultContent" class="hidden">
                 <div class="result-header">
                     <div>
-                        <span class="eyebrow">Ihre persönliche Stilwelt</span>
+                        <span class="eyebrow">Ihre erste Stilrichtung</span>
                         <h2 id="resultTitle">Ihr Stilprofil</h2>
                         <p id="resultDescription"></p>
                     </div>
@@ -99,19 +73,19 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                     <div id="decisionPaths">
                         <div class="decision-card__intro">
                             <span class="eyebrow">Wie möchten Sie weitermachen?</span>
-                            <h3>Soll Ihre Stilwelt zu Ihrem Raum passen?</h3>
+                            <h3>Das ist Ihre erste Stilrichtung. Jetzt prüfen wir, wie sie zu Raum, Alltag und Technik passt.</h3>
                             <p class="decision-card__progress"><span id="decisionProgress">0%</span> der Planungsfragen sind beantwortet</p>
                         </div>
                         <div class="decision-card__paths">
                             <div class="decision-path decision-path--continue" id="decisionPathContinue">
-                                <h4>Planungsprofil ergänzen</h4>
-                                <p>Raum, Alltag, Technik und Rahmen – in wenigen Minuten wird aus Ihrem Stil ein vollständiges Küchenprofil.</p>
-                                <button class="primary-button" id="continuePlanningButton" type="button">Weiter planen</button>
+                                <h4>Profil für Raum und Alltag verfeinern</h4>
+                                <p>Ergänzen Sie Raumform, Nutzung, Stauraum und Technik. So wird sichtbar, wie Ihre Stilrichtung im Küchenalltag funktionieren kann.</p>
+                                <button class="primary-button" id="continuePlanningButton" type="button">Profil für meinen Raum verfeinern</button>
                             </div>
                             <div class="decision-path decision-path--submit">
-                                <h4>Persönliche Beratung anfragen</h4>
-                                <p>Ihr Profil reicht für den Einstieg. Daniel Klas meldet sich persönlich und ordnet Ihr Projekt ein.</p>
-                                <button class="primary-button primary-button--alt" id="openContactButton" type="button">Beratung anfragen</button>
+                                <h4>Projekt direkt einordnen lassen</h4>
+                                <p>Sie planen bereits konkret? Daniel Klas schaut sich Ihre Stilrichtung und die bisherigen Antworten persönlich an.</p>
+                                <button class="primary-button primary-button--alt" id="openContactButton" type="button">Projekt einordnen lassen</button>
                             </div>
                         </div>
                     </div>
@@ -125,6 +99,29 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         </div>
                         <p id="intentNoMessage" class="intent-card__message" aria-live="polite"></p>
                     </div>
+                </section>
+                <section class="profile-save" id="profileSave" aria-labelledby="profileSaveTitle">
+                    <div id="profileSaveOffer" class="profile-save__offer">
+                        <div>
+                            <span class="eyebrow">Optional speichern</span>
+                            <h3 id="profileSaveTitle">Später an dieser Stelle weitermachen</h3>
+                            <p>Wir schicken Ihnen einen persönlichen Link zu Ihrem aktuellen Profil. Das Ergebnis und das direkte Weiterplanen bleiben auch ohne E-Mail frei zugänglich.</p>
+                        </div>
+                        <button class="secondary-button" id="profileSaveButton" type="button">Profil per E-Mail speichern</button>
+                    </div>
+                    <form id="resultGateForm" class="profile-save__form hidden" novalidate>
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+                        <h3>Speicherlink erhalten</h3>
+                        <p>Der Link öffnet Ihr Profil mit den bisherigen Antworten auf diesem Gerät oder einem anderen.</p>
+                        <label for="resultGateEmail">E-Mail-Adresse</label>
+                        <input id="resultGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
+                        <label class="check-label"><input name="consent" type="checkbox" required> <span>Ja, schicken Sie mir den Link zu meinem Stilprofil per E-Mail. Einmalige Service-Nachricht, kein Newsletter.</span></label>
+                        <label class="check-label"><input name="marketing_consent" type="checkbox"> <span>Zusätzlich möchte ich eine kurze, auf mein Stilprofil abgestimmte Mail-Serie zu Materialien, Planung und nächsten Schritten erhalten. Nach Abschluss dieser Serie erhalte ich ohne neue Einwilligung keine weiteren E-Mails.</span></label>
+                        <button class="primary-button" type="submit">Speicherlink senden</button>
+                        <p id="resultGateError" class="form-error" role="alert"></p>
+                    </form>
+                    <p id="profileSaveSuccess" class="profile-save__success hidden" role="status">Ihr Profil ist gespeichert. Den persönlichen Link haben wir Ihnen per E-Mail geschickt.</p>
                 </section>
                 <div class="style-mix-heading"><strong>Ihre Stilanteile</strong><span>Orientierungswerte aus Ihren Antworten – keine Messwerte.</span></div>
                 <div id="styleBars" class="style-bars"></div>

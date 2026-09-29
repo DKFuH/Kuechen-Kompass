@@ -341,8 +341,8 @@
     byId('skipButton').addEventListener('click', skip);
     nextButton.addEventListener('click', next);
     byId('continuePlanningButton').addEventListener('click', continuePlanning);
-    byId('openContactButton').addEventListener('click', openContact);
-    byId('gateConsultButton').addEventListener('click', gateConsult);
+    byId('openContactButton').addEventListener('click', previewConsult);
+    byId('profileSaveButton').addEventListener('click', openProfileSave);
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
@@ -585,7 +585,13 @@
     const isSingleSelect = !q.multiple && q.type !== 'dimensions' && q.type !== 'text';
     nextButton.hidden = isSingleSelect;
     nextButton.disabled = Boolean(q.required && !hasAnswer);
-    nextButton.textContent = state.current === questions.length - 1 ? 'Ergebnis aktualisieren' : 'Weiter';
+    const count = (state.answers[q.id] || []).length;
+    nextButton.textContent = state.current === questions.length - 1
+      ? 'Ergebnis aktualisieren'
+      : q.multiple && count ? `Weiter · ${count} gewählt` : 'Weiter';
+    /* Einzelauswahl-Pflichtfragen springen automatisch weiter; eine leere Leiste würde nur Platz kosten. */
+    const skipButton = byId('skipButton');
+    skipButton.parentElement.hidden = nextButton.hidden && skipButton.hidden;
   }
 
   function next() {
@@ -621,6 +627,7 @@
     const firstPlanning = questions.findIndex(q => q.section === 'space');
     state.current = firstPlanning;
     save();
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'preview_continue' }, 'step_preview_continue');
     reportEmbedEvent('project_questions_start');
     renderQuestion();
   }
@@ -632,25 +639,12 @@
     renderJourney('result');
     showView('result');
     reportEmbedEvent('style_result', { result: result.primary });
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_preview' }, 'step_result_preview');
     scrollToModule();
-    if (state.resultUnlocked || state.submitted) {
-      revealResult(result);
-    } else {
-      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate' }, 'step_result_gate');
-      showResultGate(result);
-    }
-  }
-
-  /* Only the style name is visible before the e-mail; everything else stays locked. */
-  function showResultGate(result) {
-    byId('resultGateTitle').textContent = result.title;
-    byId('resultContent').classList.add('hidden');
-    byId('resultGate').classList.remove('hidden');
-    byId('resultGateError').textContent = '';
+    revealResult(result);
   }
 
   function revealResult(result) {
-    byId('resultGate').classList.add('hidden');
     byId('resultContent').classList.remove('hidden');
     byId('resultTitle').textContent = result.title;
     byId('resultDescription').textContent = result.description;
@@ -676,6 +670,23 @@
     renderStyleGuidance(result);
     renderMoodboard();
     renderPlanningSummary();
+    renderProfileSave();
+  }
+
+  function renderProfileSave() {
+    const saved = state.resultUnlocked;
+    byId('profileSaveOffer').classList.toggle('hidden', saved);
+    byId('resultGateForm').classList.add('hidden');
+    byId('profileSaveSuccess').classList.toggle('hidden', !saved);
+  }
+
+  function openProfileSave() {
+    byId('profileSaveOffer').classList.add('hidden');
+    byId('profileSaveSuccess').classList.add('hidden');
+    byId('resultGateForm').classList.remove('hidden');
+    byId('resultGateError').textContent = '';
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'profile_save_opened' }, 'step_profile_save_opened');
+    byId('resultGateEmail').focus();
   }
 
   /* Once all project sections are addressed, the card turns into the intent question. */
@@ -692,9 +703,8 @@
     }, 60);
   }
 
-  /* Exit from the gate straight to the consultation form, so the gate is not "e-mail or leave". */
-  function gateConsult() {
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'gate_consult' }, 'step_gate_consult');
+  function previewConsult() {
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'preview_consult' }, 'step_preview_consult');
     openContact();
   }
 
@@ -708,6 +718,10 @@
     const button = byId('intentNoButton');
     const message = byId('intentNoMessage');
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_no' }, 'step_intent_no');
+    if (!state.resultUnlocked) {
+      message.textContent = 'Ihr Profil bleibt auf dieser Seite sichtbar. Wenn Sie später weitermachen möchten, können Sie es unten freiwillig per E-Mail speichern.';
+      return;
+    }
     button.disabled = true;
     const result = state.pendingResult || calculateResult();
     let saved = false;
@@ -734,7 +748,7 @@
     if (saved) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_no_saved' }, 'step_intent_no_saved');
     message.textContent = saved
       ? 'Ihr Profil ist gespeichert. Den Link zum Weitermachen haben Sie per E-Mail erhalten. Wenn Sie später doch eine Einschätzung möchten, genügt ein Klick auf „Ja“.'
-      : 'Ihr Profil bleibt auf dieser Seite sichtbar. Über den Link aus Ihrer E-Mail können Sie jederzeit weitermachen.';
+      : 'Der aktuelle Stand konnte gerade nicht gespeichert werden. Ihr Profil bleibt auf dieser Seite sichtbar.';
     button.disabled = false;
   }
 
@@ -751,12 +765,6 @@
     const consent = Boolean(form.elements.consent.checked);
     const marketingConsent = Boolean(form.elements.marketing_consent.checked);
     const result = state.pendingResult || calculateResult();
-    state.resultUnlocked = true;
-    state.gateEmail = email;
-    revealResult(result);
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_unlocked' }, 'step_result_unlocked');
-    if (marketingConsent) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'mailserie_optin' }, 'step_mailserie_optin');
-    submit.disabled = false;
     try {
       const response = await fetch(settings.progressSaveUrl, {
         method: 'POST',
@@ -780,13 +788,21 @@
       });
       const body = await response.json().catch(() => ({ ok: false }));
       if (response.ok && body.ok) {
+        state.resultUnlocked = true;
+        state.gateEmail = email;
+        renderProfileSave();
+        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'profile_saved' }, 'step_profile_saved');
+        if (marketingConsent) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'mailserie_optin' }, 'step_mailserie_optin');
         reportEmbedEvent('progress_save', { result: result.primary, event_id: body.request_id });
       } else {
+        error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
         reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
       }
     } catch (e) {
-      /* The result stays unlocked for the visitor regardless of network failure; only the resume e-mail is affected. */
+      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
       reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
+    } finally {
+      submit.disabled = false;
     }
   }
 
