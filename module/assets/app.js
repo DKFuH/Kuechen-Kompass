@@ -282,6 +282,7 @@
     source: 'kuechen-kompass',
     campaign: {},
     resultUnlocked: false,
+    planningFinished: false,
     pendingResult: null,
     gateEmail: '',
     serviceArea: ''
@@ -343,6 +344,7 @@
     byId('continuePlanningButton').addEventListener('click', continuePlanning);
     byId('openContactButton').addEventListener('click', previewConsult);
     byId('profileSaveButton').addEventListener('click', openProfileSave);
+    byId('previewSaveButton').addEventListener('click', openProfileSave);
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
@@ -414,7 +416,7 @@
   function restart() {
     if (!confirm('Möchten Sie alle bisherigen Antworten löschen und neu beginnen?')) return;
     cancelAutoAdvance();
-    Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false, resultUnlocked: false, pendingResult: null, gateEmail: '', serviceArea: '' });
+    Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false, resultUnlocked: false, planningFinished: false, pendingResult: null, gateEmail: '', serviceArea: '' });
     renderJourney();
     showView('intro');
   }
@@ -601,7 +603,11 @@
       save();
       return showResult();
     }
-    if (state.current >= questions.length - 1) return showResult();
+    if (state.current >= questions.length - 1) {
+      state.planningFinished = true;
+      save();
+      return showResult();
+    }
     state.current += 1;
     save();
     renderQuestion();
@@ -624,8 +630,10 @@
 
   function continuePlanning() {
     cancelAutoAdvance();
-    const firstPlanning = questions.findIndex(q => q.section === 'space');
-    state.current = firstPlanning;
+    /* Resume at the first open project question instead of restarting the section. */
+    const planning = questions.filter(q => ['space', 'everyday', 'technik', 'framework'].includes(q.section));
+    const open = planning.find(q => !q.optional && !(state.answers[q.id] || []).length && !state.skipped.includes(q.id));
+    state.current = questions.indexOf(open || planning[0]);
     save();
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'preview_continue' }, 'step_preview_continue');
     reportEmbedEvent('project_questions_start');
@@ -644,8 +652,14 @@
     revealResult(result);
   }
 
+  /* Before the project questions the result is a teaser with one way forward; the full profile is the reward for finishing. */
   function revealResult(result) {
-    byId('resultContent').classList.remove('hidden');
+    const full = profileComplete();
+    const content = byId('resultContent');
+    content.classList.remove('hidden');
+    content.classList.toggle('is-preview', !full);
+    byId('resultFull').classList.toggle('hidden', !full);
+    byId('resultEyebrow').textContent = full ? 'Ihr vollständiges Stilprofil' : 'Ihre erste Stilrichtung';
     byId('resultTitle').textContent = result.title;
     byId('resultDescription').textContent = result.description;
     byId('profileProgress').textContent = `${completion()}%`;
@@ -673,14 +687,19 @@
     renderProfileSave();
   }
 
+  /* In the teaser only the small link offers saving; the block appears once the visitor opens it. */
   function renderProfileSave() {
     const saved = state.resultUnlocked;
-    byId('profileSaveOffer').classList.toggle('hidden', saved);
+    const preview = byId('resultContent').classList.contains('is-preview');
+    byId('profileSave').classList.toggle('hidden', preview && !saved);
+    byId('previewSaveButton').classList.toggle('hidden', saved);
+    byId('profileSaveOffer').classList.toggle('hidden', saved || preview);
     byId('resultGateForm').classList.add('hidden');
     byId('profileSaveSuccess').classList.toggle('hidden', !saved);
   }
 
   function openProfileSave() {
+    byId('profileSave').classList.remove('hidden');
     byId('profileSaveOffer').classList.add('hidden');
     byId('profileSaveSuccess').classList.add('hidden');
     byId('resultGateForm').classList.remove('hidden');
@@ -691,7 +710,7 @@
 
   /* Once all project sections are addressed, the card turns into the intent question. */
   function renderDecision() {
-    const complete = planningComplete();
+    const complete = profileComplete();
     byId('decisionPaths').classList.toggle('hidden', complete);
     byId('intentCard').classList.toggle('hidden', !complete);
     if (!complete) return;
@@ -1543,6 +1562,11 @@
 
   function planningComplete() {
     return ['space', 'everyday', 'technik', 'framework'].every(sectionAddressed);
+  }
+
+  /* Reaching the last question counts as done, even if the progress bar jumps left a gap. */
+  function profileComplete() {
+    return state.planningFinished || planningComplete();
   }
 
   function completion() {

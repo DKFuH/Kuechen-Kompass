@@ -24,7 +24,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <p>Entdecken Sie zuerst Ihre persönliche Stilwelt. Danach können Sie Raum, Alltag und Wünsche ergänzen – in Ihrem Tempo und jederzeit änderbar.</p>
                 <div class="intro-actions">
                     <button class="primary-button" id="startButton" type="button">Stilprofil starten</button>
-                    <span>ca. 3 Minuten bis zu Ihrem Stilprofil</span>
+                    <span>5 Fragen bis zu Ihrer ersten Stilrichtung</span>
                 </div>
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
@@ -62,7 +62,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
             <div id="resultContent" class="hidden">
                 <div class="result-header">
                     <div>
-                        <span class="eyebrow">Ihre erste Stilrichtung</span>
+                        <span class="eyebrow" id="resultEyebrow">Ihre erste Stilrichtung</span>
                         <h2 id="resultTitle">Ihr Stilprofil</h2>
                         <p id="resultDescription"></p>
                     </div>
@@ -72,21 +72,15 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <section class="decision-card" id="decisionCard" tabindex="-1">
                     <div id="decisionPaths">
                         <div class="decision-card__intro">
-                            <span class="eyebrow">Wie möchten Sie weitermachen?</span>
+                            <span class="eyebrow">Ihr nächster Schritt</span>
                             <h3>Das ist Ihre erste Stilrichtung. Jetzt prüfen wir, wie sie zu Raum, Alltag und Technik passt.</h3>
+                            <p>Mit Raumform, Nutzung, Stauraum und Technik erhalten Sie Ihr vollständiges Stilprofil: Stilanteile, Farb- und Materialwelt, konkrete Stilhinweise und Ihre Planungsangaben auf einen Blick.</p>
                             <p class="decision-card__progress"><span id="decisionProgress">0%</span> der Planungsfragen sind beantwortet</p>
                         </div>
-                        <div class="decision-card__paths">
-                            <div class="decision-path decision-path--continue" id="decisionPathContinue">
-                                <h4>Profil für Raum und Alltag verfeinern</h4>
-                                <p>Ergänzen Sie Raumform, Nutzung, Stauraum und Technik. So wird sichtbar, wie Ihre Stilrichtung im Küchenalltag funktionieren kann.</p>
-                                <button class="primary-button" id="continuePlanningButton" type="button">Profil für meinen Raum verfeinern</button>
-                            </div>
-                            <div class="decision-path decision-path--submit">
-                                <h4>Projekt direkt einordnen lassen</h4>
-                                <p>Sie planen bereits konkret? Daniel Klas schaut sich Ihre Stilrichtung und die bisherigen Antworten persönlich an.</p>
-                                <button class="primary-button primary-button--alt" id="openContactButton" type="button">Projekt einordnen lassen</button>
-                            </div>
+                        <button class="primary-button decision-card__primary" id="continuePlanningButton" type="button">Profil für meinen Raum verfeinern</button>
+                        <div class="decision-card__minor">
+                            <button class="text-button" id="openContactButton" type="button">Sie planen schon konkret? Projekt direkt einordnen lassen</button>
+                            <button class="text-button" id="previewSaveButton" type="button">Später weitermachen? Link per E-Mail</button>
                         </div>
                     </div>
                     <div id="intentCard" class="intent-card hidden">
@@ -123,6 +117,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                     </form>
                     <p id="profileSaveSuccess" class="profile-save__success hidden" role="status">Ihr Profil ist gespeichert. Den persönlichen Link haben wir Ihnen per E-Mail geschickt.</p>
                 </section>
+                <div id="resultFull">
                 <div class="style-mix-heading"><strong>Ihre Stilanteile</strong><span>Orientierungswerte aus Ihren Antworten – keine Messwerte.</span></div>
                 <div id="styleBars" class="style-bars"></div>
                 <section class="result-guidance" aria-label="Konkrete Stilhinweise">
@@ -154,6 +149,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <div id="planningSummary" class="planning-summary hidden">
                     <h3>Ihre Planungsangaben</h3>
                     <div id="planningGrid" class="planning-grid"></div>
+                </div>
                 </div>
             </div>
         </section>
