@@ -269,6 +269,7 @@
     }
   };
   const styleQuestionIds = ['feeling', 'visual_language', 'palette', 'materials', 'handles'];
+  const planningSectionIds = ['space', 'everyday', 'technik', 'framework'];
 
   const state = {
     started: false,
@@ -311,6 +312,7 @@
     state.started = true;
     state.resultUnlocked = true;
     state.current = resumeIndex >= 0 ? resumeIndex : 0;
+    state.planningFinished = state.current === questions.length - 1 || planningComplete();
   }
 
   const views = [...appRoot.querySelectorAll('[data-view]')];
@@ -424,6 +426,7 @@
   function renderQuestion(focusOptionId = '') {
     const q = questions[state.current];
     if (!q) return showResult();
+    if (state.current === questions.length - 1) state.planningFinished = true;
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: q.id, step_index: state.current }, 'step_' + q.id);
     showView('quiz');
     byId('sectionLabel').textContent = sectionLabel(q.section);
@@ -604,7 +607,6 @@
       return showResult();
     }
     if (state.current >= questions.length - 1) {
-      state.planningFinished = true;
       save();
       return showResult();
     }
@@ -631,7 +633,7 @@
   function continuePlanning() {
     cancelAutoAdvance();
     /* Resume at the first open project question instead of restarting the section. */
-    const planning = questions.filter(q => ['space', 'everyday', 'technik', 'framework'].includes(q.section));
+    const planning = questions.filter(q => planningSectionIds.includes(q.section));
     const open = planning.find(q => !q.optional && !(state.answers[q.id] || []).length && !state.skipped.includes(q.id));
     state.current = questions.indexOf(open || planning[0]);
     save();
@@ -659,8 +661,8 @@
     content.classList.remove('hidden');
     content.classList.toggle('is-preview', !full);
     byId('resultFull').classList.toggle('hidden', !full);
-    byId('resultEyebrow').textContent = full ? 'Ihr vollständiges Stilprofil' : 'Ihre erste Stilrichtung';
-    byId('resultTitle').textContent = result.title;
+    byId('resultEyebrow').textContent = full ? 'Ihre Stilrichtung im Kontext' : 'Ihre erste Stilrichtung';
+    byId('resultTitle').textContent = full ? `Ihr vollständiges Stilprofil: ${result.title}` : result.title;
     byId('resultDescription').textContent = result.description;
     byId('profileProgress').textContent = `${completion()}%`;
     byId('resultInsight').textContent = insight(result);
@@ -678,7 +680,6 @@
       resultImage.style.backgroundImage = `url("${resultImageUrl}")`;
     }
     resultImage.setAttribute('aria-label', `Beispielküche für den Stil ${result.title}`);
-    byId('decisionProgress').textContent = `${completion()}%`;
     renderDecision();
     renderBars(result);
     renderStyleGuidance(result);
@@ -700,6 +701,7 @@
 
   function openProfileSave() {
     byId('profileSave').classList.remove('hidden');
+    byId('previewSaveButton').classList.add('hidden');
     byId('profileSaveOffer').classList.add('hidden');
     byId('profileSaveSuccess').classList.add('hidden');
     byId('resultGateForm').classList.remove('hidden');
@@ -1561,7 +1563,7 @@
   }
 
   function planningComplete() {
-    return ['space', 'everyday', 'technik', 'framework'].every(sectionAddressed);
+    return planningSectionIds.every(sectionAddressed);
   }
 
   /* Reaching the last question counts as done, even if the progress bar jumps left a gap. */

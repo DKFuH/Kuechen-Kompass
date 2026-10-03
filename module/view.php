@@ -74,10 +74,9 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         <div class="decision-card__intro">
                             <span class="eyebrow">Ihr nächster Schritt</span>
                             <h3>Das ist Ihre erste Stilrichtung. Jetzt prüfen wir, wie sie zu Raum, Alltag und Technik passt.</h3>
-                            <p>Mit Raumform, Nutzung, Stauraum und Technik erhalten Sie Ihr vollständiges Stilprofil: Stilanteile, Farb- und Materialwelt, konkrete Stilhinweise und Ihre Planungsangaben auf einen Blick.</p>
-                            <p class="decision-card__progress"><span id="decisionProgress">0%</span> der Planungsfragen sind beantwortet</p>
                         </div>
                         <button class="primary-button decision-card__primary" id="continuePlanningButton" type="button">Profil für meinen Raum verfeinern</button>
+                        <p class="decision-card__value">Danach sehen Sie Ihr vollständiges Profil mit Stilanteilen, Farb- und Materialwelt, konkreten Stilhinweisen und Ihren Planungsangaben.</p>
                         <div class="decision-card__minor">
                             <button class="text-button" id="openContactButton" type="button">Sie planen schon konkret? Projekt direkt einordnen lassen</button>
                             <button class="text-button" id="previewSaveButton" type="button">Später weitermachen? Link per E-Mail</button>

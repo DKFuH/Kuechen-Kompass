@@ -13,6 +13,9 @@ $analytics = (string) file_get_contents($root . '/assets/analytics.js');
 $imageLoader = (string) file_get_contents($root . '/assets/image-loader.js');
 $submit = (string) file_get_contents($root . '/api/submit.php');
 $css = (string) file_get_contents($root . '/assets/app.css');
+$moduleApp = (string) file_get_contents($root . '/module/assets/app.js');
+$moduleCss = (string) file_get_contents($root . '/module/assets/app.css');
+$moduleView = (string) file_get_contents($root . '/module/view.php');
 $htaccess = (string) file_get_contents($root . '/.htaccess');
 
 $check(str_contains($embed, "kuechen-kompass:event"), 'Embed bridge does not forward funnel events.');
@@ -55,6 +58,12 @@ $check(str_contains($app, "reportEmbedEvent('start'"), 'Start event is missing.'
 $check(str_contains($app, "reportEmbedEvent('style_result'"), 'Style result event is missing.');
 $check(str_contains($app, "reportEmbedEvent('project_questions_start'"), 'Planning start event is missing.');
 $check(str_contains($app, "reportEmbedEvent('lead'"), 'Successful lead event is missing.');
+$check(str_contains($moduleApp, "if (state.current === questions.length - 1) state.planningFinished = true;"), 'Reaching the final question must complete the profile even when earlier sections have gaps.');
+$check(str_contains($moduleApp, "state.planningFinished = state.current === questions.length - 1 || planningComplete();"), 'A completed profile must remain complete after resuming from the final question.');
+$check(str_contains($moduleApp, 'const planningSectionIds ='), 'Planning resume and completion must share one section definition.');
+$check(str_contains($moduleCss, '#resultContent.is-preview > .result-image'), 'The mobile preview must show its style image before the decision card.');
+$check(str_contains($moduleCss, '.decision-card__value') && str_contains($moduleView, 'class="decision-card__value"'), 'The preview must explain the value of completing the project questions.');
+$check(str_contains($moduleCss, '.is-preview .result-seal { display: none; }'), 'The preview must not expose the full-profile percentage seal.');
 $check(str_contains($app, 'event_id: body.submission_id'), 'Successful lead does not expose the stable submission ID to the parent tracking bridge.');
 $check(str_contains($app, 'campaign: state.campaign'), 'Campaign context is not included in the lead payload.');
 $check(str_contains($submit, "'campaign' => normalize_campaign"), 'Server does not normalize campaign context.');
