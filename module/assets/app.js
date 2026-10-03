@@ -106,17 +106,6 @@
       ]
     },
     {
-      id: 'room_dimensions', section: 'space', type: 'dimensions',
-      title: 'Wie groß ist der Raum für Ihre neue Küche?',
-      help: 'Angaben in Zentimetern. Für eine belastbare Ersteinschätzung sind Länge, Breite und Höhe am hilfreichsten.',
-      multiple: false, options: [],
-      fields: [
-        { id: 'length', label: 'Länge (cm)' },
-        { id: 'width', label: 'Breite (cm)' },
-        { id: 'height', label: 'Höhe (cm)' }
-      ]
-    },
-    {
       id: 'household', section: 'everyday', title: 'Wer nutzt die Küche im Alltag?',
       help: 'Wählen Sie die Personen aus, für die die Küche im Alltag wirklich funktionieren muss.', multiple: true,
       options: [
@@ -157,34 +146,6 @@
         option('fridge_freezer', 'Kühl-Gefrierkombination', 'Kühlen und Gefrieren in einem Gerät', '#d8c3a5', {}),
         option('dishwasher', 'Geschirrspüler', 'Vollintegriert oder teilintegriert', '#e3d5c3', {}),
         option('microwave', 'Mikrowelle', 'Kombigerät oder separate Einheit', '#c49a7a', {})
-      ]
-    },
-    {
-      id: 'extractor_type', section: 'technik', title: 'Welche Betriebsart soll der Dunstabzug haben?',
-      help: 'Wenn die baulichen Möglichkeiten noch nicht geklärt sind, wählen Sie „Noch offen“.', multiple: false,
-      options: [
-        option('exhaust', 'Abluft', 'Führt Dunst direkt nach außen ab', '#a98a67', {}),
-        option('recirculation', 'Umluft', 'Reinigt die Luft über einen Filter', '#c9a17c', {}),
-        option('unsure', 'Noch offen', 'Wird anhand des Raums und der technischen Möglichkeiten geklärt', '#e3d5c3', {})
-      ]
-    },
-    {
-      id: 'extractor_style', section: 'technik', title: 'Wie soll der Dunstabzug eingebaut werden?',
-      help: 'Diese Wahl beeinflusst die Planung des Oberschranks oder des Kochfelds.', multiple: false,
-      options: [
-        option('cabinet', 'Integriert im Oberschrank', 'Unauffällig im Hängeschrank verbaut', '#b9a48c', {}),
-        option('hood', 'Designhaube', 'Sichtbares Element über dem Kochfeld', '#8c6a4f', {}),
-        option('hob_integrated', 'Integriert im Kochfeld', 'Absaugung direkt aus der Arbeitsfläche', '#76533d', {}),
-        option('unsure', 'Noch offen', 'Klärt sich in der Fachberatung', '#e3d5c3', {})
-      ]
-    },
-    {
-      id: 'waste_separation', section: 'technik', title: 'Wie soll die Mülltrennung gelöst werden?',
-      help: '', multiple: false,
-      options: [
-        option('integrated', 'Integriert im Spülenschrank', 'Fest eingeplant unter der Spüle', '#c9a17c', {}),
-        option('separate', 'Wird separat gelöst', 'Trennung außerhalb der Küchenmöbel', '#a98a67', {}),
-        option('open', 'Noch offen', 'Lösung wird in der Planung festgelegt', '#e3d5c3', {})
       ]
     },
     {
@@ -286,7 +247,8 @@
     planningFinished: false,
     pendingResult: null,
     gateEmail: '',
-    serviceArea: ''
+    serviceArea: '',
+    callbackRequested: false
   };
 
   state.visitorId = /^[A-Za-z0-9._:-]{8,128}$/.test(String(settings.visitorId || '')) ? String(settings.visitorId) : '';
@@ -350,6 +312,7 @@
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
+    byId('hardGateForm').addEventListener('submit', submitHardGate);
     byId('intentYesButton').addEventListener('click', intentYes);
     byId('intentNoButton').addEventListener('click', intentNo);
   }
@@ -441,10 +404,8 @@
     selectionMessage.textContent = '';
     selectionMessage.classList.remove('is-confirm');
     answersEl.innerHTML = '';
-    answersEl.className = q.type === 'dimensions' ? 'dimension-grid' : q.type === 'text' ? 'text-grid' : 'answer-grid';
-    if (q.type === 'dimensions') {
-      renderDimensionFields(q);
-    } else if (q.type === 'text') {
+    answersEl.className = q.type === 'text' ? 'text-grid' : 'answer-grid';
+    if (q.type === 'text') {
       renderTextField(q);
     } else {
       const selected = state.answers[q.id] || [];
@@ -481,38 +442,6 @@
       scrollToModule();
       byId('questionTitle').focus({ preventScroll: true });
     }
-  }
-
-  function renderDimensionFields(q) {
-    const details = state.details[q.id] || {};
-    q.fields.forEach(field => {
-      const wrap = document.createElement('label');
-      wrap.className = 'dimension-field';
-      const caption = document.createElement('span');
-      caption.textContent = field.label;
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.min = '0';
-      input.step = '1';
-      input.inputMode = 'numeric';
-      input.placeholder = 'z. B. 320';
-      input.value = details[field.id] || '';
-      input.addEventListener('input', () => updateDimension(q, field.id, input.value));
-      wrap.appendChild(caption);
-      wrap.appendChild(input);
-      answersEl.appendChild(wrap);
-    });
-  }
-
-  function updateDimension(q, fieldId, value) {
-    if (!state.details[q.id]) state.details[q.id] = {};
-    const cleaned = value.trim().replace(/[^\d]/g, '').slice(0, 4);
-    state.details[q.id][fieldId] = cleaned;
-    const filledCount = q.fields.filter(field => (state.details[q.id]?.[field.id] || '').trim()).length;
-    state.answers[q.id] = filledCount > 0 ? ['filled'] : [];
-    state.skipped = state.skipped.filter(id => id !== q.id);
-    save();
-    updateNext(q);
   }
 
   function renderTextField(q) {
@@ -587,7 +516,7 @@
 
   function updateNext(q) {
     const hasAnswer = (state.answers[q.id] || []).length > 0;
-    const isSingleSelect = !q.multiple && q.type !== 'dimensions' && q.type !== 'text';
+    const isSingleSelect = !q.multiple && q.type !== 'text';
     nextButton.hidden = isSingleSelect;
     nextButton.disabled = Boolean(q.required && !hasAnswer);
     const count = (state.answers[q.id] || []).length;
@@ -648,10 +577,81 @@
     state.pendingResult = result;
     renderJourney('result');
     showView('result');
+    if (gateRequired()) {
+      showHardGate();
+      return;
+    }
     reportEmbedEvent('style_result', { result: result.primary });
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_preview' }, 'step_result_preview');
     scrollToModule();
     revealResult(result);
+  }
+
+  /* Hard gate: the style result is shown only against e-mail and marketing consent. Without a save endpoint nothing can be stored, so nothing is locked. */
+  function gateRequired() {
+    return Boolean(settings.progressSaveUrl) && !state.resultUnlocked;
+  }
+
+  function showHardGate() {
+    byId('resultContent').classList.add('hidden');
+    byId('hardGate').classList.remove('hidden');
+    byId('hardGateError').textContent = '';
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate_shown' }, 'step_result_gate_shown');
+    scrollToModule();
+  }
+
+  async function submitHardGate(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const error = byId('hardGateError');
+    error.textContent = '';
+    if (!form.reportValidity()) return;
+    if (form.elements.website.value) return;
+    const submit = form.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    const email = form.elements.email.value;
+    const result = state.pendingResult || calculateResult();
+    try {
+      const response = await fetch(settings.progressSaveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          csrf_token: form.elements.csrf_token.value,
+          website: form.elements.website.value,
+          email,
+          consent: true,
+          marketing_consent: Boolean(form.elements.marketing_consent.checked),
+          current_step: questions[state.current]?.id || '',
+          answers: state.answers,
+          details: state.details,
+          skipped: state.skipped,
+          result_primary: result.primary,
+          source: state.source,
+          campaign: state.campaign,
+          visitor_id: state.visitorId
+        })
+      });
+      const body = await response.json().catch(() => ({ ok: false }));
+      if (response.ok && body.ok) {
+        state.resultUnlocked = true;
+        state.gateEmail = email;
+        byId('hardGate').classList.add('hidden');
+        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate_passed' }, 'step_result_gate_passed');
+        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'mailserie_optin' }, 'step_mailserie_optin');
+        reportEmbedEvent('progress_save', { result: result.primary, event_id: body.request_id });
+        revealResult(result);
+        scrollToModule();
+      } else {
+        error.textContent = body && body.message ? body.message : 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
+      }
+    } catch (e) {
+      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
+    } finally {
+      submit.disabled = false;
+    }
   }
 
   /* Before the project questions the result is a teaser with one way forward; the full profile is the reward for finishing. */
@@ -1085,67 +1085,6 @@
     return plannerCard(theme, icons[mode] || icons.oven);
   }
 
-  function extractorTypeArt(theme, mode) {
-    const base = `<rect x="132" y="136" width="336" height="120" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" /><rect x="250" y="92" width="100" height="52" rx="18" fill="${theme.accent}" opacity=".86" />`;
-    const airflow = {
-      exhaust: `${base}<path d="M208 194h172" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" /><path d="M352 170l40 24-40 24" fill="none" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" /><path d="M470 144v104" stroke="${theme.accent}" stroke-width="12" stroke-linecap="round" />`,
-      recirculation: `${base}<path d="M220 198c18-34 50-52 82-52 42 0 74 22 92 60" fill="none" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" /><path d="M380 182l12 24-28 8" fill="none" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" /><path d="M378 228c-18 24-42 36-72 36-34 0-64-16-88-48" fill="none" stroke="${theme.accent}" stroke-width="10" stroke-linecap="round" />`
-    };
-    return plannerCard(theme, airflow[mode] || airflow.exhaust);
-  }
-
-  function extractorStyleArt(theme, mode) {
-    const graphics = {
-      cabinet: `
-        <rect x="116" y="98" width="368" height="82" rx="24" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <rect x="242" y="180" width="116" height="38" rx="14" fill="${theme.accent}" opacity=".84" />
-        <rect x="156" y="224" width="288" height="54" rx="18" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
-      `,
-      hood: `
-        <path d="M226 116h148l-28 90H254z" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <path d="M300 76v40" stroke="${theme.strong}" stroke-width="12" stroke-linecap="round" />
-        <rect x="152" y="234" width="296" height="36" rx="18" fill="${theme.accent}" opacity=".84" />
-      `,
-      hob_integrated: `
-        <rect x="120" y="146" width="360" height="96" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <circle cx="222" cy="194" r="22" stroke="${theme.strong}" stroke-width="8" />
-        <circle cx="378" cy="194" r="22" stroke="${theme.strong}" stroke-width="8" />
-        <rect x="284" y="170" width="32" height="48" rx="12" fill="${theme.accent}" opacity=".86" />
-      `,
-      unsure: `
-        <rect x="120" y="110" width="360" height="160" rx="30" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" stroke-dasharray="16 14" />
-        <circle cx="300" cy="190" r="42" fill="${theme.accent}" opacity=".92" />
-        <path d="M284 176c5-15 16-23 33-23 19 0 33 12 33 28 0 11-6 19-19 28-10 6-13 11-13 21" stroke="${theme.panel}" stroke-width="10" stroke-linecap="round" />
-        <circle cx="319" cy="244" r="6" fill="${theme.panel}" />
-      `
-    };
-    return plannerCard(theme, graphics[mode] || graphics.cabinet);
-  }
-
-  function wasteArt(theme, mode) {
-    const graphics = {
-      integrated: `
-        <rect x="140" y="100" width="320" height="206" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <path d="M300 100v206" stroke="${theme.line}" stroke-width="8" />
-        <rect x="176" y="156" width="88" height="104" rx="18" fill="${theme.accent}" opacity=".82" />
-        <rect x="336" y="156" width="88" height="104" rx="18" fill="${theme.strong}" opacity=".72" />
-        <path d="M184 132h232" stroke="${theme.line}" stroke-width="8" stroke-linecap="round" />
-      `,
-      separate: `
-        <rect x="142" y="146" width="112" height="144" rx="22" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <rect x="346" y="146" width="112" height="144" rx="22" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <path d="M164 136h68M368 136h68" stroke="${theme.accent}" stroke-width="10" stroke-linecap="round" />
-      `,
-      open: `
-        <rect x="132" y="110" width="336" height="176" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" stroke-dasharray="14 12" />
-        <circle cx="300" cy="198" r="42" fill="${theme.accent}" opacity=".9" />
-        <path d="M284 182c5-15 16-23 33-23 19 0 33 12 33 28 0 11-6 19-19 28-10 6-13 11-13 21" stroke="${theme.panel}" stroke-width="10" stroke-linecap="round" />
-        <circle cx="319" cy="250" r="6" fill="${theme.panel}" />
-      `
-    };
-    return plannerCard(theme, graphics[mode] || graphics.integrated);
-  }
-
   function lightingArt(theme, mode) {
     const shell = `
       <rect x="112" y="104" width="376" height="188" rx="26" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
@@ -1211,9 +1150,6 @@
       cooking: plannerThemes('warm'),
       storage: plannerThemes('sand'),
       appliances: plannerThemes('stone'),
-      extractor_type: plannerThemes('dark'),
-      extractor_style: plannerThemes('dark'),
-      waste_separation: plannerThemes('sage'),
       lighting: plannerThemes('cloud'),
       project_time: plannerThemes('warm'),
       budget: plannerThemes('earth')
@@ -1227,9 +1163,6 @@
       cooking: () => cookingArt(themeByQuestion.cooking, optionId),
       storage: () => storageArt(themeByQuestion.storage, optionId),
       appliances: () => applianceArt(themeByQuestion.appliances, optionId),
-      extractor_type: () => extractorTypeArt(themeByQuestion.extractor_type, optionId),
-      extractor_style: () => extractorStyleArt(themeByQuestion.extractor_style, optionId),
-      waste_separation: () => wasteArt(themeByQuestion.waste_separation, optionId),
       lighting: () => lightingArt(themeByQuestion.lighting, optionId),
       project_time: () => timeArt(themeByQuestion.project_time, optionId),
       budget: () => budgetArt(themeByQuestion.budget, optionId)
@@ -1311,22 +1244,6 @@
         dishwasher: 'assets/images/appliance-dishwasher.webp',
         microwave: 'assets/images/appliance-microwave.webp'
       },
-      extractor_type: {
-        exhaust: 'assets/images/extractor-exhaust.webp',
-        recirculation: 'assets/images/extractor-recirculation.webp',
-        unsure: 'assets/images/extractor-unsure.webp'
-      },
-      extractor_style: {
-        cabinet: 'assets/images/extractor-cabinet.webp',
-        hood: 'assets/images/extractor-hood.webp',
-        hob_integrated: 'assets/images/extractor-hob-integrated.webp',
-        unsure: 'assets/images/extractor-unsure.webp'
-      },
-      waste_separation: {
-        integrated: 'assets/images/waste-integrated.webp',
-        separate: 'assets/images/waste-separate.webp',
-        open: 'assets/images/waste-open.webp'
-      },
       lighting: {
         niche: 'assets/images/lighting-niche.webp',
         cabinet_light: 'assets/images/lighting-cabinet-light.webp',
@@ -1377,17 +1294,11 @@
   }
 
   function renderPlanningSummary() {
-    const ids = ['room_concept', 'kitchen_shape', 'room_dimensions', 'household', 'appliances', 'extractor_type', 'extractor_style', 'waste_separation', 'lighting', 'project_time', 'budget', 'special_wishes'];
+    const ids = ['room_concept', 'kitchen_shape', 'household', 'appliances', 'lighting', 'project_time', 'budget', 'special_wishes'];
     const rows = [];
     ids.forEach(id => {
       const q = questions.find(item => item.id === id);
       if (!q) return;
-      if (q.type === 'dimensions') {
-        const details = state.details[id];
-        const parts = details ? [details.length, details.width, details.height].filter(Boolean) : [];
-        if (parts.length) rows.push([q.title, parts.join(' × ') + ' cm']);
-        return;
-      }
       if (q.type === 'text') {
         const value = (state.details[id] || '').trim();
         if (value) rows.push([q.title, value]);
@@ -1420,7 +1331,8 @@
   function openContact() {
     const result = calculateResult();
     const form = byId('leadForm');
-    form.elements.callback.checked = true;
+    form.elements.callback.checked = false;
+    toggleCallbackPhone(false);
     if (state.gateEmail && !form.elements.email.value) form.elements.email.value = state.gateEmail;
     byId('contactSummary').innerHTML = `<strong>${escapeHtml(result.title)}</strong><p>${completion()} % der Planungsfragen sind bereits beantwortet.</p>`;
     renderJourney('result');
@@ -1434,6 +1346,13 @@
     const form = event.currentTarget;
     const error = byId('formError');
     error.textContent = '';
+    const callbackRequested = Boolean(form.elements.callback.checked);
+    const phone = form.elements.phone.value.trim();
+    if (callbackRequested && !/^\+?[0-9 ()/.-]{7,60}$/.test(phone)) {
+      error.textContent = 'Bitte geben Sie für den gewünschten Rückruf eine gültige Telefonnummer ein.';
+      form.elements.phone.focus();
+      return;
+    }
     if (!form.reportValidity()) return;
     const submit = form.querySelector('button[type="submit"]');
     submit.disabled = true;
@@ -1442,7 +1361,7 @@
     const result = calculateResult();
     const payload = {
       ...data,
-      callback: Boolean(form.elements.callback.checked),
+      callback: callbackRequested,
       consent: Boolean(form.elements.consent.checked),
       answers: state.answers,
       details: state.details,
@@ -1464,6 +1383,7 @@
         : { ok: false, message: 'Der Server hat unerwartet geantwortet. Bitte versuchen Sie es später erneut.' };
       if (!response.ok || !body.ok) throw new Error(body.message || 'Übermittlung fehlgeschlagen.');
       state.submitted = true;
+      state.callbackRequested = callbackRequested;
       state.deliveryPending = body.delivery_pending === true;
       state.serviceArea = ['core', 'outside'].includes(body.service_area) ? body.service_area : '';
       save();
@@ -1478,6 +1398,19 @@
       submit.textContent = 'Küchenprofil übermitteln';
     }
   }
+
+  function toggleCallbackPhone(checked) {
+    const form = byId('leadForm');
+    const field = byId('callbackPhoneField');
+    if (!form || !field) return;
+    field.classList.toggle('hidden', !checked);
+    form.elements.phone.required = checked;
+    if (!checked) form.elements.phone.value = '';
+  }
+
+  byId('leadForm')?.elements.callback.addEventListener('change', event => {
+    toggleCallbackPhone(Boolean(event.currentTarget.checked));
+  });
 
   function renderSuccess(deliveryPending) {
     const eyebrow = byId('successEyebrow');
@@ -1494,7 +1427,9 @@
     eyebrow.textContent = 'Sicher übermittelt';
     if (state.serviceArea === 'core') {
       title.textContent = 'Das passt zu unserem Planungsgebiet.';
-      message.textContent = 'Ihr Küchenprofil ist angekommen. Wir melden uns für eine erste Einordnung Ihres Projekts – oder Sie wählen direkt einen Termin.';
+      message.textContent = state.callbackRequested
+        ? 'Ihr Küchenprofil ist angekommen. Daniel Klas meldet sich für die gewünschte persönliche Einordnung – oder Sie wählen direkt einen Termin.'
+        : 'Ihr Küchenprofil ist angekommen. Wenn Sie Ihr Projekt persönlich besprechen möchten, können Sie direkt einen Termin wählen.';
       if (settings.appointmentUrl) {
         appointment.href = settings.appointmentUrl;
         appointment.classList.remove('hidden');
@@ -1503,7 +1438,9 @@
     }
     if (state.serviceArea === 'outside') {
       title.textContent = 'Ihr Küchenprofil ist angekommen.';
-      message.textContent = 'Ihr Stilprofil können Sie selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an. Wir melden uns und besprechen, was in Ihrem Fall möglich ist.';
+      message.textContent = state.callbackRequested
+        ? 'Ihr Stilprofil können Sie selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an. Daniel Klas meldet sich für die gewünschte Einordnung.'
+        : 'Ihr Stilprofil können Sie selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an.';
       return;
     }
     title.textContent = 'Ihr Küchenprofil ist angekommen.';

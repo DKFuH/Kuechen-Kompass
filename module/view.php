@@ -59,6 +59,21 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
         </section>
 
         <section class="result panel hidden" data-view="result">
+            <div id="hardGate" class="hard-gate hidden">
+                <span class="eyebrow">Ihr Stilergebnis ist fertig</span>
+                <h2 id="hardGateTitle" tabindex="-1">Wohin dürfen wir Ihr Stilprofil schicken?</h2>
+                <p>Ihre Stilrichtung ist berechnet. Das Stilprofil gibt es nicht umsonst: Im Austausch erhalten Sie von Klas Küchen Informationen, Planungstipps und Angebote rund um Küche und Küchenplanung per E-Mail.</p>
+                <form id="hardGateForm" class="profile-save__form" novalidate>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                    <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+                    <label for="hardGateEmail">E-Mail-Adresse</label>
+                    <input id="hardGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
+                    <label class="check-label"><input name="marketing_consent" type="checkbox" required> <span>Ja, ich möchte mein Stilprofil sehen und per E-Mail einen Link zum Weitermachen erhalten. Ich willige ein, dass Klas Küchen mir per E-Mail Informationen, Planungstipps und Angebote zu Küchen und Küchenplanung sendet. Ich kann diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>.</span></label>
+                    <button class="primary-button" type="submit">Stilprofil anzeigen</button>
+                    <p id="hardGateError" class="form-error" role="alert"></p>
+                </form>
+                <p class="hard-gate__note">Wir bestätigen Ihre Adresse per Double-Opt-in. Ohne Bestätigung senden wir keine Werbe-E-Mails.</p>
+            </div>
             <div id="resultContent" class="hidden">
                 <div class="result-header">
                     <div>
@@ -158,7 +173,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <div>
                     <span class="eyebrow">Ihr Küchenprofil übermitteln</span>
                     <h2>Aus Inspiration wird eine Grundlage für Ihre Planung.</h2>
-                    <p>Mit Ihrer Postleitzahl ordnen wir ein, ob Ihr Projekt in unserem persönlichen Planungsgebiet liegt (etwa 70 km um Sohren). Der Wunsch nach persönlicher Rückmeldung ist bereits ausgewählt – Sie können ihn unten jederzeit wieder abwählen.</p>
+                    <p>Mit Ihrer Postleitzahl ordnen wir ein, ob Ihr Projekt in unserem persönlichen Planungsgebiet liegt (etwa 70 km um Sohren). Wenn Sie zusätzlich einen Rückruf wünschen, können Sie ihn freiwillig auswählen.</p>
                     <div id="contactSummary" class="contact-summary"></div>
                 </div>
                 <form id="leadForm" novalidate>
@@ -170,8 +185,8 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         <label>Postleitzahl <span>des Projekts</span><input name="postal_code" required pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
                         <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
                     </div>
-                    <label>Telefon <span>optional, für eine schnelle Rückfrage</span><input name="phone" type="tel" autocomplete="tel" data-matomo-mask></label>
-                    <label class="check-label"><input name="callback" type="checkbox" checked> Ich wünsche eine persönliche Rückmeldung von Daniel Klas zu meinem Küchenprofil.</label>
+                    <label class="check-label"><input name="callback" type="checkbox"> <span><strong>Ja, ich möchte eine persönliche Einordnung.</strong><br>Daniel Klas (Klas Küchen®) darf mich unter der angegebenen Telefonnummer zu meinem Küchenprofil und einer möglichen Küchenplanung anrufen. Die Einwilligung ist freiwillig und kann jederzeit mit Wirkung für die Zukunft widerrufen werden, zum Beispiel per E-Mail an kontakt@kuechen-klas.de.</span></label>
+                    <label id="callbackPhoneField" class="hidden">Telefonnummer <span>für den gewünschten Rückruf</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
                     <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meines Küchenprofils zu.</span></label>
                     <p id="formError" class="form-error" role="alert"></p>
                     <button class="primary-button" type="submit">Küchenprofil übermitteln</button>
