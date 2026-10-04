@@ -200,6 +200,7 @@
 .kk-stilfinder .planning-row { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line-subtle); font-size: 14px; }
 .kk-stilfinder .planning-row span:first-child { color: var(--muted); }
 .kk-stilfinder .planning-row span:last-child { font-weight: 700; text-align: right; }
+.kk-stilfinder .result-consult-return { display: flex; justify-content: center; margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
 
 .kk-stilfinder .decision-card { margin: 0 0 32px; padding: 28px; border-radius: var(--radius-xl); background: var(--sand); border: 1px solid var(--accent-light); box-shadow: var(--shadow-md); }
 .kk-stilfinder .decision-card:focus { outline: 3px solid var(--accent-glow); outline-offset: 3px; }
@@ -232,6 +233,7 @@
 .kk-stilfinder .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .kk-stilfinder .contact-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; }
+.kk-stilfinder .intent-card .contact-layout { gap: 32px; }
 .kk-stilfinder .contact-layout > div > p { color: var(--muted); }
 .kk-stilfinder .contact-summary { margin-top: 28px; border-left: 3px solid var(--accent-light); padding-left: 18px; }
 .kk-stilfinder form { display: grid; gap: 17px; }
@@ -287,7 +289,7 @@
     .kk-stilfinder .question-meta .back-arrow { margin-left: -10px; }
     .kk-stilfinder .quiz h2 { margin-top: 2px; }
     .kk-stilfinder .decision-card { padding: 20px 16px; }
-    .kk-stilfinder .decision-card__primary, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__offer .secondary-button, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
+    .kk-stilfinder .decision-card__primary, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .intent-card #leadForm .primary-button, .kk-stilfinder .result-consult-return .primary-button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__offer .secondary-button, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
     .kk-stilfinder .profile-save { padding: 20px 16px; }
     .kk-stilfinder .intro-visual { min-height: 235px; }
     .kk-stilfinder .answer-grid { grid-template-columns: 1fr; }

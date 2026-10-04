@@ -35,8 +35,8 @@
 
   const questions = [
     {
-      id: 'feeling', section: 'inspiration', title: 'Wie soll sich Ihre neue Küche anfühlen?',
-      help: 'Wählen Sie spontan. Mehrere Antworten sind möglich.', multiple: true, required: true,
+      id: 'feeling', section: 'inspiration', title: 'Wie soll sich deine neue Küche anfühlen?',
+      help: 'Wähle spontan. Mehrere Antworten sind möglich.', multiple: true, required: true,
       options: [
         option('calm', 'Ruhig und klar', 'Weniger Reize, harmonische Flächen', '#c6beb0', { japandi: 3, minimal: 2 }),
         option('warm', 'Warm und wohnlich', 'Holz, Textur und weiche Kontraste', '#a77d5b', { natural: 3, japandi: 1, classic: 1 }),
@@ -45,8 +45,8 @@
       ]
     },
     {
-      id: 'visual_language', section: 'style', title: 'Welche Formensprache zieht Sie an?',
-      help: 'Nicht darüber nachdenken, was praktisch ist – nur was Ihnen gefällt.', multiple: false, required: true,
+      id: 'visual_language', section: 'style', title: 'Welche Formensprache zieht dich an?',
+      help: 'Denk noch nicht darüber nach, was praktisch ist – wähle nur, was dir gefällt.', multiple: false, required: true,
       options: [
         option('flat', 'Geradlinig', 'Flächenbündig, reduziert, präzise', '#c9c4ba', { minimal: 3, urban: 1 }),
         option('soft', 'Weich und natürlich', 'Rundungen, Holz und sanfte Übergänge', '#b89976', { natural: 3, japandi: 2 }),
@@ -55,8 +55,8 @@
       ]
     },
     {
-      id: 'palette', section: 'style', title: 'In welcher Farbwelt fühlen Sie sich zuhause?',
-      help: 'Sie können zwei Farbwelten kombinieren.', multiple: true, max: 2, required: true,
+      id: 'palette', section: 'style', title: 'In welcher Farbwelt fühlst du dich zu Hause?',
+      help: 'Du kannst zwei Farbwelten kombinieren.', multiple: true, max: 2, required: true,
       options: [
         option('sand', 'Sand und Greige', 'Warm, ruhig und wandelbar', '#c9b79f', { japandi: 3, natural: 2, minimal: 1 }),
         option('light', 'Hell und klar', 'Cremeweiß bis helles Grau', '#e6e2d8', { minimal: 3, japandi: 1 }),
@@ -65,7 +65,7 @@
       ]
     },
     {
-      id: 'materials', section: 'materials', title: 'Welche Materialien möchten Sie täglich berühren?',
+      id: 'materials', section: 'materials', title: 'Welche Materialien möchtest du täglich berühren?',
       help: 'Bis zu drei Favoriten auswählen.', multiple: true, max: 3, required: true,
       options: [
         option('wood', 'Echtes Holzgefühl', 'Lebendige Maserung und Wärme', 'repeating-linear-gradient(95deg,#967152 0 9px,#815f46 10px 17px)', { natural: 3, japandi: 2 }),
@@ -76,7 +76,7 @@
       ]
     },
     {
-      id: 'handles', section: 'materials', title: 'Wie möchten Sie Schränke öffnen?',
+      id: 'handles', section: 'materials', title: 'Wie möchtest du Schränke öffnen?',
       help: 'Diese Entscheidung prägt die Wirkung stärker, als man zunächst denkt.', multiple: false, required: true,
       options: [
         option('handleless', 'Grifflos', 'Ruhige, durchgängige Flächen', '#b8ada0', { japandi: 3, minimal: 2 }),
@@ -94,8 +94,8 @@
       ]
     },
     {
-      id: 'kitchen_shape', section: 'space', title: 'Welche Anordnung wünschen Sie sich im Moment am ehesten?',
-      help: 'Es geht um Ihre aktuelle Wunschrichtung, nicht um eine fertige Grundrissentscheidung. Die passende Form wird später anhand des Raums geprüft.', multiple: false,
+      id: 'kitchen_shape', section: 'space', title: 'Welche Anordnung wünschst du dir im Moment am ehesten?',
+      help: 'Es geht um deine aktuelle Wunschrichtung, nicht um eine fertige Grundrissentscheidung. Die passende Form wird später anhand des Raums geprüft.', multiple: false,
       options: [
         option('single_row', 'Einzeilige Küche', 'Eine durchgehende Zeile an einer Wand', '#c9a17c', {}),
         option('double_row', 'Zweizeilige Küche', 'Zwei parallele Zeilen mit Mittelgang', '#b9a48c', {}),
@@ -107,7 +107,7 @@
     },
     {
       id: 'household', section: 'everyday', title: 'Wer nutzt die Küche im Alltag?',
-      help: 'Wählen Sie die Personen aus, für die die Küche im Alltag wirklich funktionieren muss.', multiple: true,
+      help: 'Wähle die Personen aus, für die die Küche im Alltag wirklich funktionieren muss.', multiple: true,
       options: [
         option('solo', 'Meist eine Person', 'Klare persönliche Abläufe', '#c7b9a5', {}),
         option('couple', 'Gemeinsam zu zweit', 'Zwei Arbeitsbereiche mit Bewegungsfreiheit', '#b8a081', {}),
@@ -116,8 +116,8 @@
       ]
     },
     {
-      id: 'cooking', section: 'everyday', title: 'Was passiert in Ihrer Küche wirklich?',
-      help: 'Wählen Sie alles, was häufig vorkommt.', multiple: true,
+      id: 'cooking', section: 'everyday', title: 'Was passiert in deiner Küche wirklich?',
+      help: 'Wähle alles, was häufig vorkommt.', multiple: true,
       options: [
         option('fresh', 'Täglich frisch kochen', 'Viel Vorbereitung und gut erreichbare Vorräte', '#a48a6d', {}),
         option('quick', 'Schnell und unkompliziert', 'Kurze Wege und pflegeleichte Flächen', '#c4b7a7', {}),
@@ -131,13 +131,13 @@
       options: [
         option('order', 'Mehr Ordnung', 'Jedes Teil bekommt seinen festen Platz', '#b9aa96', {}),
         option('workspace', 'Mehr Arbeitsfläche', 'Freie Zonen statt zugestellter Fläche', '#9f8e7b', {}),
-        option('ergonomics', 'Bessere Ergonomie', 'Höhen und Wege passend zu Ihnen', '#807568', {}),
+        option('ergonomics', 'Bessere Ergonomie', 'Höhen und Wege passend zu dir', '#807568', {}),
         option('together', 'Mehr Gemeinsamkeit', 'Kochen, reden und leben verbinden', '#a47d5f', {})
       ]
     },
     {
-      id: 'appliances', section: 'technik', title: 'Welche Elektrogeräte sind für Sie wichtig?',
-      help: 'Wählen Sie nur Geräte, die für Ihre Planung wirklich gesetzt oder besonders wichtig sind.', multiple: true,
+      id: 'appliances', section: 'technik', title: 'Welche Elektrogeräte sind dir wichtig?',
+      help: 'Wähle nur Geräte, die für deine Planung wirklich gesetzt oder besonders wichtig sind.', multiple: true,
       options: [
         option('oven', 'Heißluftbackofen', 'Gleichmäßige Hitze für Braten und Backen', '#c9a17c', {}),
         option('steamer', 'Dampfgarer', 'Schonendes Garen mit Feuchtigkeit', '#b9a48c', {}),
@@ -149,8 +149,8 @@
       ]
     },
     {
-      id: 'lighting', section: 'technik', title: 'Welche Beleuchtung wünschen Sie sich?',
-      help: 'Wählen Sie die Lichtideen, die den Alltag oder die Atmosphäre Ihrer Küche wirklich verbessern würden.', multiple: true,
+      id: 'lighting', section: 'technik', title: 'Welche Beleuchtung wünschst du dir?',
+      help: 'Wähle die Lichtideen, die den Alltag oder die Atmosphäre deiner Küche wirklich verbessern würden.', multiple: true,
       options: [
         option('niche', 'Nischenbeleuchtung', 'Licht entlang der Arbeitsfläche', '#c9a17c', {}),
         option('cabinet_light', 'Vitrinenbeleuchtung', 'Effektlicht in Glasfronten', '#b9a48c', {}),
@@ -160,7 +160,7 @@
       ]
     },
     {
-      id: 'project_time', section: 'framework', title: 'Wann soll Ihre neue Küche Wirklichkeit werden?',
+      id: 'project_time', section: 'framework', title: 'Wann soll deine neue Küche Wirklichkeit werden?',
       help: 'Eine grobe Einordnung reicht.', multiple: false,
       options: [
         option('0_3', 'In den nächsten 3 Monaten', 'Das Projekt ist bereits konkret', '#876d59', {}),
@@ -170,7 +170,7 @@
       ]
     },
     {
-      id: 'budget', section: 'framework', title: 'Welches Küchenbudget möchten Sie einplanen?',
+      id: 'budget', section: 'framework', title: 'Welches Küchenbudget möchtest du einplanen?',
       help: 'Gemeint ist der Rahmen für Küchenmöbel, Geräte, Arbeitsplatte und Montage. Bauliche Zusatzarbeiten werden später separat geklärt.', multiple: false,
       options: [
         option('under_15', 'Bis 15.000 €', 'Je nach Raum und Ausstattung nur mit klarer Priorisierung', '#d3c6b7', {}),
@@ -181,10 +181,15 @@
       ]
     },
     {
-      id: 'special_wishes', section: 'framework', type: 'text',
-      title: 'Gibt es besondere Wünsche für Ihre Küche?',
-      help: 'Zum Beispiel eine bevorzugte Marke der Hausgeräte, ein Apothekerschrank oder ein hoch eingebauter Backofen. Optional.',
-      multiple: false, optional: true, options: [], placeholder: 'Ihre Notiz an uns …'
+      id: 'special_wishes', section: 'framework',
+      title: 'Gibt es besondere Wünsche für deine Küche?',
+      help: 'Wähle einfach, was im Moment am besten passt.',
+      multiple: false, required: true,
+      options: [
+        option('yes', 'Ja, habe ich', 'Besprechen wir persönlich', '#ad9178', {}),
+        option('unsure', 'Noch nicht sicher', 'Finden wir gemeinsam heraus', '#d5c7b7', {}),
+        option('none', 'Nein, nichts Besonderes', 'Aktuell habe ich keine Sonderwünsche', '#c8bdaf', {})
+      ]
     }
   ];
 
@@ -195,35 +200,35 @@
   const styleCopy = {
     minimal: {
       label: 'Warm Minimal',
-      description: 'Klare Linien, ruhige Flächen und eine warme Grundstimmung bilden Ihre ideale Küchenwelt.',
+      description: 'Klare Linien, ruhige Flächen und eine warme Grundstimmung bilden deine ideale Küchenwelt.',
       image: 'assets/images/style-warm-minimal.webp',
       principles: ['wenige, durchgängige Frontlinien', 'warme Neutraltöne statt hartem Reinweiß', 'Licht und Funktion möglichst ruhig integrieren'],
       watchout: 'Zu viele Einzelmaterialien oder sichtbare Technik nehmen diesem Stil schnell seine Ruhe.'
     },
     natural: {
       label: 'Natürlich Wohnlich',
-      description: 'Authentische Materialien und eine wohnliche Atmosphäre stehen bei Ihnen im Mittelpunkt.',
+      description: 'Authentische Materialien und eine wohnliche Atmosphäre stehen bei dir im Mittelpunkt.',
       image: 'assets/images/style-natural-living.webp',
       principles: ['Holz oder Holzstruktur gezielt fühlbar einsetzen', 'matte, erdige Oberflächen kombinieren', 'Küche und Wohnraum über wiederkehrende Materialien verbinden'],
       watchout: 'Zu viele unterschiedliche Holzdekore wirken schnell unruhig – besser wenige Materialien konsequent wiederholen.'
     },
     japandi: {
       label: 'Soft Japandi',
-      description: 'Reduktion, handwerkliche Details und natürliche Ruhe prägen Ihre persönliche Stilwelt.',
+      description: 'Reduktion, handwerkliche Details und natürliche Ruhe prägen deine persönliche Stilwelt.',
       image: 'assets/images/style-soft-japandi.webp',
       principles: ['helle Hölzer mit warmen Naturtönen verbinden', 'klare Flächen durch feine handwerkliche Details ergänzen', 'Stauraum geschlossen und visuell ruhig organisieren'],
       watchout: 'Der Stil lebt von Zurückhaltung. Dekoration und Kontraste sollten bewusst dosiert werden.'
     },
     urban: {
       label: 'Urban Architecture',
-      description: 'Starke Materialien, klare Architektur und bewusste Kontraste geben Ihrer Küche Charakter.',
+      description: 'Starke Materialien, klare Architektur und bewusste Kontraste geben deiner Küche Charakter.',
       image: 'assets/images/style-urban-architecture.webp',
       principles: ['dunkle oder mineralische Flächen klar gliedern', 'Metall und Glas als gezielte Akzente nutzen', 'Licht zur Betonung von Architektur statt nur zur Ausleuchtung einsetzen'],
       watchout: 'Große dunkle Flächen brauchen ausreichend Licht und warme Gegengewichte, damit der Raum nicht schwer wirkt.'
     },
     classic: {
       label: 'Modern Classic',
-      description: 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.',
+      description: 'Zeitlose Eleganz trifft bei dir auf feine Details und moderne Funktion.',
       image: 'assets/images/style-modern-classic.webp',
       principles: ['klassische Details mit ruhigen modernen Flächen verbinden', 'Griffe, Glas und Metall als wiederkehrende Akzente einsetzen', 'Farben eher zeitlos als trendgetrieben wählen'],
       watchout: 'Zu viele dekorative Details können die moderne Wirkung überlagern – ein klares Grundraster hält den Stil zeitgemäß.'
@@ -283,6 +288,8 @@
   const nextButton = byId('nextButton');
   const selectionMessage = byId('selectionMessage');
   let autoAdvanceTimer = null;
+  let completedProgressSyncInFlight = false;
+  let completedProgressSynced = false;
   const reportedEmbedEvents = new Set();
   const csrfField = byId('leadForm')?.elements?.csrf_token;
   if (csrfField && settings.csrfToken) csrfField.value = settings.csrfToken;
@@ -295,7 +302,10 @@
   renderJourney();
   showView(state.started ? (state.submitted ? 'success' : 'quiz') : 'intro');
   if (state.submitted) renderSuccess(state.deliveryPending);
-  if (state.started && !state.submitted) renderQuestion();
+  if (state.started && !state.submitted) {
+    if (settings.initialState && profileComplete()) showResult();
+    else renderQuestion();
+  }
   reportEmbedEvent('view');
 
   function bind() {
@@ -309,12 +319,11 @@
     byId('openContactButton').addEventListener('click', previewConsult);
     byId('profileSaveButton').addEventListener('click', openProfileSave);
     byId('previewSaveButton').addEventListener('click', openProfileSave);
+    byId('bottomConsultButton').addEventListener('click', returnToConsultationForm);
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('resultGateForm').addEventListener('submit', submitResultGate);
     byId('hardGateForm').addEventListener('submit', submitHardGate);
-    byId('intentYesButton').addEventListener('click', intentYes);
-    byId('intentNoButton').addEventListener('click', intentNo);
   }
 
   function normalizeSitePath(value) {
@@ -379,7 +388,7 @@
   }
 
   function restart() {
-    if (!confirm('Möchten Sie alle bisherigen Antworten löschen und neu beginnen?')) return;
+    if (!confirm('Möchtest du alle bisherigen Antworten löschen und neu beginnen?')) return;
     cancelAutoAdvance();
     Object.assign(state, { started: false, current: 0, answers: {}, details: {}, skipped: [], submitted: false, deliveryPending: false, resultUnlocked: false, planningFinished: false, pendingResult: null, gateEmail: '', serviceArea: '' });
     renderJourney();
@@ -477,7 +486,7 @@
         selected = [...selected, optionId];
       } else if (q.max && selected.length >= q.max) {
         selectionMessage.classList.remove('is-confirm');
-        selectionMessage.textContent = `Sie können höchstens ${q.max} Antworten auswählen. Entfernen Sie zuerst eine Auswahl.`;
+        selectionMessage.textContent = `Du kannst höchstens ${q.max} Antworten auswählen. Entferne zuerst eine Auswahl.`;
         return;
       } else {
         selected = [...selected, optionId];
@@ -643,11 +652,11 @@
         revealResult(result);
         scrollToModule();
       } else {
-        error.textContent = body && body.message ? body.message : 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+        error.textContent = body && body.message ? body.message : 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuche es noch einmal.';
         reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
       }
     } catch (e) {
-      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuche es noch einmal.';
       reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
     } finally {
       submit.disabled = false;
@@ -661,8 +670,8 @@
     content.classList.remove('hidden');
     content.classList.toggle('is-preview', !full);
     byId('resultFull').classList.toggle('hidden', !full);
-    byId('resultEyebrow').textContent = full ? 'Ihre Stilrichtung im Kontext' : 'Ihre erste Stilrichtung';
-    byId('resultTitle').textContent = full ? `Ihr vollständiges Stilprofil: ${result.title}` : result.title;
+    byId('resultEyebrow').textContent = full ? 'Deine Stilrichtung im Kontext' : 'Deine erste Stilrichtung';
+    byId('resultTitle').textContent = full ? `Dein vollständiges Stilprofil: ${result.title}` : result.title;
     byId('resultDescription').textContent = result.description;
     byId('profileProgress').textContent = `${completion()}%`;
     byId('resultInsight').textContent = insight(result);
@@ -710,13 +719,16 @@
     byId('resultGateEmail').focus();
   }
 
-  /* Once all project sections are addressed, the card turns into the intent question. */
+  /* Once all project sections are addressed, the consultation form becomes the final card. */
   function renderDecision() {
     const complete = profileComplete();
     byId('decisionPaths').classList.toggle('hidden', complete);
     byId('intentCard').classList.toggle('hidden', !complete);
     if (!complete) return;
+    prepareContactForm();
+    syncCompletedProgress();
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_gate' }, 'step_intent_gate');
+    reportEmbedEvent('contact_open');
     const card = byId('decisionCard');
     window.setTimeout(() => {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -729,30 +741,19 @@
     openContact();
   }
 
-  function intentYes() {
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_yes' }, 'step_intent_yes');
-    openContact();
-  }
-
-  /* Stores the completed project answers on the existing progress record; the server sends no second e-mail. */
-  async function intentNo() {
-    const button = byId('intentNoButton');
-    const message = byId('intentNoMessage');
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_no' }, 'step_intent_no');
-    if (!state.resultUnlocked) {
-      message.textContent = 'Ihr Profil bleibt auf dieser Seite sichtbar. Wenn Sie später weitermachen möchten, können Sie es unten freiwillig per E-Mail speichern.';
-      return;
-    }
-    button.disabled = true;
+  /* Keep the resume link on the same record, but advance it to the completed profile. */
+  async function syncCompletedProgress() {
+    if (!settings.progressSaveUrl || completedProgressSynced || completedProgressSyncInFlight) return;
+    completedProgressSyncInFlight = true;
     const result = state.pendingResult || calculateResult();
-    let saved = false;
     try {
       const response = await fetch(settings.progressSaveUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         credentials: 'same-origin',
+        keepalive: true,
         body: JSON.stringify({
-          csrf_token: byId('resultGateForm').elements.csrf_token.value,
+          csrf_token: settings.csrfToken,
           update_only: true,
           current_step: questions[questions.length - 1].id,
           answers: state.answers,
@@ -762,16 +763,17 @@
         })
       });
       const body = await response.json().catch(() => ({ ok: false }));
-      saved = response.ok && body.ok === true;
+      completedProgressSynced = response.ok && Boolean(body.ok);
+      if (completedProgressSynced) {
+        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'profile_complete_saved' }, 'step_profile_complete_saved');
+      }
     } catch (e) {
-      saved = false;
+      completedProgressSynced = false;
+    } finally {
+      completedProgressSyncInFlight = false;
     }
-    if (saved) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_no_saved' }, 'step_intent_no_saved');
-    message.textContent = saved
-      ? 'Ihr Profil ist gespeichert. Den Link zum Weitermachen haben Sie per E-Mail erhalten. Wenn Sie später doch eine Einschätzung möchten, genügt ein Klick auf „Ja“.'
-      : 'Der aktuelle Stand konnte gerade nicht gespeichert werden. Ihr Profil bleibt auf dieser Seite sichtbar.';
-    button.disabled = false;
   }
+
 
   async function submitResultGate(event) {
     event.preventDefault();
@@ -816,11 +818,11 @@
         if (marketingConsent) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'mailserie_optin' }, 'step_mailserie_optin');
         reportEmbedEvent('progress_save', { result: result.primary, event_id: body.request_id });
       } else {
-        error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+        error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuche es noch einmal.';
         reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
       }
     } catch (e) {
-      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuchen Sie es noch einmal.';
+      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuche es noch einmal.';
       reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
     } finally {
       submit.disabled = false;
@@ -863,7 +865,7 @@
     const isBlend = primary.score > 0 && secondary.score / primary.score >= 0.82;
     const title = isBlend ? `${primary.label} mit ${secondary.label}-Anteil` : primary.label;
     const description = isBlend
-      ? `${primary.description} ${secondary.label} ergänzt Ihr Profil deutlich und sollte bei Material, Farbe und Details mitgedacht werden.`
+      ? `${primary.description} ${secondary.label} ergänzt dein Profil deutlich und sollte bei Material, Farbe und Details mitgedacht werden.`
       : primary.description;
 
     return { title, description, ranked, primary: primary.id, secondary: secondary.id, isBlend };
@@ -1257,6 +1259,11 @@
         '6_12': 'assets/images/timeframe-6-12.webp',
         ideas: 'assets/images/timeframe-ideas.webp'
       },
+      special_wishes: {
+        yes: 'assets/images/special-wishes-yes.webp',
+        unsure: 'assets/images/special-wishes-unsure.webp',
+        none: 'assets/images/special-wishes-none.webp'
+      },
     }[questionId]?.[optionId] || '';
     return path ? assetUrl(path) : generatedOptionImage(questionId, optionId);
   }
@@ -1289,7 +1296,7 @@
   function renderMoodboard() {
     const ids = [...(state.answers.palette || []), ...(state.answers.materials || [])];
     const options = questions.flatMap(q => q.options).filter((opt, idx, all) => ids.includes(opt.id) && all.findIndex(x => x.id === opt.id) === idx);
-    byId('moodboard').innerHTML = (options.length ? options : [option('base', 'Ihre Auswahl', '', '#c9b79f', {})])
+    byId('moodboard').innerHTML = (options.length ? options : [option('base', 'Deine Auswahl', '', '#c9b79f', {})])
       .map(opt => `<div class="mood-chip" style="--chip:${opt.swatch}"><span>${escapeHtml(opt.label)}</span></div>`).join('');
   }
 
@@ -1321,24 +1328,38 @@
 
   function insight(result) {
     const needs = state.answers.storage || [];
-    if (needs.includes('order')) return 'Ihre ruhige Stilwelt gewinnt, wenn Stauraum konsequent hinter geschlossenen Fronten organisiert wird.';
+    if (needs.includes('order')) return 'Deine ruhige Stilwelt gewinnt, wenn Stauraum konsequent hinter geschlossenen Fronten organisiert wird.';
     if (needs.includes('workspace')) return 'Die Materialwirkung sollte sich auf wenige starke Flächen konzentrieren, damit möglichst viel freie Arbeitsfläche bleibt.';
-    if (needs.includes('together')) return 'Eine Insel oder Halbinsel kann Ihre Stilwelt mit dem Wohnraum verbinden, ohne dass die Küche ihre klare Wirkung verliert.';
+    if (needs.includes('together')) return 'Eine Insel oder Halbinsel kann deine Stilwelt mit dem Wohnraum verbinden, ohne dass die Küche ihre klare Wirkung verliert.';
     if (result.primary === 'natural') return 'Echte Materialwirkung entsteht nicht durch möglichst viele Holzflächen, sondern durch wenige gut platzierte, fühlbare Akzente.';
-    return 'Ihr Stil lebt von Konsequenz. Wiederkehrende Farben und Materialien schaffen mehr Ruhe als viele einzelne Designideen.';
+    return 'Dein Stil lebt von Konsequenz. Wiederkehrende Farben und Materialien schaffen mehr Ruhe als viele einzelne Designideen.';
   }
 
-  function openContact() {
+  function prepareContactForm() {
     const result = calculateResult();
     const form = byId('leadForm');
     form.elements.callback.checked = false;
     toggleCallbackPhone(false);
     if (state.gateEmail && !form.elements.email.value) form.elements.email.value = state.gateEmail;
     byId('contactSummary').innerHTML = `<strong>${escapeHtml(result.title)}</strong><p>${completion()} % der Planungsfragen sind bereits beantwortet.</p>`;
+  }
+
+  function openContact() {
+    prepareContactForm();
+    byId('decisionPaths').classList.add('hidden');
+    byId('intentCard').classList.remove('hidden');
     renderJourney('result');
-    showView('contact');
+    showView('result');
     reportEmbedEvent('contact_open');
-    scrollToModule();
+    byId('intentCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function returnToConsultationForm() {
+    const card = byId('intentCard');
+    const nameField = byId('leadForm').elements.name;
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    nameField.focus({ preventScroll: true });
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'bottom_consult' }, 'step_bottom_consult');
   }
 
   async function submitLead(event) {
@@ -1349,7 +1370,7 @@
     const callbackRequested = Boolean(form.elements.callback.checked);
     const phone = form.elements.phone.value.trim();
     if (callbackRequested && !/^\+?[0-9 ()/.-]{7,60}$/.test(phone)) {
-      error.textContent = 'Bitte geben Sie für den gewünschten Rückruf eine gültige Telefonnummer ein.';
+      error.textContent = 'Bitte gib für den gewünschten Rückruf eine gültige Telefonnummer ein.';
       form.elements.phone.focus();
       return;
     }
@@ -1380,7 +1401,7 @@
       const contentType = response.headers.get('content-type') || '';
       const body = contentType.includes('application/json')
         ? await response.json()
-        : { ok: false, message: 'Der Server hat unerwartet geantwortet. Bitte versuchen Sie es später erneut.' };
+        : { ok: false, message: 'Der Server hat unerwartet geantwortet. Bitte versuche es später erneut.' };
       if (!response.ok || !body.ok) throw new Error(body.message || 'Übermittlung fehlgeschlagen.');
       state.submitted = true;
       state.callbackRequested = callbackRequested;
@@ -1392,10 +1413,10 @@
       showView('success');
       reportEmbedEvent('lead', { result: result.primary, event_id: body.submission_id, service_area: state.serviceArea });
     } catch (e) {
-      error.textContent = e.message || 'Bitte versuchen Sie es später erneut.';
+      error.textContent = e.message || 'Bitte versuche es später erneut.';
     } finally {
       submit.disabled = false;
-      submit.textContent = 'Küchenprofil übermitteln';
+      submit.textContent = 'Jetzt kostenloses Beratungsgespräch anfragen';
     }
   }
 
@@ -1420,16 +1441,16 @@
     appointment.classList.add('hidden');
     if (deliveryPending) {
       eyebrow.textContent = 'Sicher gespeichert';
-      title.textContent = 'Ihr Küchenprofil ist gespeichert.';
-      message.textContent = 'Die interne Benachrichtigung ist noch nicht bestätigt. Ihre Angaben sind gesichert; bitte senden Sie das Formular nicht erneut.';
+      title.textContent = 'Dein Küchenprofil ist gespeichert.';
+      message.textContent = 'Die interne Benachrichtigung ist noch nicht bestätigt. Deine Angaben sind gesichert; bitte sende das Formular nicht erneut.';
       return;
     }
     eyebrow.textContent = 'Sicher übermittelt';
     if (state.serviceArea === 'core') {
       title.textContent = 'Das passt zu unserem Planungsgebiet.';
       message.textContent = state.callbackRequested
-        ? 'Ihr Küchenprofil ist angekommen. Daniel Klas meldet sich für die gewünschte persönliche Einordnung – oder Sie wählen direkt einen Termin.'
-        : 'Ihr Küchenprofil ist angekommen. Wenn Sie Ihr Projekt persönlich besprechen möchten, können Sie direkt einen Termin wählen.';
+        ? 'Dein Küchenprofil ist angekommen. Daniel Klas meldet sich für die gewünschte persönliche Einordnung – oder du wählst direkt einen Termin.'
+        : 'Dein Küchenprofil ist angekommen. Wenn du dein Projekt persönlich besprechen möchtest, kannst du direkt einen Termin wählen.';
       if (settings.appointmentUrl) {
         appointment.href = settings.appointmentUrl;
         appointment.classList.remove('hidden');
@@ -1437,14 +1458,14 @@
       return;
     }
     if (state.serviceArea === 'outside') {
-      title.textContent = 'Ihr Küchenprofil ist angekommen.';
+      title.textContent = 'Dein Küchenprofil ist angekommen.';
       message.textContent = state.callbackRequested
-        ? 'Ihr Stilprofil können Sie selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an. Daniel Klas meldet sich für die gewünschte Einordnung.'
-        : 'Ihr Stilprofil können Sie selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an.';
+        ? 'Dein Stilprofil kannst du selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an. Daniel Klas meldet sich für die gewünschte Einordnung.'
+        : 'Dein Stilprofil kannst du selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an.';
       return;
     }
-    title.textContent = 'Ihr Küchenprofil ist angekommen.';
-    message.textContent = 'Sie können Ihr Ergebnis weiterhin ansehen oder Ihre Antworten noch einmal durchgehen.';
+    title.textContent = 'Dein Küchenprofil ist angekommen.';
+    message.textContent = 'Du kannst dein Ergebnis weiterhin ansehen oder deine Antworten noch einmal durchgehen.';
   }
 
   function renderJourney(forceSection) {

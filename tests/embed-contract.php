@@ -63,6 +63,9 @@ $check(str_contains($moduleApp, "state.planningFinished = state.current === ques
 $check(str_contains($moduleApp, 'const planningSectionIds ='), 'Planning resume and completion must share one section definition.');
 $check(str_contains($moduleCss, '#resultContent.is-preview > .result-image'), 'The mobile preview must show its style image before the decision card.');
 $check(str_contains($moduleCss, '.decision-card__value') && str_contains($moduleView, 'class="decision-card__value"'), 'The preview must explain the value of completing the project questions.');
+$check(str_contains($moduleView, 'id="bottomConsultButton"') && str_contains($moduleApp, 'returnToConsultationForm'), 'The full profile must end with a button that returns to the consultation form.');
+$check(str_contains($moduleApp, 'syncCompletedProgress();') && str_contains($moduleApp, 'update_only: true'), 'Completing the profile must update the server-side resume record automatically.');
+$check(str_contains($moduleApp, 'settings.initialState && profileComplete()') && str_contains($moduleApp, 'showResult();'), 'A completed resume state must open the full result instead of the last saved question.');
 $check(str_contains($moduleCss, '.is-preview .result-seal { display: none; }'), 'The preview must not expose the full-profile percentage seal.');
 $check(str_contains($app, 'event_id: body.submission_id'), 'Successful lead does not expose the stable submission ID to the parent tracking bridge.');
 $check(str_contains($app, 'campaign: state.campaign'), 'Campaign context is not included in the lead payload.');
@@ -86,6 +89,27 @@ foreach ($shapeAssets as $option => $filename) {
     $check(
         str_contains($app, $option . ": '" . $relativePath . "'"),
         'Kitchen-shape option is not mapped to its image: ' . $option
+    );
+}
+
+$specialWishAssets = [
+    'yes' => 'special-wishes-yes.webp',
+    'unsure' => 'special-wishes-unsure.webp',
+    'none' => 'special-wishes-none.webp',
+];
+$check(
+    !str_contains($moduleApp, "id: 'special_wishes', section: 'framework', type: 'text'"),
+    'The final special-wishes question must not interrupt the click flow with a text field.'
+);
+$check(str_contains($moduleApp, "option('yes', 'Ja, habe ich', 'Besprechen wir persönlich'"), 'Special wishes must offer a consultation-friendly yes option.');
+$check(str_contains($moduleApp, "option('unsure', 'Noch nicht sicher', 'Finden wir gemeinsam heraus'"), 'Special wishes must offer a consultation-friendly unsure option.');
+$check(str_contains($moduleApp, "option('none', 'Nein, nichts Besonderes'"), 'Special wishes must offer an explicit no option.');
+foreach ($specialWishAssets as $option => $filename) {
+    $relativePath = 'assets/images/' . $filename;
+    $check(is_file($root . '/module/' . $relativePath), 'Missing special-wishes image: module/' . $relativePath);
+    $check(
+        str_contains($moduleApp, $option . ": '" . $relativePath . "'"),
+        'Special-wishes option is not mapped to its image: ' . $option
     );
 }
 

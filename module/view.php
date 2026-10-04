@@ -14,21 +14,21 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
         <button class="quiet-button" id="restartButton" type="button">Neu starten</button>
     </header>
 
-    <nav class="journey" id="journey" aria-label="Ihre Küchenreise"></nav>
+    <nav class="journey" id="journey" aria-label="Deine Küchenreise"></nav>
 
     <div id="app" class="main" aria-live="polite">
         <section class="intro panel" data-view="intro">
             <div class="intro-copy">
-                <span class="eyebrow">Ihre Küche beginnt mit einem Gefühl</span>
-                <h<?= $stilfinderInline ? '3' : '1' ?>>Finden Sie heraus, welche Küche <em>wirklich</em> zu Ihnen passt.</h<?= $stilfinderInline ? '3' : '1' ?>>
-                <p>Entdecken Sie zuerst Ihre persönliche Stilwelt. Danach können Sie Raum, Alltag und Wünsche ergänzen – in Ihrem Tempo und jederzeit änderbar.</p>
+                <span class="eyebrow">Deine Küche beginnt mit einem Gefühl</span>
+                <h<?= $stilfinderInline ? '3' : '1' ?>>Finde heraus, welche Küche <em>wirklich</em> zu dir passt.</h<?= $stilfinderInline ? '3' : '1' ?>>
+                <p>Wähle zuerst aus, was dir gefällt. Danach kannst du Raum, Alltag und Wünsche ergänzen – in deinem Tempo und jederzeit änderbar.</p>
                 <div class="intro-actions">
                     <button class="primary-button" id="startButton" type="button">Stilprofil starten</button>
-                    <span>5 Fragen bis zu Ihrer ersten Stilrichtung</span>
+                    <span>5 Fragen bis zu deiner Stilrichtung</span>
                 </div>
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
-                    <li>Ergebnis direkt nach den ersten 5 Fragen</li>
+                    <li>Konkrete Hinweise zu Farben und Materialien</li>
                     <?php if (!$stilfinderInline): ?>
                         <li>Keine Analyse- oder Marketingdienste</li>
                     <?php endif; ?>
@@ -47,7 +47,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <span id="sectionLabel" class="eyebrow"></span>
                 <span id="questionCounter"></span>
             </div>
-            <h2 id="questionTitle" tabindex="-1">Ihre Fragen zum Küchenstil</h2>
+            <h2 id="questionTitle" tabindex="-1">Deine Fragen zum Küchenstil</h2>
             <span id="multipleHint" class="multiple-hint hidden">Mehrfachauswahl möglich</span>
             <p id="questionHelp" class="question-help"></p>
             <p id="selectionMessage" class="selection-message" role="status" aria-live="polite"></p>
@@ -60,25 +60,25 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
 
         <section class="result panel hidden" data-view="result">
             <div id="hardGate" class="hard-gate hidden">
-                <span class="eyebrow">Ihr Stilergebnis ist fertig</span>
-                <h2 id="hardGateTitle" tabindex="-1">Wohin dürfen wir Ihr Stilprofil schicken?</h2>
-                <p>Ihre Stilrichtung ist berechnet. Das Stilprofil gibt es nicht umsonst: Im Austausch erhalten Sie von Klas Küchen Informationen, Planungstipps und Angebote rund um Küche und Küchenplanung per E-Mail.</p>
+                <span class="eyebrow">Dein Stilergebnis ist fertig</span>
+                <h2 id="hardGateTitle" tabindex="-1">Wohin dürfen wir dein Stilprofil schicken?</h2>
+                <p>Gib deine E-Mail-Adresse ein. Du siehst dein Ergebnis direkt und bekommst zusätzlich einen persönlichen Link zum späteren Weitermachen.</p>
                 <form id="hardGateForm" class="profile-save__form" novalidate>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
                     <label for="hardGateEmail">E-Mail-Adresse</label>
                     <input id="hardGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
-                    <label class="check-label"><input name="marketing_consent" type="checkbox" required> <span>Ja, ich möchte mein Stilprofil sehen und per E-Mail einen Link zum Weitermachen erhalten. Ich willige ein, dass Klas Küchen mir per E-Mail Informationen, Planungstipps und Angebote zu Küchen und Küchenplanung sendet. Ich kann diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>.</span></label>
+                    <label class="check-label"><input name="marketing_consent" type="checkbox" required> <span>Mit der Anforderung meines Stilprofils willige ich ein, dass Klas Küchen® mir einen persönlichen Link sowie Informationen, Planungstipps und Angebote rund um Küchen und Küchenplanung per E-Mail zusendet. Ich kann mich jederzeit wieder abmelden. Weitere Hinweise finde ich in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>.</span></label>
                     <button class="primary-button" type="submit">Stilprofil anzeigen</button>
                     <p id="hardGateError" class="form-error" role="alert"></p>
                 </form>
-                <p class="hard-gate__note">Wir bestätigen Ihre Adresse per Double-Opt-in. Ohne Bestätigung senden wir keine Werbe-E-Mails.</p>
+                <p class="hard-gate__note">Du erhältst zunächst eine Bestätigungs-E-Mail. Erst nach deiner Bestätigung senden wir dir weitere E-Mails.</p>
             </div>
             <div id="resultContent" class="hidden">
                 <div class="result-header">
                     <div>
-                        <span class="eyebrow" id="resultEyebrow">Ihre erste Stilrichtung</span>
-                        <h2 id="resultTitle">Ihr Stilprofil</h2>
+                        <span class="eyebrow" id="resultEyebrow">Deine erste Stilrichtung</span>
+                        <h2 id="resultTitle">Dein Stilprofil</h2>
                         <p id="resultDescription"></p>
                     </div>
                     <div class="result-seal"><strong id="profileProgress">0%</strong><span>Profil</span></div>
@@ -87,25 +87,40 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                 <section class="decision-card" id="decisionCard" tabindex="-1">
                     <div id="decisionPaths">
                         <div class="decision-card__intro">
-                            <span class="eyebrow">Ihr nächster Schritt</span>
-                            <h3>Das ist Ihre erste Stilrichtung. Jetzt prüfen wir, wie sie zu Raum, Alltag und Technik passt.</h3>
+                            <span class="eyebrow">Dein nächster Schritt</span>
+                            <h3>Das ist deine erste Stilrichtung. Jetzt kannst du prüfen, wie sie zu Raum, Alltag und Technik passt.</h3>
                         </div>
                         <button class="primary-button decision-card__primary" id="continuePlanningButton" type="button">Profil für meinen Raum verfeinern</button>
-                        <p class="decision-card__value">Danach sehen Sie Ihr vollständiges Profil mit Stilanteilen, Farb- und Materialwelt, konkreten Stilhinweisen und Ihren Planungsangaben.</p>
+                        <p class="decision-card__value">Danach siehst du dein vollständiges Profil mit Stilanteilen, Farb- und Materialwelt, konkreten Stilhinweisen und deinen Planungsangaben.</p>
                         <div class="decision-card__minor">
-                            <button class="text-button" id="openContactButton" type="button">Sie planen schon konkret? Projekt direkt einordnen lassen</button>
+                            <button class="text-button" id="openContactButton" type="button">Du planst schon konkret? Projekt direkt einordnen lassen</button>
                             <button class="text-button" id="previewSaveButton" type="button">Später weitermachen? Link per E-Mail</button>
                         </div>
                     </div>
                     <div id="intentCard" class="intent-card hidden">
-                        <span class="eyebrow">Ihr Küchenprofil ist komplett</span>
-                        <h3>Möchten Sie, dass Daniel Klas Ihr Projekt persönlich einordnet?</h3>
-                        <p>Tischlermeister Daniel Klas schaut sich Ihr Profil an und meldet sich mit einer ersten Einschätzung zu Umsetzung, Rahmen und nächsten Schritten.</p>
-                        <div class="intent-card__actions">
-                            <button class="primary-button" id="intentYesButton" type="button">Ja, Projekt einschätzen lassen</button>
-                            <button class="secondary-button" id="intentNoButton" type="button">Nein, Profil reicht mir erstmal</button>
+                        <div class="contact-layout">
+                            <div>
+                                <span class="eyebrow">Kostenloses Beratungsgespräch</span>
+                                <h3>Dein Küchenprojekt persönlich besprechen</h3>
+                                <p>Dein Stilprofil ist fertig. Wenn du dein Projekt konkret angehen möchtest, schick Daniel Klas die wichtigsten Angaben. Er schaut sich dein Profil an und meldet sich persönlich bei dir.</p>
+                                <div id="contactSummary" class="contact-summary"></div>
+                            </div>
+                            <form id="leadForm" novalidate>
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                                <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+                                <label>Dein Name <input name="name" required autocomplete="name" data-matomo-mask></label>
+                                <label>E-Mail-Adresse <span>für die Zuordnung deines Küchenprofils</span><input name="email" type="email" required autocomplete="email" data-matomo-mask></label>
+                                <div class="form-row">
+                                    <label>Postleitzahl <span>des Projekts</span><input name="postal_code" required pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
+                                    <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
+                                </div>
+                                <label class="check-label"><input name="callback" type="checkbox"> <span><strong>Ja, ich möchte eine persönliche Einordnung.</strong><br>Daniel Klas (Klas Küchen®) darf mich unter der angegebenen Telefonnummer zu meinem Küchenprofil und einer möglichen Küchenplanung anrufen. Die Einwilligung ist freiwillig und kann jederzeit mit Wirkung für die Zukunft widerrufen werden, zum Beispiel per E-Mail an kontakt@kuechen-klas.de.</span></label>
+                                <label id="callbackPhoneField" class="hidden">Telefonnummer <span>für den gewünschten Rückruf</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
+                                <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meiner Anfrage zu.</span></label>
+                                <p id="formError" class="form-error" role="alert"></p>
+                                <button class="primary-button" type="submit">Jetzt kostenloses Beratungsgespräch anfragen</button>
+                            </form>
                         </div>
-                        <p id="intentNoMessage" class="intent-card__message" aria-live="polite"></p>
                     </div>
                 </section>
                 <section class="profile-save" id="profileSave" aria-labelledby="profileSaveTitle">
@@ -113,7 +128,7 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         <div>
                             <span class="eyebrow">Optional speichern</span>
                             <h3 id="profileSaveTitle">Später an dieser Stelle weitermachen</h3>
-                            <p>Wir schicken Ihnen einen persönlichen Link zu Ihrem aktuellen Profil. Das Ergebnis und das direkte Weiterplanen bleiben auch ohne E-Mail frei zugänglich.</p>
+                            <p>Wir schicken dir einen persönlichen Link zu deinem aktuellen Profil. So kannst du später auf diesem oder einem anderen Gerät weitermachen.</p>
                         </div>
                         <button class="secondary-button" id="profileSaveButton" type="button">Profil per E-Mail speichern</button>
                     </div>
@@ -121,18 +136,18 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
                         <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
                         <h3>Speicherlink erhalten</h3>
-                        <p>Der Link öffnet Ihr Profil mit den bisherigen Antworten auf diesem Gerät oder einem anderen.</p>
+                        <p>Der Link öffnet dein Profil mit den bisherigen Antworten auf diesem Gerät oder einem anderen.</p>
                         <label for="resultGateEmail">E-Mail-Adresse</label>
                         <input id="resultGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
-                        <label class="check-label"><input name="consent" type="checkbox" required> <span>Ja, schicken Sie mir den Link zu meinem Stilprofil per E-Mail. Einmalige Service-Nachricht, kein Newsletter.</span></label>
+                        <label class="check-label"><input name="consent" type="checkbox" required> <span>Ja, schickt mir den Link zu meinem Stilprofil per E-Mail. Einmalige Service-Nachricht, kein Newsletter.</span></label>
                         <label class="check-label"><input name="marketing_consent" type="checkbox"> <span>Zusätzlich möchte ich eine kurze, auf mein Stilprofil abgestimmte Mail-Serie zu Materialien, Planung und nächsten Schritten erhalten. Nach Abschluss dieser Serie erhalte ich ohne neue Einwilligung keine weiteren E-Mails.</span></label>
                         <button class="primary-button" type="submit">Speicherlink senden</button>
                         <p id="resultGateError" class="form-error" role="alert"></p>
                     </form>
-                    <p id="profileSaveSuccess" class="profile-save__success hidden" role="status">Ihr Profil ist gespeichert. Den persönlichen Link haben wir Ihnen per E-Mail geschickt.</p>
+                    <p id="profileSaveSuccess" class="profile-save__success hidden" role="status">Dein Profil ist gespeichert. Den persönlichen Link haben wir dir per E-Mail geschickt.</p>
                 </section>
                 <div id="resultFull">
-                <div class="style-mix-heading"><strong>Ihre Stilanteile</strong><span>Orientierungswerte aus Ihren Antworten – keine Messwerte.</span></div>
+                <div class="style-mix-heading"><strong>Deine Stilanteile</strong><span>Orientierungswerte aus deinen Antworten – keine Messwerte.</span></div>
                 <div id="styleBars" class="style-bars"></div>
                 <section class="result-guidance" aria-label="Konkrete Stilhinweise">
                     <div>
@@ -145,14 +160,14 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                     </aside>
                 </section>
                 <section class="result-reading hidden" id="resultReading" aria-labelledby="resultReadingTitle">
-                    <span class="eyebrow">Mehr zu Ihrer Stilwelt</span>
+                    <span class="eyebrow">Mehr zu deiner Stilwelt</span>
                     <h3 id="resultReadingTitle">Weiterlesen und vergleichen</h3>
                     <ul id="resultReadingList"></ul>
-                    <p class="result-reading__note">Die Seiten öffnen sich in einem neuen Tab – Ihr Profil bleibt hier erhalten.</p>
+                    <p class="result-reading__note">Die Seiten öffnen sich in einem neuen Tab – dein Profil bleibt hier erhalten.</p>
                 </section>
                 <div class="result-layout">
                     <div>
-                        <h3>Ihre Material- und Farbwelt</h3>
+                        <h3>Deine Material- und Farbwelt</h3>
                         <div id="moodboard" class="moodboard"></div>
                     </div>
                     <aside class="insight-card">
@@ -161,44 +176,21 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                     </aside>
                 </div>
                 <div id="planningSummary" class="planning-summary hidden">
-                    <h3>Ihre Planungsangaben</h3>
+                    <h3>Deine Planungsangaben</h3>
                     <div id="planningGrid" class="planning-grid"></div>
                 </div>
+                <div class="result-consult-return">
+                    <button class="primary-button" id="bottomConsultButton" type="button">Jetzt kostenloses Beratungsgespräch anfragen</button>
                 </div>
-            </div>
-        </section>
-
-        <section class="contact panel hidden" data-view="contact">
-            <div class="contact-layout">
-                <div>
-                    <span class="eyebrow">Ihr Küchenprofil übermitteln</span>
-                    <h2>Aus Inspiration wird eine Grundlage für Ihre Planung.</h2>
-                    <p>Mit Ihrer Postleitzahl ordnen wir ein, ob Ihr Projekt in unserem persönlichen Planungsgebiet liegt (etwa 70 km um Sohren). Wenn Sie zusätzlich einen Rückruf wünschen, können Sie ihn freiwillig auswählen.</p>
-                    <div id="contactSummary" class="contact-summary"></div>
                 </div>
-                <form id="leadForm" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
-                    <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
-                    <label>Ihr Name <input name="name" required autocomplete="name" data-matomo-mask></label>
-                    <label>E-Mail-Adresse <span>für die Zuordnung Ihres Küchenprofils</span><input name="email" type="email" required autocomplete="email" data-matomo-mask></label>
-                    <div class="form-row">
-                        <label>Postleitzahl <span>des Projekts</span><input name="postal_code" required pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
-                        <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
-                    </div>
-                    <label class="check-label"><input name="callback" type="checkbox"> <span><strong>Ja, ich möchte eine persönliche Einordnung.</strong><br>Daniel Klas (Klas Küchen®) darf mich unter der angegebenen Telefonnummer zu meinem Küchenprofil und einer möglichen Küchenplanung anrufen. Die Einwilligung ist freiwillig und kann jederzeit mit Wirkung für die Zukunft widerrufen werden, zum Beispiel per E-Mail an kontakt@kuechen-klas.de.</span></label>
-                    <label id="callbackPhoneField" class="hidden">Telefonnummer <span>für den gewünschten Rückruf</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
-                    <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meines Küchenprofils zu.</span></label>
-                    <p id="formError" class="form-error" role="alert"></p>
-                    <button class="primary-button" type="submit">Küchenprofil übermitteln</button>
-                </form>
             </div>
         </section>
 
         <section class="success panel hidden" data-view="success">
             <div class="success-mark">✓</div>
             <span class="eyebrow" id="successEyebrow">Sicher übermittelt</span>
-            <h2 id="successTitle">Ihr Küchenprofil ist angekommen.</h2>
-            <p id="successMessage">Sie können Ihr Ergebnis weiterhin ansehen oder Ihre Antworten noch einmal durchgehen.</p>
+            <h2 id="successTitle">Dein Küchenprofil ist angekommen.</h2>
+            <p id="successMessage">Du kannst dein Ergebnis weiterhin ansehen oder deine Antworten noch einmal durchgehen.</p>
             <div class="success-actions">
                 <a class="primary-button hidden" id="successAppointment" href="#" target="_blank" rel="noopener" data-track="stilfinder_appointment">Termin direkt wählen</a>
                 <button class="secondary-button" id="successResultButton" type="button">Ergebnis ansehen</button>
