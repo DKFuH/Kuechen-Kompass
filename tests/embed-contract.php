@@ -92,25 +92,10 @@ foreach ($shapeAssets as $option => $filename) {
     );
 }
 
-$specialWishAssets = [
-    'yes' => 'special-wishes-yes.webp',
-    'unsure' => 'special-wishes-unsure.webp',
-    'none' => 'special-wishes-none.webp',
-];
-$check(
-    !str_contains($moduleApp, "id: 'special_wishes', section: 'framework', type: 'text'"),
-    'The final special-wishes question must not interrupt the click flow with a text field.'
-);
-$check(str_contains($moduleApp, "option('yes', 'Ja, habe ich', 'Besprechen wir persönlich'"), 'Special wishes must offer a consultation-friendly yes option.');
-$check(str_contains($moduleApp, "option('unsure', 'Noch nicht sicher', 'Finden wir gemeinsam heraus'"), 'Special wishes must offer a consultation-friendly unsure option.');
-$check(str_contains($moduleApp, "option('none', 'Nein, nichts Besonderes'"), 'Special wishes must offer an explicit no option.');
-foreach ($specialWishAssets as $option => $filename) {
-    $relativePath = 'assets/images/' . $filename;
-    $check(is_file($root . '/module/' . $relativePath), 'Missing special-wishes image: module/' . $relativePath);
-    $check(
-        str_contains($moduleApp, $option . ": '" . $relativePath . "'"),
-        'Special-wishes option is not mapped to its image: ' . $option
-    );
+// Sonderwünsche werden seit 2026-10-15 im Beratungsgespräch geklärt, nicht mehr im Quiz.
+$check(!str_contains($moduleApp, "id: 'special_wishes'"), 'Special wishes belong in the consultation card, not in the quiz.');
+foreach (['cooking', 'storage'] as $removedQuestion) {
+    $check(!str_contains($moduleApp, "id: '$removedQuestion'"), "The removed question '$removedQuestion' is back in the quiz.");
 }
 
 if ($failures !== []) {

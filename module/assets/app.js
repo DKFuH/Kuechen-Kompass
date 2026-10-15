@@ -159,17 +159,6 @@
         option('over_40', 'Über 40.000 €', 'Konsequentes Raum- und Materialkonzept', '#765f4d', {}),
         option('unknown', 'Noch nicht festgelegt', 'Der passende Rahmen soll sich aus der Planung ergeben', '#ded7cc', {})
       ]
-    },
-    {
-      id: 'special_wishes', section: 'framework',
-      title: 'Gibt es besondere Wünsche für deine Küche?',
-      help: 'Wähle einfach, was im Moment am besten passt.',
-      multiple: false, required: true,
-      options: [
-        option('yes', 'Ja, habe ich', 'Besprechen wir persönlich', '#ad9178', {}),
-        option('unsure', 'Noch nicht sicher', 'Finden wir gemeinsam heraus', '#d5c7b7', {}),
-        option('none', 'Nein, nichts Besonderes', 'Aktuell habe ich keine Sonderwünsche', '#c8bdaf', {})
-      ]
     }
   ];
 
@@ -1081,11 +1070,6 @@
         '6_12': 'assets/images/timeframe-6-12.webp',
         ideas: 'assets/images/timeframe-ideas.webp'
       },
-      special_wishes: {
-        yes: 'assets/images/special-wishes-yes.webp',
-        unsure: 'assets/images/special-wishes-unsure.webp',
-        none: 'assets/images/special-wishes-none.webp'
-      },
     }[questionId]?.[optionId] || '';
     return path ? assetUrl(path) : generatedOptionImage(questionId, optionId);
   }
@@ -1123,7 +1107,7 @@
   }
 
   function renderPlanningSummary() {
-    const ids = ['room_concept', 'kitchen_shape', 'household', 'appliances', 'lighting', 'project_time', 'budget', 'special_wishes'];
+    const ids = ['room_concept', 'kitchen_shape', 'household', 'appliances', 'lighting', 'project_time', 'budget'];
     const rows = [];
     ids.forEach(id => {
       const q = questions.find(item => item.id === id);
@@ -1158,8 +1142,6 @@
   function prepareContactForm() {
     const result = calculateResult();
     const form = byId('leadForm');
-    form.elements.callback.checked = false;
-    toggleCallbackPhone(false);
     if (state.gateEmail && !form.elements.email.value) form.elements.email.value = state.gateEmail;
     byId('contactSummary').innerHTML = `<strong>${escapeHtml(result.title)}</strong><p>${completion()} % der Planungsfragen sind bereits beantwortet.</p>`;
   }
@@ -1187,10 +1169,11 @@
     const form = event.currentTarget;
     const error = byId('formError');
     error.textContent = '';
-    const callbackRequested = Boolean(form.elements.callback.checked);
+    // A phone number is optional; entering one (under the single contact consent) means a call is welcome.
     const phone = form.elements.phone.value.trim();
+    const callbackRequested = phone !== '';
     if (callbackRequested && !/^\+?[0-9 ()/.-]{7,60}$/.test(phone)) {
-      error.textContent = 'Bitte gib für den gewünschten Rückruf eine gültige Telefonnummer ein.';
+      error.textContent = 'Bitte prüfe deine Telefonnummer oder lass das Feld leer.';
       form.elements.phone.focus();
       return;
     }
@@ -1240,19 +1223,6 @@
     }
   }
 
-  function toggleCallbackPhone(checked) {
-    const form = byId('leadForm');
-    const field = byId('callbackPhoneField');
-    if (!form || !field) return;
-    field.classList.toggle('hidden', !checked);
-    form.elements.phone.required = checked;
-    if (!checked) form.elements.phone.value = '';
-  }
-
-  byId('leadForm')?.elements.callback.addEventListener('change', event => {
-    toggleCallbackPhone(Boolean(event.currentTarget.checked));
-  });
-
   function renderSuccess(deliveryPending) {
     const eyebrow = byId('successEyebrow');
     const title = byId('successTitle');
@@ -1267,8 +1237,8 @@
     }
     eyebrow.textContent = 'Sicher übermittelt';
     title.textContent = 'Danke, deine Anfrage ist da.';
-    // Every submission is a consultation request; the callback only changes the channel.
-    const channel = state.callbackRequested ? 'telefonisch' : 'per E-Mail';
+    // Every submission is a consultation request; a phone number only adds the channel.
+    const channel = state.callbackRequested ? 'telefonisch oder per E-Mail' : 'per E-Mail';
     if (state.serviceArea === 'core') {
       message.textContent = `Daniel Klas sieht sich dein Stilprofil an und meldet sich ${channel}, um das Beratungsgespräch abzustimmen. Wenn du schneller sein möchtest, wähl direkt einen Termin.`;
       if (settings.appointmentUrl) {

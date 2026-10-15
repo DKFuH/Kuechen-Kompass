@@ -4,6 +4,8 @@ declare(strict_types=1);
 $stilfinderCsrfToken = isset($stilfinderCsrfToken) ? (string) $stilfinderCsrfToken : '';
 $stilfinderAssetBase = isset($stilfinderAssetBase) ? rtrim((string) $stilfinderAssetBase, '/') . '/' : './';
 $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
+// Trusted markup from the embedding page (award, reviews); the module itself stays site-independent.
+$stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHtml : '';
 ?>
 <div class="kk-stilfinder<?= $stilfinderInline ? ' kk-stilfinder--inline' : '' ?>" data-kuechen-stilfinder><div class="app-shell">
     <header class="topbar">
@@ -110,23 +112,26 @@ $stilfinderInline = isset($stilfinderInline) ? (bool) $stilfinderInline : false;
                                     <li>den sinnvollen nächsten Schritt</li>
                                 </ul>
                                 <p class="consult-stance">Der Rabatt ist schnell vergessen. Eine schlecht geplante Küche nicht.</p>
+                                <?php if ($stilfinderProofHtml !== ''): ?>
+                                    <div class="consult-proof"><?= $stilfinderProofHtml ?></div>
+                                <?php endif; ?>
                                 <div id="contactSummary" class="contact-summary"></div>
                             </div>
                             <form id="leadForm" novalidate>
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
                                 <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
-                                <label>Dein Name <input name="name" required autocomplete="name" data-matomo-mask></label>
-                                <label>E-Mail-Adresse <span>für die Zuordnung deines Küchenprofils</span><input name="email" type="email" required autocomplete="email" data-matomo-mask></label>
+                                <p class="form-required-note"><span aria-hidden="true">*</span> Pflichtfeld</p>
+                                <label><span class="field-name">Dein Name <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="name" required aria-required="true" autocomplete="name" data-matomo-mask></label>
+                                <label><span class="field-name">E-Mail-Adresse <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="email" type="email" required aria-required="true" autocomplete="email" data-matomo-mask></label>
+                                <label>Telefon <span>optional, für einen schnellen Rückruf</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
                                 <div class="form-row">
-                                    <label>Postleitzahl <span>des Projekts</span><input name="postal_code" required pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
+                                    <label><span class="field-name">Postleitzahl <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>des Projekts</span><input name="postal_code" required aria-required="true" pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
                                     <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
                                 </div>
-                                <label class="check-label"><input name="callback" type="checkbox"> <span><strong>Lieber telefonisch?</strong><br>Daniel Klas (Klas Küchen®) darf mich unter der angegebenen Telefonnummer zu meinem Küchenprofil und einer möglichen Küchenplanung anrufen. Die Einwilligung ist freiwillig und kann jederzeit mit Wirkung für die Zukunft widerrufen werden, zum Beispiel per E-Mail an kontakt@kuechen-klas.de.</span></label>
-                                <label id="callbackPhoneField" class="hidden">Telefonnummer <span>für den gewünschten Rückruf</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
-                                <label class="check-label"><input name="consent" type="checkbox" required> <span>Ich habe die <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung meiner Anfrage zu.</span></label>
+                                <label class="check-label"><input name="consent" type="checkbox" required aria-required="true"> <span>Ich bin einverstanden, dass Klas Küchen® meine Angaben zur Bearbeitung meiner Anfrage verarbeitet und Daniel Klas mich dazu per E-Mail oder – wenn ich eine Telefonnummer angebe – telefonisch kontaktiert. Diese Einwilligung kann ich jederzeit mit Wirkung für die Zukunft widerrufen, zum Beispiel per E-Mail an kontakt@kuechen-klas.de. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>. <abbr class="required-mark" title="Pflichtfeld">*</abbr></span></label>
                                 <p id="formError" class="form-error" role="alert"></p>
                                 <button class="primary-button" type="submit">Kostenloses Beratungsgespräch anfragen</button>
-                                <p class="consult-after">Daniel Klas meldet sich persönlich per E-Mail, oder per Telefon, wenn du das oben auswählst.</p>
+                                <p class="consult-after">Daniel Klas meldet sich persönlich per E-Mail oder telefonisch, wenn du eine Nummer angibst.</p>
                             </form>
                         </div>
                     </div>
