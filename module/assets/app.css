@@ -217,10 +217,8 @@
 .kk-stilfinder .success-actions a.primary-button { display: inline-flex; align-items: center; text-decoration: none; }
 
 .kk-stilfinder .profile-save { margin: 0 0 32px; padding: 24px 28px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--line); }
-.kk-stilfinder .profile-save__offer { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
-.kk-stilfinder .profile-save__offer h3, .kk-stilfinder .profile-save__form h3 { margin: 6px 0 8px; font-size: 20px; }
-.kk-stilfinder .profile-save__offer p, .kk-stilfinder .profile-save__form > p { margin: 0; color: var(--muted); font-size: 14px; max-width: 700px; }
-.kk-stilfinder .profile-save__offer .secondary-button { flex: 0 0 auto; }
+.kk-stilfinder .profile-save__form h3 { margin: 6px 0 8px; font-size: 20px; }
+.kk-stilfinder .profile-save__form > p { margin: 0; color: var(--muted); font-size: 14px; max-width: 700px; }
 .kk-stilfinder .profile-save__form { max-width: 620px; }
 .kk-stilfinder .profile-save__form > p { margin-bottom: 18px; }
 .kk-stilfinder .profile-save__form .primary-button { margin-top: 8px; }
@@ -236,6 +234,11 @@
 .kk-stilfinder .intent-card .contact-layout { gap: 32px; }
 .kk-stilfinder .contact-layout > div > p { color: var(--muted); }
 .kk-stilfinder .contact-summary { margin-top: 28px; border-left: 3px solid var(--accent-light); padding-left: 18px; }
+.kk-stilfinder .consult-list__title { margin: 18px 0 6px; color: var(--ink); }
+.kk-stilfinder .consult-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.kk-stilfinder .consult-list li + li { margin-top: 4px; }
+.kk-stilfinder .contact-layout > div > p.consult-stance { margin: 18px 0 0; color: var(--accent-dark); font-family: var(--font-editorial); font-size: 19px; line-height: 1.35; }
+.kk-stilfinder .consult-after { margin: -6px 0 0; color: var(--muted); font-size: 13px; }
 .kk-stilfinder form { display: grid; gap: 17px; }
 .kk-stilfinder form label { display: grid; gap: 7px; font-size: 13px; font-weight: 700; }
 .kk-stilfinder form label span { color: var(--muted); font-weight: 400; }
@@ -274,7 +277,6 @@
     .kk-stilfinder .answer-grid { grid-template-columns: repeat(2, 1fr); }
     .kk-stilfinder .planning-grid { grid-template-columns: 1fr; }
     .kk-stilfinder .panel { min-height: calc(100vh - 130px); }
-    .kk-stilfinder .profile-save__offer { align-items: flex-start; flex-direction: column; gap: 18px; }
 }
 
 @media (max-width: 560px) {
@@ -289,7 +291,7 @@
     .kk-stilfinder .question-meta .back-arrow { margin-left: -10px; }
     .kk-stilfinder .quiz h2 { margin-top: 2px; }
     .kk-stilfinder .decision-card { padding: 20px 16px; }
-    .kk-stilfinder .decision-card__primary, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .intent-card #leadForm .primary-button, .kk-stilfinder .result-consult-return .primary-button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__offer .secondary-button, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
+    .kk-stilfinder .decision-card__primary, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .intent-card #leadForm .primary-button, .kk-stilfinder .result-consult-return .primary-button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
     .kk-stilfinder .profile-save { padding: 20px 16px; }
     .kk-stilfinder .intro-visual { min-height: 235px; }
     .kk-stilfinder .answer-grid { grid-template-columns: 1fr; }

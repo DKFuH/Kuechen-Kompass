@@ -116,26 +116,6 @@
       ]
     },
     {
-      id: 'cooking', section: 'everyday', title: 'Was passiert in deiner Küche wirklich?',
-      help: 'Wähle alles, was häufig vorkommt.', multiple: true,
-      options: [
-        option('fresh', 'Täglich frisch kochen', 'Viel Vorbereitung und gut erreichbare Vorräte', '#a48a6d', {}),
-        option('quick', 'Schnell und unkompliziert', 'Kurze Wege und pflegeleichte Flächen', '#c4b7a7', {}),
-        option('baking', 'Backen und Teig', 'Freie Arbeitsfläche und passende Aufbewahrung', '#d1b990', {}),
-        option('hosting', 'Bewirten und genießen', 'Die Küche als kommunikativer Mittelpunkt', '#806957', {})
-      ]
-    },
-    {
-      id: 'storage', section: 'everyday', title: 'Was wäre im Alltag die größte Verbesserung?',
-      help: 'Bitte einen Schwerpunkt auswählen.', multiple: false,
-      options: [
-        option('order', 'Mehr Ordnung', 'Jedes Teil bekommt seinen festen Platz', '#b9aa96', {}),
-        option('workspace', 'Mehr Arbeitsfläche', 'Freie Zonen statt zugestellter Fläche', '#9f8e7b', {}),
-        option('ergonomics', 'Bessere Ergonomie', 'Höhen und Wege passend zu dir', '#807568', {}),
-        option('together', 'Mehr Gemeinsamkeit', 'Kochen, reden und leben verbinden', '#a47d5f', {})
-      ]
-    },
-    {
       id: 'appliances', section: 'technik', title: 'Welche Elektrogeräte sind dir wichtig?',
       help: 'Wähle nur Geräte, die für deine Planung wirklich gesetzt oder besonders wichtig sind.', multiple: true,
       options: [
@@ -317,12 +297,10 @@
     nextButton.addEventListener('click', next);
     byId('continuePlanningButton').addEventListener('click', continuePlanning);
     byId('openContactButton').addEventListener('click', previewConsult);
-    byId('profileSaveButton').addEventListener('click', openProfileSave);
-    byId('previewSaveButton').addEventListener('click', openProfileSave);
     byId('bottomConsultButton').addEventListener('click', returnToConsultationForm);
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
-    byId('resultGateForm').addEventListener('submit', submitResultGate);
+    byId('leadForm').elements.name.addEventListener('focus', () => reportEmbedEvent('contact_open'));
     byId('hardGateForm').addEventListener('submit', submitHardGate);
   }
 
@@ -697,26 +675,9 @@
     renderProfileSave();
   }
 
-  /* In the teaser only the small link offers saving; the block appears once the visitor opens it. */
+  /* Saving happens at the gate; afterwards the result only confirms that the link was sent. */
   function renderProfileSave() {
-    const saved = state.resultUnlocked;
-    const preview = byId('resultContent').classList.contains('is-preview');
-    byId('profileSave').classList.toggle('hidden', preview && !saved);
-    byId('previewSaveButton').classList.toggle('hidden', saved);
-    byId('profileSaveOffer').classList.toggle('hidden', saved || preview);
-    byId('resultGateForm').classList.add('hidden');
-    byId('profileSaveSuccess').classList.toggle('hidden', !saved);
-  }
-
-  function openProfileSave() {
-    byId('profileSave').classList.remove('hidden');
-    byId('previewSaveButton').classList.add('hidden');
-    byId('profileSaveOffer').classList.add('hidden');
-    byId('profileSaveSuccess').classList.add('hidden');
-    byId('resultGateForm').classList.remove('hidden');
-    byId('resultGateError').textContent = '';
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'profile_save_opened' }, 'step_profile_save_opened');
-    byId('resultGateEmail').focus();
+    byId('profileSave').classList.toggle('hidden', !state.resultUnlocked);
   }
 
   /* Once all project sections are addressed, the consultation form becomes the final card. */
@@ -727,8 +688,8 @@
     if (!complete) return;
     prepareContactForm();
     syncCompletedProgress();
+    // contact_open (form_start) stays a visitor action: it fires on focus or a click, not when the card appears.
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_gate' }, 'step_intent_gate');
-    reportEmbedEvent('contact_open');
     const card = byId('decisionCard');
     window.setTimeout(() => {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -774,60 +735,6 @@
     }
   }
 
-
-  async function submitResultGate(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const error = byId('resultGateError');
-    error.textContent = '';
-    if (!form.reportValidity()) return;
-    if (form.elements.website.value) return;
-    const submit = form.querySelector('button[type="submit"]');
-    submit.disabled = true;
-    const email = form.elements.email.value;
-    const consent = Boolean(form.elements.consent.checked);
-    const marketingConsent = Boolean(form.elements.marketing_consent.checked);
-    const result = state.pendingResult || calculateResult();
-    try {
-      const response = await fetch(settings.progressSaveUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          csrf_token: form.elements.csrf_token.value,
-          website: form.elements.website.value,
-          email,
-          consent,
-          marketing_consent: marketingConsent,
-          current_step: questions[state.current]?.id || '',
-          answers: state.answers,
-          details: state.details,
-          skipped: state.skipped,
-          result_primary: result.primary,
-          source: state.source,
-          campaign: state.campaign,
-          visitor_id: state.visitorId
-        })
-      });
-      const body = await response.json().catch(() => ({ ok: false }));
-      if (response.ok && body.ok) {
-        state.resultUnlocked = true;
-        state.gateEmail = email;
-        renderProfileSave();
-        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'profile_saved' }, 'step_profile_saved');
-        if (marketingConsent) reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'mailserie_optin' }, 'step_mailserie_optin');
-        reportEmbedEvent('progress_save', { result: result.primary, event_id: body.request_id });
-      } else {
-        error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuche es noch einmal.';
-        reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
-      }
-    } catch (e) {
-      error.textContent = 'Das Profil konnte gerade nicht gespeichert werden. Bitte versuche es noch einmal.';
-      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_save_failed' }, 'step_result_save_failed');
-    } finally {
-      submit.disabled = false;
-    }
-  }
 
   function calculateResult() {
     const scores = Object.fromEntries(Object.keys(styleCopy).map(id => [id, 0]));
@@ -1003,75 +910,6 @@
     return plannerCard(theme, `${table}${layouts[mode] || layouts.solo}`);
   }
 
-  function cookingArt(theme, mode) {
-    const island = `<rect x="96" y="208" width="408" height="88" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />`;
-    const graphics = {
-      fresh: `
-        <rect x="144" y="118" width="128" height="60" rx="18" fill="${theme.accent}" opacity=".92" />
-        <path d="M184 132l48 34M232 132l-48 34" stroke="${theme.panel}" stroke-width="8" stroke-linecap="round" />
-        <path d="M334 118c10 4 16 10 18 19M354 118c10 4 16 10 18 19M374 118c10 4 16 10 18 19" stroke="${theme.strong}" stroke-width="7" stroke-linecap="round" />
-        ${island}
-      `,
-      quick: `
-        <circle cx="192" cy="146" r="42" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="10" />
-        <path d="M192 118v30l20 12" stroke="${theme.strong}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
-        <rect x="304" y="126" width="110" height="44" rx="22" fill="${theme.strong}" opacity=".82" />
-        <path d="M414 148h30" stroke="${theme.strong}" stroke-width="9" stroke-linecap="round" />
-        ${island}
-      `,
-      baking: `
-        <ellipse cx="214" cy="154" rx="56" ry="34" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="8" />
-        <circle cx="214" cy="154" r="20" fill="${theme.accent}" opacity=".72" />
-        <rect x="314" y="138" width="112" height="20" rx="10" fill="${theme.strong}" opacity=".86" />
-        <circle cx="314" cy="148" r="16" fill="${theme.strong}" opacity=".86" />
-        <circle cx="426" cy="148" r="16" fill="${theme.strong}" opacity=".86" />
-        ${island}
-      `,
-      hosting: `
-        ${island}
-        <path d="M178 126v32M230 126v32M282 126v32M334 126v32" stroke="${theme.accent}" stroke-width="8" stroke-linecap="round" />
-        <path d="M168 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
-        <path d="M220 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
-        <path d="M272 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
-        <path d="M324 126h20l8 12v20c0 8-6 14-14 14s-14-6-14-14v-20z" fill="${theme.panel}" stroke="${theme.accent}" stroke-width="5" />
-      `
-    };
-    return plannerCard(theme, graphics[mode] || graphics.fresh);
-  }
-
-  function storageArt(theme, mode) {
-    const graphics = {
-      order: `
-        <rect x="108" y="112" width="384" height="184" rx="26" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />
-        <path d="M236 112v184M364 112v184M108 174h384M108 236h384" stroke="${theme.line}" stroke-width="8" />
-        <rect x="142" y="144" width="60" height="30" rx="8" fill="${theme.accent}" opacity=".86" />
-        <rect x="270" y="208" width="80" height="28" rx="8" fill="${theme.strong}" opacity=".7" />
-        <circle cx="420" cy="250" r="18" fill="${theme.accent}" opacity=".8" />
-      `,
-      workspace: `
-        <rect x="92" y="146" width="416" height="124" rx="34" fill="${theme.accent}" opacity=".9" />
-        <rect x="150" y="184" width="300" height="48" rx="24" fill="${theme.panel}" opacity=".92" />
-      `,
-      ergonomics: `
-        <rect x="120" y="104" width="134" height="192" rx="20" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
-        <rect x="144" y="136" width="86" height="66" rx="12" fill="${theme.accent}" opacity=".88" />
-        <rect x="324" y="168" width="170" height="108" rx="24" fill="${theme.panel}" stroke="${theme.line}" stroke-width="8" />
-        <path d="M324 198h170" stroke="${theme.line}" stroke-width="6" />
-        <circle cx="358" cy="146" r="10" fill="${theme.strong}" />
-        <circle cx="390" cy="132" r="10" fill="${theme.strong}" opacity=".7" />
-      `,
-      together: `
-        <rect x="118" y="152" width="364" height="104" rx="30" fill="${theme.accent}" opacity=".9" />
-        <circle cx="194" cy="294" r="18" fill="${theme.strong}" opacity=".82" />
-        <circle cx="406" cy="294" r="18" fill="${theme.strong}" opacity=".82" />
-        <circle cx="262" cy="118" r="18" fill="${theme.strong}" opacity=".6" />
-        <circle cx="338" cy="118" r="18" fill="${theme.strong}" opacity=".6" />
-        <path d="M226 204h148" stroke="${theme.panel}" stroke-width="12" stroke-linecap="round" opacity=".85" />
-      `
-    };
-    return plannerCard(theme, graphics[mode] || graphics.order);
-  }
-
   function applianceArt(theme, mode) {
     const shell = `<rect x="178" y="86" width="244" height="228" rx="28" fill="${theme.panel}" stroke="${theme.line}" stroke-width="10" />`;
     const icons = {
@@ -1149,8 +987,6 @@
       room_concept: plannerThemes('warm'),
       kitchen_shape: plannerThemes('stone'),
       household: plannerThemes('earth'),
-      cooking: plannerThemes('warm'),
-      storage: plannerThemes('sand'),
       appliances: plannerThemes('stone'),
       lighting: plannerThemes('cloud'),
       project_time: plannerThemes('warm'),
@@ -1162,8 +998,6 @@
       room_concept: () => roomConceptArt(themeByQuestion.room_concept, optionId),
       kitchen_shape: () => kitchenShapeArt(themeByQuestion.kitchen_shape, optionId),
       household: () => householdArt(themeByQuestion.household, optionId),
-      cooking: () => cookingArt(themeByQuestion.cooking, optionId),
-      storage: () => storageArt(themeByQuestion.storage, optionId),
       appliances: () => applianceArt(themeByQuestion.appliances, optionId),
       lighting: () => lightingArt(themeByQuestion.lighting, optionId),
       project_time: () => timeArt(themeByQuestion.project_time, optionId),
@@ -1224,18 +1058,6 @@
         couple: 'assets/images/household-couple.webp',
         family: 'assets/images/household-family.webp',
         guests: 'assets/images/household-guests.webp'
-      },
-      cooking: {
-        fresh: 'assets/images/cooking-fresh-daily.webp',
-        quick: 'assets/images/cooking-quick-easy.webp',
-        baking: 'assets/images/cooking-baking-dough.webp',
-        hosting: 'assets/images/cooking-hosting-enjoying.webp'
-      },
-      storage: {
-        order: 'assets/images/storage-order.webp',
-        workspace: 'assets/images/storage-workspace.webp',
-        ergonomics: 'assets/images/storage-ergonomics.webp',
-        together: 'assets/images/storage-together.webp'
       },
       appliances: {
         oven: 'assets/images/appliance-oven.webp',
@@ -1327,10 +1149,8 @@
   }
 
   function insight(result) {
-    const needs = state.answers.storage || [];
-    if (needs.includes('order')) return 'Deine ruhige Stilwelt gewinnt, wenn Stauraum konsequent hinter geschlossenen Fronten organisiert wird.';
-    if (needs.includes('workspace')) return 'Die Materialwirkung sollte sich auf wenige starke Flächen konzentrieren, damit möglichst viel freie Arbeitsfläche bleibt.';
-    if (needs.includes('together')) return 'Eine Insel oder Halbinsel kann deine Stilwelt mit dem Wohnraum verbinden, ohne dass die Küche ihre klare Wirkung verliert.';
+    // The storage question is gone; the open-plan answer now carries the living-room hint.
+    if ((state.answers.room_concept || []).includes('open')) return 'Eine Insel oder Halbinsel kann deine Stilwelt mit dem Wohnraum verbinden, ohne dass die Küche ihre klare Wirkung verliert.';
     if (result.primary === 'natural') return 'Echte Materialwirkung entsteht nicht durch möglichst viele Holzflächen, sondern durch wenige gut platzierte, fühlbare Akzente.';
     return 'Dein Stil lebt von Konsequenz. Wiederkehrende Farben und Materialien schaffen mehr Ruhe als viele einzelne Designideen.';
   }
@@ -1416,7 +1236,7 @@
       error.textContent = e.message || 'Bitte versuche es später erneut.';
     } finally {
       submit.disabled = false;
-      submit.textContent = 'Jetzt kostenloses Beratungsgespräch anfragen';
+      submit.textContent = 'Kostenloses Beratungsgespräch anfragen';
     }
   }
 
@@ -1446,11 +1266,11 @@
       return;
     }
     eyebrow.textContent = 'Sicher übermittelt';
+    title.textContent = 'Danke, deine Anfrage ist da.';
+    // Every submission is a consultation request; the callback only changes the channel.
+    const channel = state.callbackRequested ? 'telefonisch' : 'per E-Mail';
     if (state.serviceArea === 'core') {
-      title.textContent = 'Das passt zu unserem Planungsgebiet.';
-      message.textContent = state.callbackRequested
-        ? 'Dein Küchenprofil ist angekommen. Daniel Klas meldet sich für die gewünschte persönliche Einordnung – oder du wählst direkt einen Termin.'
-        : 'Dein Küchenprofil ist angekommen. Wenn du dein Projekt persönlich besprechen möchtest, kannst du direkt einen Termin wählen.';
+      message.textContent = `Daniel Klas sieht sich dein Stilprofil an und meldet sich ${channel}, um das Beratungsgespräch abzustimmen. Wenn du schneller sein möchtest, wähl direkt einen Termin.`;
       if (settings.appointmentUrl) {
         appointment.href = settings.appointmentUrl;
         appointment.classList.remove('hidden');
@@ -1458,14 +1278,10 @@
       return;
     }
     if (state.serviceArea === 'outside') {
-      title.textContent = 'Dein Küchenprofil ist angekommen.';
-      message.textContent = state.callbackRequested
-        ? 'Dein Stilprofil kannst du selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an. Daniel Klas meldet sich für die gewünschte Einordnung.'
-        : 'Dein Stilprofil kannst du selbstverständlich weiter nutzen. Persönliche Planung und Montage bieten wir derzeit hauptsächlich im Umkreis von etwa 70 km um Sohren an.';
+      message.textContent = `Persönliche Planung und Montage bieten wir hauptsächlich im Umkreis von etwa 70 km um Sohren an. Daniel Klas meldet sich ${channel} und sagt dir ehrlich, ob und wie er dich unterstützen kann.`;
       return;
     }
-    title.textContent = 'Dein Küchenprofil ist angekommen.';
-    message.textContent = 'Du kannst dein Ergebnis weiterhin ansehen oder deine Antworten noch einmal durchgehen.';
+    message.textContent = `Daniel Klas sieht sich dein Stilprofil an und meldet sich ${channel} bei dir.`;
   }
 
   function renderJourney(forceSection) {
