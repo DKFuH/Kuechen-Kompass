@@ -313,17 +313,21 @@
   function normalizeCampaign(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
     const allowed = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'];
-    return Object.fromEntries(allowed.flatMap(key => {
+    const campaign = Object.fromEntries(allowed.flatMap(key => {
       const entry = String(value[key] || '').normalize('NFC').trim();
       if (entry === '' || entry.length > 80 || /[\r\n\0]/.test(entry)) return [];
       return [[key, entry]];
     }));
+    // Meta click ID for server-side conversion reporting; URL-safe only.
+    const fbclid = String(value.fbclid || '').trim();
+    if (/^[A-Za-z0-9_-]{8,500}$/.test(fbclid)) campaign.fbclid = fbclid;
+    return campaign;
   }
 
   function campaignFromLocation() {
     const query = new URLSearchParams(window.location.search);
     return normalizeCampaign(Object.fromEntries(
-      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id']
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'fbclid']
         .filter(key => query.has(key))
         .map(key => [key, query.get(key)])
     ));
