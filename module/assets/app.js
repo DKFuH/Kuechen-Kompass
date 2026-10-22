@@ -1103,11 +1103,20 @@
     section.classList.toggle('hidden', links.length === 0);
   }
 
+  // Fester Winkel je Material (statt Zufall), damit derselbe Stil immer gleich aussieht.
+  function moodTilt(id) {
+    let hash = 0;
+    for (const char of String(id)) hash = (hash * 31 + char.charCodeAt(0)) | 0;
+    const tilt = (Math.abs(hash) % 7) - 3;
+    const lift = (Math.abs(hash >> 3) % 9) - 4;
+    return `--tilt:${tilt}deg;--lift:${lift}px`;
+  }
+
   function renderMoodboard() {
     const ids = [...(state.answers.palette || []), ...(state.answers.materials || [])];
     const options = questions.flatMap(q => q.options).filter((opt, idx, all) => ids.includes(opt.id) && all.findIndex(x => x.id === opt.id) === idx);
     byId('moodboard').innerHTML = (options.length ? options : [option('base', 'Deine Auswahl', '', '#c9b79f', {})])
-      .map(opt => `<div class="mood-chip" style="--chip:${opt.swatch}"><span>${escapeHtml(opt.label)}</span></div>`).join('');
+      .map(opt => `<div class="mood-chip" style="--chip:${opt.swatch};${moodTilt(opt.id)}"><span>${escapeHtml(opt.label)}</span></div>`).join('');
   }
 
   function renderPlanningSummary() {
