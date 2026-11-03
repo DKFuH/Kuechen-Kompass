@@ -62,19 +62,19 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
 
         <section class="result panel hidden" data-view="result">
             <div id="hardGate" class="hard-gate hidden">
-                <span class="eyebrow">Dein Stilergebnis ist fertig</span>
-                <h2 id="hardGateTitle" tabindex="-1">Wohin dürfen wir dein Stilprofil schicken?</h2>
-                <p>Gib deine E-Mail-Adresse ein. Du siehst deine Stilrichtung sofort und bekommst zwei Dinge: einen Link, mit dem du später genau hier weitermachst, und unseren Newsletter mit Planungstipps und Angeboten rund um deine Küche.</p>
+                <span class="eyebrow">Deine Stilrichtung ist bereit</span>
+                <h2 id="hardGateTitle" tabindex="-1">Stilprofil speichern und direkt ansehen</h2>
+                <p>Trage deine E-Mail-Adresse ein. Danach siehst du deine Stilrichtung sofort und erhältst einen persönlichen Link, mit dem du später genau hier weitermachen kannst.</p>
                 <form id="hardGateForm" class="profile-save__form" novalidate>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
                     <label for="hardGateEmail">E-Mail-Adresse</label>
                     <input id="hardGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
                     <label class="check-label"><input name="marketing_consent" type="checkbox" required> <span>Mit der Anforderung meines Stilprofils willige ich ein, dass Klas Küchen® mir einen persönlichen Link sowie Informationen, Planungstipps und Angebote rund um Küchen und Küchenplanung per E-Mail zusendet. Ich kann mich jederzeit wieder abmelden. Weitere Hinweise finde ich in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>.</span></label>
-                    <button class="primary-button" type="submit">Stilprofil anzeigen</button>
+                    <button class="primary-button" type="submit">Stilprofil jetzt anzeigen</button>
                     <p id="hardGateError" class="form-error" role="alert"></p>
                 </form>
-                <p class="hard-gate__note">Gleich kommen zwei E-Mails: dein Link zum Weitermachen und die Bitte, den Newsletter zu bestätigen. Ohne Bestätigung bekommst du keinen Newsletter. Abmelden geht jederzeit.</p>
+                <p class="hard-gate__note">Dein Ergebnis erscheint direkt nach dem Absenden. Den persönlichen Link senden wir sofort. Newsletter und weitere E-Mails starten erst nach deiner Bestätigung.</p>
             </div>
             <div id="resultContent" class="hidden">
                 <div class="result-header">
@@ -123,15 +123,15 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
                                 <p class="form-required-note"><span aria-hidden="true">*</span> Pflichtfeld</p>
                                 <label><span class="field-name">Dein Name <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="name" required aria-required="true" autocomplete="name" data-matomo-mask></label>
                                 <label><span class="field-name">E-Mail-Adresse <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="email" type="email" required aria-required="true" autocomplete="email" data-matomo-mask></label>
-                                <label>Telefon <span>optional, für einen schnellen Rückruf</span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
+                                <label><span class="field-name">Telefon <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>für deinen persönlichen Rückruf</span><input name="phone" type="tel" required aria-required="true" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
                                 <div class="form-row">
                                     <label><span class="field-name">Postleitzahl <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>des Projekts</span><input name="postal_code" required aria-required="true" pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
                                     <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
                                 </div>
-                                <label class="check-label"><input name="consent" type="checkbox" required aria-required="true"> <span>Ich bin einverstanden, dass Klas Küchen® meine Angaben zur Bearbeitung meiner Anfrage verarbeitet und Daniel Klas mich dazu per E-Mail oder – wenn ich eine Telefonnummer angebe – telefonisch kontaktiert. Diese Einwilligung kann ich jederzeit mit Wirkung für die Zukunft widerrufen, zum Beispiel per E-Mail an kontakt@kuechen-klas.de. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>. <abbr class="required-mark" title="Pflichtfeld">*</abbr></span></label>
+                                <label class="check-label"><input name="consent" type="checkbox" required aria-required="true"> <span>Ich bin einverstanden, dass Klas Küchen® meine Angaben zur Bearbeitung meiner Anfrage und für passende Informationen und Angebote rund um Küchen und Küchenplanung verarbeitet und Daniel Klas mich per E-Mail und telefonisch zu meinem Küchenprojekt sowie zu passenden Leistungen und Angeboten kontaktiert. Diese Einwilligung kann ich jederzeit mit Wirkung für die Zukunft widerrufen, zum Beispiel per E-Mail an kontakt@kuechen-klas.de. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>. <abbr class="required-mark" title="Pflichtfeld">*</abbr></span></label>
                                 <p id="formError" class="form-error" role="alert"></p>
                                 <button class="primary-button" type="submit">Kostenloses Beratungsgespräch anfragen</button>
-                                <p class="consult-after">Daniel Klas meldet sich persönlich per E-Mail oder telefonisch, wenn du eine Nummer angibst.</p>
+                                <p class="consult-after">Daniel Klas ruft dich persönlich an, um dein Küchenprojekt und den sinnvollen nächsten Schritt zu besprechen.</p>
                             </form>
                         </div>
                     </div>

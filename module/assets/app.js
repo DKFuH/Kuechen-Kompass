@@ -1182,7 +1182,7 @@
     const form = event.currentTarget;
     const error = byId('formError');
     error.textContent = '';
-    // A phone number is optional; entering one (under the single contact consent) means a call is welcome.
+    // Every consultation request includes a personal callback under the single combined consent.
     const phone = form.elements.phone.value.trim();
     const callbackRequested = phone !== '';
     if (callbackRequested && !/^\+?[0-9 ()/.-]{7,60}$/.test(phone)) {
@@ -1250,8 +1250,8 @@
     }
     eyebrow.textContent = 'Sicher übermittelt';
     title.textContent = 'Danke, deine Anfrage ist da.';
-    // Every submission is a consultation request; a phone number only adds the channel.
-    const channel = state.callbackRequested ? 'telefonisch oder per E-Mail' : 'per E-Mail';
+    // Every valid consultation request includes the agreed personal callback.
+    const channel = state.callbackRequested ? 'telefonisch' : 'per E-Mail';
     if (state.serviceArea === 'core') {
       message.textContent = `Daniel Klas sieht sich dein Stilprofil an und meldet sich ${channel}, um das Beratungsgespräch abzustimmen. Wenn du schneller sein möchtest, wähl direkt einen Termin.`;
       if (settings.appointmentUrl) {
