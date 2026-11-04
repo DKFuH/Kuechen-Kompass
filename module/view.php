@@ -92,6 +92,14 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
                             <span class="eyebrow">Dein nächster Schritt</span>
                             <h3>Das ist deine erste Stilrichtung. Jetzt kannst du prüfen, wie sie zu Raum, Alltag und Technik passt.</h3>
                         </div>
+                        <div class="decision-progress">
+                            <div class="decision-progress__track" role="progressbar" aria-labelledby="decisionProgressText" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="decisionProgressBar"><span id="decisionProgressFill"></span></div>
+                            <p id="decisionProgressText"></p>
+                        </div>
+                        <div class="decision-teaser" aria-hidden="true">
+                            <div id="teaserBars" class="style-bars"></div>
+                            <span class="decision-teaser__lock">Im vollständigen Profil</span>
+                        </div>
                         <button class="primary-button decision-card__primary" id="continuePlanningButton" type="button">Profil für meinen Raum verfeinern</button>
                         <p class="decision-card__value">Danach siehst du dein vollständiges Profil mit Stilanteilen, Farb- und Materialwelt, konkreten Stilhinweisen und deinen Planungsangaben.</p>
                         <div class="decision-card__minor">

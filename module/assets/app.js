@@ -290,7 +290,16 @@
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('leadForm').elements.name.addEventListener('focus', () => reportEmbedEvent('contact_open'));
-    byId('hardGateForm').addEventListener('submit', submitHardGate);
+    const gateForm = byId('hardGateForm');
+    gateForm.addEventListener('submit', submitHardGate);
+    /* Gate funnel micro-steps: each fires once per session so Matomo shows where visitors stop. */
+    gateForm.elements.email.addEventListener('focus', () => {
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate_email_focus' }, 'step_result_gate_email_focus');
+    });
+    gateForm.elements.marketing_consent.addEventListener('change', event => {
+      if (!event.currentTarget.checked) return;
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate_consent_checked' }, 'step_result_gate_consent_checked');
+    });
   }
 
   function normalizeSitePath(value) {
@@ -585,7 +594,12 @@
     const form = event.currentTarget;
     const error = byId('hardGateError');
     error.textContent = '';
-    if (!form.reportValidity()) return;
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate_submit' }, 'step_result_gate_submit');
+    if (!form.reportValidity()) {
+      const missing = !form.elements.email.validity.valid ? 'email' : 'consent';
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: `result_gate_invalid_${missing}` }, `step_result_gate_invalid_${missing}`);
+      return;
+    }
     if (form.elements.website.value) return;
     const submit = form.querySelector('button[type="submit"]');
     submit.disabled = true;
@@ -1083,6 +1097,23 @@
     byId('styleBars').innerHTML = top.map(item => {
       return `<div class="style-bar"><span>${escapeHtml(item.label)}</span><div class="style-bar-track" role="meter" aria-label="${escapeHtml(item.label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.percent}"><div class="style-bar-fill" style="width:${item.percent}%"></div></div><strong>${item.percent}%</strong></div>`;
     }).join('');
+    renderPreviewMotivation(result);
+  }
+
+  /* Preview only: visible progress plus the blurred style shares make the missing part of the profile tangible. */
+  function renderPreviewMotivation(result) {
+    const teaser = byId('teaserBars');
+    if (!teaser || profileComplete()) return;
+    teaser.innerHTML = result.ranked.slice(0, 3).map(item => {
+      return `<div class="style-bar"><span>${escapeHtml(item.label)}</span><div class="style-bar-track"><div class="style-bar-fill" style="width:${item.percent}%"></div></div><strong>${item.percent}%</strong></div>`;
+    }).join('');
+    const percent = completion();
+    const open = questions.filter(q => planningSectionIds.includes(q.section) && !q.optional && !(state.answers[q.id] || []).length && !state.skipped.includes(q.id)).length;
+    byId('decisionProgressFill').style.transform = `scaleX(${percent / 100})`;
+    byId('decisionProgressBar').setAttribute('aria-valuenow', String(percent));
+    byId('decisionProgressText').textContent = open > 0
+      ? `Profil zu ${percent} % fertig · noch ${open} ${open === 1 ? 'kurze Frage' : 'kurze Fragen'}`
+      : `Profil zu ${percent} % fertig`;
   }
 
   function renderStyleGuidance(result) {
