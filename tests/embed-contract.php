@@ -102,6 +102,15 @@ foreach (['cooking', 'storage'] as $removedQuestion) {
     $check(!str_contains($moduleApp, "id: '$removedQuestion'"), "The removed question '$removedQuestion' is back in the quiz.");
 }
 
+// Antwortkarten laden kleine Kachelvarianten und die nächste Frage wird vorgeladen (Ladezeit, 2026-11-06).
+$check(str_contains($moduleApp, "'assets/images/tiles/'"), 'Answer cards must use the small tile image variants.');
+$check(str_contains($moduleApp, 'preloadQuestionImages(state.current + 1)'), 'The next question images must be preloaded.');
+preg_match_all("/'assets\/images\/([a-z0-9-]+\.webp)'/", $moduleApp, $optionImageMatches);
+foreach (array_unique($optionImageMatches[1]) as $filename) {
+    if (str_starts_with($filename, 'style-')) continue;
+    $check(is_file($root . '/module/assets/images/tiles/' . $filename), 'Missing tile image variant: ' . $filename);
+}
+
 if ($failures !== []) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);
     exit(1);

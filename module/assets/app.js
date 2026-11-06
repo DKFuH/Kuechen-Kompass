@@ -275,6 +275,11 @@
     if (settings.initialState && profileComplete()) showResult();
     else renderQuestion();
   }
+  // Startbildschirm: erste Frage erst nach dem Seitenaufbau vorladen, um LCP nicht zu bremsen.
+  if (!state.started) {
+    if (document.readyState === 'complete') preloadQuestionImages(0);
+    else window.addEventListener('load', () => preloadQuestionImages(0), { once: true });
+  }
   reportEmbedEvent('view');
 
   function bind() {
@@ -431,6 +436,25 @@
       scrollToModule();
       byId('questionTitle').focus({ preventScroll: true });
     }
+    preloadQuestionImages(state.current + 1);
+  }
+
+  // Lädt die Kachelbilder einer kommenden Frage im Leerlauf vor, damit sie beim
+  // Weiterklicken bereits im Cache liegen. Ein Fehlschlag hier ist folgenlos:
+  // renderQuestion() lädt dann regulär mit Wiederholungen nach.
+  function preloadQuestionImages(index) {
+    const q = questions[index];
+    const loader = window.KuechenKompassImages;
+    if (!q || !Array.isArray(q.options) || !loader) return;
+    const schedule = window.requestIdleCallback
+      ? callback => window.requestIdleCallback(callback, { timeout: 1500 })
+      : callback => window.setTimeout(callback, 200);
+    schedule(() => {
+      q.options.forEach(opt => {
+        const url = optionImage(q.id, opt.id);
+        if (url && !url.startsWith('data:')) loader.load(url, { attempts: 1 }).catch(() => {});
+      });
+    });
   }
 
   function renderTextField(q) {
@@ -1089,7 +1113,8 @@
         ideas: 'assets/images/timeframe-ideas.webp'
       },
     }[questionId]?.[optionId] || '';
-    return path ? assetUrl(path) : generatedOptionImage(questionId, optionId);
+    // Karten nutzen die 640-px-Kachelvarianten (bin/build-tile-images.py), nicht die 1536-px-Originale.
+    return path ? assetUrl(path.replace('assets/images/', 'assets/images/tiles/')) : generatedOptionImage(questionId, optionId);
   }
 
   function renderBars(result) {
