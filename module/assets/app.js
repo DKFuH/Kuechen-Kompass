@@ -41,7 +41,8 @@
         option('calm', 'Ruhig und klar', 'Weniger Reize, harmonische Flächen', '#c6beb0', { japandi: 3, minimal: 2 }),
         option('warm', 'Warm und wohnlich', 'Holz, Textur und weiche Kontraste', '#a77d5b', { natural: 3, japandi: 1, classic: 1 }),
         option('bold', 'Markant und charaktervoll', 'Kontraste und starke Materialien', '#56504c', { urban: 3, minimal: 1 }),
-        option('elegant', 'Elegant und zeitlos', 'Ruhige Wertigkeit ohne Modedruck', '#b3a48f', { classic: 3, minimal: 1 })
+        option('elegant', 'Elegant und zeitlos', 'Ruhige Wertigkeit ohne Modedruck', '#b3a48f', { classic: 3, minimal: 1 }),
+        option('playful', 'Farbenfroh und persönlich', 'Mut zu Farbe, Mustern und Lieblingsstücken', '#d9775a', { dopamine: 3, natural: 1 })
       ]
     },
     {
@@ -49,7 +50,7 @@
       help: 'Denk noch nicht darüber nach, was praktisch ist – wähle nur, was dir gefällt.', multiple: false, required: true,
       options: [
         option('flat', 'Geradlinig', 'Flächenbündig, reduziert, präzise', '#c9c4ba', { minimal: 3, urban: 1 }),
-        option('soft', 'Weich und natürlich', 'Rundungen, Holz und sanfte Übergänge', '#b89976', { natural: 3, japandi: 2 }),
+        option('soft', 'Weich und natürlich', 'Rundungen, Holz und sanfte Übergänge', '#b89976', { natural: 3, japandi: 2, dopamine: 1 }),
         option('framed', 'Rahmen und Details', 'Klassische Gliederung modern interpretiert', '#d6c7b1', { classic: 3, natural: 1 }),
         option('architectural', 'Architektonisch', 'Monolithisch, dunkel und konsequent', '#4f4b48', { urban: 3, minimal: 1 })
       ]
@@ -61,7 +62,8 @@
         option('sand', 'Sand und Greige', 'Warm, ruhig und wandelbar', '#c9b79f', { japandi: 3, natural: 2, minimal: 1 }),
         option('light', 'Hell und klar', 'Cremeweiß bis helles Grau', '#e6e2d8', { minimal: 3, japandi: 1 }),
         option('earth', 'Erdig und satt', 'Ton, Olive und warmes Braun', '#89715d', { natural: 3, classic: 1 }),
-        option('dark', 'Dunkel und kontrastreich', 'Graphit, Schwarz und Rauchglas', '#4a4846', { urban: 3, classic: 1 })
+        option('dark', 'Dunkel und kontrastreich', 'Graphit, Schwarz und Rauchglas', '#4a4846', { urban: 3, classic: 1 }),
+        option('colorful', 'Farbig und mutig', 'Petrol, Koralle, Senf – kräftig kombiniert', '#2f6b6a', { dopamine: 3 })
       ]
     },
     {
@@ -70,7 +72,7 @@
       options: [
         option('wood', 'Echtes Holzgefühl', 'Lebendige Maserung und Wärme', 'repeating-linear-gradient(95deg,#967152 0 9px,#815f46 10px 17px)', { natural: 3, japandi: 2 }),
         option('stone', 'Stein und Mineralik', 'Ruhig, massiv und dauerhaft', 'linear-gradient(145deg,#c8c2b8,#8f8b85)', { japandi: 3, minimal: 2, urban: 1 }),
-        option('lacquer', 'Samtmatte Flächen', 'Weiche Haptik, homogene Farbe', '#8e887f', { minimal: 3, classic: 1 }),
+        option('lacquer', 'Samtmatte Flächen', 'Weiche Haptik, homogene Farbe', '#8e887f', { minimal: 3, dopamine: 2, classic: 1 }),
         option('metal', 'Metallische Akzente', 'Dunkler Stahl, Messing oder Bronze', 'linear-gradient(135deg,#9a8465,#4f4942)', { urban: 3, classic: 1 }),
         option('glass', 'Glas und Transparenz', 'Leichtigkeit und inszenierte Details', 'linear-gradient(145deg,#bdc6c5,#6f7776)', { classic: 3, urban: 1 })
       ]
@@ -81,7 +83,7 @@
       options: [
         option('handleless', 'Grifflos', 'Ruhige, durchgängige Flächen', '#b8ada0', { japandi: 3, minimal: 2 }),
         option('edge', 'Dezente Griffkante', 'Reduziert, aber direkt greifbar', '#8f8175', { minimal: 3, urban: 1 }),
-        option('handle', 'Charaktervolle Griffe', 'Ein bewusstes Detail in der Fläche', '#716355', { classic: 3, natural: 2 })
+        option('handle', 'Charaktervolle Griffe', 'Ein bewusstes Detail in der Fläche', '#716355', { classic: 3, natural: 2, dopamine: 1 })
       ]
     },
     {
@@ -201,6 +203,14 @@
       image: 'assets/images/style-modern-classic.webp',
       principles: ['klassische Details mit ruhigen modernen Flächen verbinden', 'Griffe, Glas und Metall als wiederkehrende Akzente einsetzen', 'Farben eher zeitlos als trendgetrieben wählen'],
       watchout: 'Zu viele dekorative Details können die moderne Wirkung überlagern – ein klares Grundraster hält den Stil zeitgemäß.'
+    },
+    // Seit 2026-11-15 (Entscheidung Daniel): sechstes Profil, Bild aus der Dopamine-Stilseite.
+    dopamine: {
+      label: 'Dopamine Style',
+      description: 'Kräftige Farben, besondere Formen und persönliche Lieblingsstücke dürfen bei dir zusammenspielen – geplant statt zufällig.',
+      image: 'assets/images/style-dopamine.webp',
+      principles: ['die Hauptfarbe aus dem ableiten, was dir dauerhaft gefällt', 'dauerhafte Flächen ruhig halten, Farbe über Insel, Leuchten und Akzente setzen', 'wiederkehrende Farbtöne und ein durchgehender Boden verbinden mehrere Farben'],
+      watchout: 'Je mehr Farben und Muster sichtbar sind, desto wichtiger werden freie Arbeitsflächen und geschlossener Stauraum – sonst wirkt der Raum schnell unruhig.'
     }
   };
   const styleQuestionIds = ['feeling', 'visual_language', 'palette', 'materials', 'handles'];
@@ -839,8 +849,12 @@
     });
 
     const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+    // Auf 6 Stellen runden wie calculate_result() in stilfinder_submit.php:
+    // sonst entscheidet bei Gleichstand ein Float-Rest, und Browser und
+    // Lead-Mail nennen in ~0,5 % der Fälle verschiedene Stile.
+    const round6 = value => Math.round(value * 1e6) / 1e6;
     const ranked = Object.entries(scores)
-      .map(([id, score]) => ({ id, score, strongMatches: strongMatches[id], percent: Math.round((score / total) * 100), ...styleCopy[id] }))
+      .map(([id, score]) => ({ id, score: round6(score), strongMatches: round6(strongMatches[id]), percent: Math.round((score / total) * 100), ...styleCopy[id] }))
       .sort((a, b) => b.score - a.score || b.strongMatches - a.strongMatches || a.label.localeCompare(b.label, 'de'));
 
     const primary = ranked[0];
@@ -1090,7 +1104,8 @@
         calm: 'assets/images/feeling-calm-clear.webp',
         warm: 'assets/images/feeling-warm-homely.webp',
         bold: 'assets/images/feeling-bold-character.webp',
-        elegant: 'assets/images/feeling-elegant-timeless.webp'
+        elegant: 'assets/images/feeling-elegant-timeless.webp',
+        playful: 'assets/images/feeling-playful-colorful.webp'
       },
       visual_language: {
         flat: 'assets/images/form-straight-lined.webp',
@@ -1102,7 +1117,8 @@
         sand: 'assets/images/palette-sand-greige.webp',
         light: 'assets/images/palette-light-clear.webp',
         earth: 'assets/images/palette-earth-rich.webp',
-        dark: 'assets/images/palette-dark-contrast.webp'
+        dark: 'assets/images/palette-dark-contrast.webp',
+        colorful: 'assets/images/palette-colorful-bold.webp'
       },
       materials: {
         wood: 'assets/images/material-wood-feel.webp',

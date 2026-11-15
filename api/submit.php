@@ -127,9 +127,9 @@ json_response([
 function answer_schema(): array
 {
     return [
-        'feeling' => [['calm', 'warm', 'bold', 'elegant'], 4],
+        'feeling' => [['calm', 'warm', 'bold', 'elegant', 'playful'], 5],
         'visual_language' => [['flat', 'soft', 'framed', 'architectural'], 1],
-        'palette' => [['sand', 'light', 'earth', 'dark'], 2],
+        'palette' => [['sand', 'light', 'earth', 'dark', 'colorful'], 2],
         'materials' => [['wood', 'stone', 'lacquer', 'metal', 'glass'], 3],
         'handles' => [['handleless', 'edge', 'handle'], 1],
         'room_concept' => [['open', 'separate', 'unsure'], 1],
@@ -233,28 +233,31 @@ function calculate_result(array $answers): array
         'japandi' => ['label' => 'Soft Japandi', 'description' => 'Reduktion, handwerkliche Details und natürliche Ruhe prägen Ihre persönliche Stilwelt.'],
         'urban' => ['label' => 'Urban Architecture', 'description' => 'Starke Materialien, klare Architektur und bewusste Kontraste geben Ihrer Küche Charakter.'],
         'classic' => ['label' => 'Modern Classic', 'description' => 'Zeitlose Eleganz trifft bei Ihnen auf feine Details und moderne Funktion.'],
+        'dopamine' => ['label' => 'Dopamine Style', 'description' => 'Kräftige Farben, besondere Formen und persönliche Lieblingsstücke dürfen bei Ihnen zusammenspielen – geplant statt zufällig.'],
     ];
     $weights = [
         'calm' => ['japandi' => 3, 'minimal' => 2],
         'warm' => ['natural' => 3, 'japandi' => 1, 'classic' => 1],
         'bold' => ['urban' => 3, 'minimal' => 1],
         'elegant' => ['classic' => 3, 'minimal' => 1],
+        'playful' => ['dopamine' => 3, 'natural' => 1],
         'flat' => ['minimal' => 3, 'urban' => 1],
-        'soft' => ['natural' => 3, 'japandi' => 2],
+        'soft' => ['natural' => 3, 'japandi' => 2, 'dopamine' => 1],
         'framed' => ['classic' => 3, 'natural' => 1],
         'architectural' => ['urban' => 3, 'minimal' => 1],
         'sand' => ['japandi' => 3, 'natural' => 2, 'minimal' => 1],
         'light' => ['minimal' => 3, 'japandi' => 1],
         'earth' => ['natural' => 3, 'classic' => 1],
         'dark' => ['urban' => 3, 'classic' => 1],
+        'colorful' => ['dopamine' => 3],
         'wood' => ['natural' => 3, 'japandi' => 2],
         'stone' => ['japandi' => 3, 'minimal' => 2, 'urban' => 1],
-        'lacquer' => ['minimal' => 3, 'classic' => 1],
+        'lacquer' => ['minimal' => 3, 'dopamine' => 2, 'classic' => 1],
         'metal' => ['urban' => 3, 'classic' => 1],
         'glass' => ['classic' => 3, 'urban' => 1],
         'handleless' => ['japandi' => 3, 'minimal' => 2],
         'edge' => ['minimal' => 3, 'urban' => 1],
-        'handle' => ['classic' => 3, 'natural' => 2],
+        'handle' => ['classic' => 3, 'natural' => 2, 'dopamine' => 1],
     ];
 
     $scores = array_fill_keys(array_keys($styles), 0.0);
