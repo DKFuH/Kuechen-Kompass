@@ -285,13 +285,20 @@
   function bind() {
     window.KuechenKompassImages?.bindElement?.(appRoot.querySelector('.intro-visual img'));
     byId('startButton').addEventListener('click', start);
+    byId('changeBudgetButton')?.addEventListener('click', changeBudget);
+    if ('IntersectionObserver' in window) {
+      const consultBar = byId('consultBar');
+      new IntersectionObserver(entries => {
+        entries.forEach(entry => consultBar.classList.toggle('is-form-visible', entry.isIntersecting));
+      }, { threshold: 0.15 }).observe(byId('intentCard'));
+    }
     byId('restartButton').addEventListener('click', restart);
     byId('backButtonTop').addEventListener('click', back);
     byId('skipButton').addEventListener('click', skip);
     nextButton.addEventListener('click', next);
     byId('continuePlanningButton').addEventListener('click', continuePlanning);
     byId('openContactButton').addEventListener('click', previewConsult);
-    byId('bottomConsultButton').addEventListener('click', returnToConsultationForm);
+    byId('consultJumpButton').addEventListener('click', jumpToConsultationForm);
     byId('successResultButton').addEventListener('click', showResult);
     byId('leadForm').addEventListener('submit', submitLead);
     byId('leadForm').elements.name.addEventListener('focus', () => reportEmbedEvent('contact_open'));
@@ -607,6 +614,17 @@
 
   function showHardGate() {
     byId('resultContent').classList.add('hidden');
+    // Unscharfes Stilbild als Vorschau: zeigt, dass das Ergebnis fertig ist, ohne es zu verraten.
+    const teaser = byId('hardGateTeaser');
+    const pending = state.pendingResult;
+    if (teaser && pending && styleCopy[pending.primary]) {
+      const teaserUrl = assetUrl(styleCopy[pending.primary].image);
+      if (window.KuechenKompassImages) {
+        window.KuechenKompassImages.load(teaserUrl).then(url => { teaser.style.backgroundImage = `url("${url}")`; }).catch(() => {});
+      } else {
+        teaser.style.backgroundImage = `url("${teaserUrl}")`;
+      }
+    }
     byId('hardGate').classList.remove('hidden');
     byId('hardGateError').textContent = '';
     reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'result_gate_shown' }, 'step_result_gate_shown');
@@ -679,8 +697,8 @@
     content.classList.remove('hidden');
     content.classList.toggle('is-preview', !full);
     byId('resultFull').classList.toggle('hidden', !full);
-    byId('resultEyebrow').textContent = full ? 'Deine Stilrichtung im Kontext' : 'Deine erste Stilrichtung';
-    byId('resultTitle').textContent = full ? `Dein vollständiges Stilprofil: ${result.title}` : result.title;
+    byId('resultEyebrow').textContent = full ? 'Dein vollständiges Stilprofil' : 'Deine erste Stilrichtung';
+    byId('resultTitle').textContent = result.title;
     byId('resultDescription').textContent = result.description;
     byId('profileProgress').textContent = `${completion()}%`;
     byId('resultInsight').textContent = insight(result);
@@ -708,23 +726,50 @@
 
   /* Saving happens at the gate; afterwards the result only confirms that the link was sent. */
   function renderProfileSave() {
-    byId('profileSave').classList.toggle('hidden', !state.resultUnlocked);
+    byId('profileSave').classList.toggle('hidden', !state.resultUnlocked || profileComplete());
   }
 
-  /* Once all project sections are addressed, the consultation form becomes the final card. */
+  /* Bis 15.000 € bietet das Ergebnis kein Erstgespräch an (Entscheidung Daniel 2026-11-15);
+     der Kontakt bleibt über die Gate-Einwilligung im Nurturing. */
+  function lowBudget() {
+    return (state.answers.budget || []).includes('under_15');
+  }
+
+  function changeBudget() {
+    cancelAutoAdvance();
+    state.current = questions.findIndex(q => q.id === 'budget');
+    save();
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'budget_change' }, 'step_budget_change');
+    showView('quiz');
+    renderQuestion();
+  }
+
+  /* Vollständiges Profil: erst der Gegenwert (Stilanteile, Hinweise, Materialwelt, Planungsangaben),
+     dann das Erstgespräch am Ende. Eine Sprungleiste (mobil sticky am unteren Rand) hält die Handlung
+     die ganze Zeit mit dem Daumen erreichbar. Bis 15.000 € ersetzt der Budgethinweis das Formular. */
   function renderDecision() {
     const complete = profileComplete();
-    byId('decisionPaths').classList.toggle('hidden', complete);
-    byId('intentCard').classList.toggle('hidden', !complete);
+    const noConsult = complete && lowBudget();
+    byId('decisionCard').classList.toggle('hidden', complete);
+    byId('decisionPaths').classList.remove('hidden');
+    byId('consultCard').classList.toggle('hidden', !complete);
+    byId('intentCard').classList.toggle('hidden', !complete || noConsult);
+    byId('budgetNote').classList.toggle('hidden', !noConsult);
+    byId('consultBar').classList.toggle('hidden', !complete || noConsult);
     if (!complete) return;
-    prepareContactForm();
     syncCompletedProgress();
-    // contact_open (form_start) stays a visitor action: it fires on focus or a click, not when the card appears.
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_gate' }, 'step_intent_gate');
-    const card = byId('decisionCard');
+    if (noConsult) {
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'budget_low_no_consult' }, 'step_budget_low_no_consult');
+    } else {
+      prepareContactForm();
+      // contact_open (form_start) stays a visitor action: it fires on focus or a click, not when the card appears.
+      reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'intent_gate' }, 'step_intent_gate');
+    }
+    const header = byId('resultTitle');
     window.setTimeout(() => {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.focus({ preventScroll: true });
+      byId('resultContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      header.setAttribute('tabindex', '-1');
+      header.focus({ preventScroll: true });
     }, 60);
   }
 
@@ -1217,7 +1262,9 @@
 
   function openContact() {
     prepareContactForm();
-    byId('decisionPaths').classList.add('hidden');
+    byId('decisionCard').classList.add('hidden');
+    byId('consultCard').classList.remove('hidden');
+    byId('budgetNote').classList.add('hidden');
     byId('intentCard').classList.remove('hidden');
     renderJourney('result');
     showView('result');
@@ -1225,12 +1272,14 @@
     byId('intentCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function returnToConsultationForm() {
-    const card = byId('intentCard');
-    const nameField = byId('leadForm').elements.name;
-    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* Sprung aus der Leiste direkt zum Formular (mobil zum ersten Feld, nicht zum Kartenkopf). */
+  function jumpToConsultationForm() {
+    const form = byId('leadForm');
+    const nameField = form.elements.name;
+    const narrow = window.matchMedia('(max-width: 760px)').matches;
+    (narrow ? form : byId('intentCard')).scrollIntoView({ behavior: 'smooth', block: 'start' });
     nameField.focus({ preventScroll: true });
-    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'bottom_consult' }, 'step_bottom_consult');
+    reportEmbedEvent('step', { tool_id: 'stilfinder', step: 'consult_jump' }, 'step_consult_jump');
   }
 
   async function submitLead(event) {
@@ -1288,7 +1337,7 @@
       error.textContent = e.message || 'Bitte versuche es später erneut.';
     } finally {
       submit.disabled = false;
-      submit.textContent = 'Kostenloses Beratungsgespräch anfragen';
+      submit.textContent = 'Stilprofil mit dem Tischlermeister besprechen';
     }
   }
 
@@ -1300,7 +1349,7 @@
     appointment.classList.add('hidden');
     if (deliveryPending) {
       eyebrow.textContent = 'Sicher gespeichert';
-      title.textContent = 'Dein Küchenprofil ist gespeichert.';
+      title.textContent = 'Dein Stilprofil ist gespeichert.';
       message.textContent = 'Die interne Benachrichtigung ist noch nicht bestätigt. Deine Angaben sind gesichert; bitte sende das Formular nicht erneut.';
       return;
     }
@@ -1309,7 +1358,7 @@
     // Every valid consultation request includes the agreed personal callback.
     const channel = state.callbackRequested ? 'telefonisch' : 'per E-Mail';
     if (state.serviceArea === 'core') {
-      message.textContent = `Daniel Klas sieht sich dein Stilprofil an und meldet sich ${channel}, um das Beratungsgespräch abzustimmen. Wenn du schneller sein möchtest, wähl direkt einen Termin.`;
+      message.textContent = `Daniel Klas sieht sich dein Stilprofil an und meldet sich ${channel}, um das Erstgespräch abzustimmen. Wenn du schneller sein möchtest, wähl direkt einen Termin.`;
       if (settings.appointmentUrl) {
         appointment.href = settings.appointmentUrl;
         appointment.classList.remove('hidden');

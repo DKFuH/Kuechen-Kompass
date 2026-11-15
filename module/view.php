@@ -21,12 +21,12 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
     <div id="app" class="main" aria-live="polite">
         <section class="intro panel" data-view="intro">
             <div class="intro-copy">
-                <span class="eyebrow">Deine Küche beginnt mit einem Gefühl</span>
-                <h<?= $stilfinderInline ? '3' : '1' ?>>Finde heraus, welche Küche <em>wirklich</em> zu dir passt.</h<?= $stilfinderInline ? '3' : '1' ?>>
-                <p>Wähle zuerst aus, was dir gefällt. Danach kannst du Raum, Alltag und Wünsche ergänzen – in deinem Tempo und jederzeit änderbar.</p>
+                <span class="eyebrow">Stilfinder · 5 Bildfragen</span>
+                <h<?= $stilfinderInline ? '3' : '1' ?>>Klick an, was dir gefällt. <em>Erklären</em> musst du nichts.</h<?= $stilfinderInline ? '3' : '1' ?>>
+                <p>Nach fünf Bildfragen siehst du deine erste Stilrichtung. Raum, Alltag und Technik ergänzt du danach, wenn du möchtest.</p>
                 <div class="intro-actions">
-                    <button class="primary-button" id="startButton" type="button">Stilprofil starten</button>
-                    <span>5 Fragen bis zu deiner Stilrichtung</span>
+                    <button class="primary-button" id="startButton" type="button">5 Bildfragen starten</button>
+                    <span>Kein Stilwissen nötig</span>
                 </div>
                 <ul class="trust-list">
                     <li>Keine starren Stil-Schubladen</li>
@@ -62,21 +62,25 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
 
         <section class="result panel hidden" data-view="result">
             <div id="hardGate" class="hard-gate hidden">
+                <div id="hardGateTeaser" class="hard-gate__teaser" aria-hidden="true"></div>
                 <span class="eyebrow">Deine Stilrichtung ist bereit</span>
-                <h2 id="hardGateTitle" tabindex="-1">Stilprofil speichern und direkt ansehen</h2>
-                <p>Trage deine E-Mail-Adresse ein. Danach siehst du deine Stilrichtung sofort und erhältst einen persönlichen Link, mit dem du später genau hier weitermachen kannst.</p>
+                <h2 id="hardGateTitle" tabindex="-1">Stilrichtung speichern und direkt ansehen</h2>
+                <p>Trag deine E-Mail-Adresse ein. Du bekommst einen persönlichen Link, mit dem du später genau hier weitermachst.</p>
                 <form id="hardGateForm" class="profile-save__form" novalidate>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
                     <label for="hardGateEmail">E-Mail-Adresse</label>
-                    <input id="hardGateEmail" name="email" type="email" required placeholder="ihre@email.de" autocomplete="email" data-matomo-mask>
+                    <input id="hardGateEmail" name="email" type="email" required placeholder="deine@email.de" autocomplete="email" data-matomo-mask>
                     <label class="check-label"><input name="marketing_consent" type="checkbox" required> <span>Mit der Anforderung meines Stilprofils willige ich ein, dass Klas Küchen® mir einen persönlichen Link sowie Informationen, Planungstipps und Angebote rund um Küchen und Küchenplanung per E-Mail zusendet. Ich kann mich jederzeit wieder abmelden. Weitere Hinweise finde ich in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>.</span></label>
-                    <button class="primary-button" type="submit">Stilprofil jetzt anzeigen</button>
+                    <button class="primary-button" type="submit">Stilrichtung anzeigen</button>
                     <p id="hardGateError" class="form-error" role="alert"></p>
                 </form>
-                <p class="hard-gate__note">Dein Ergebnis erscheint direkt nach dem Absenden. Den persönlichen Link senden wir sofort. Newsletter und weitere E-Mails starten erst nach deiner Bestätigung.</p>
+                <p class="hard-gate__note">Dein Ergebnis erscheint direkt nach dem Absenden. Newsletter und weitere E-Mails starten erst nach deiner Bestätigung.</p>
             </div>
             <div id="resultContent" class="hidden">
+                <section class="profile-save hidden" id="profileSave">
+                    <p id="profileSaveSuccess" class="profile-save__success" role="status">Gespeichert: Den Link zum Weitermachen haben wir dir per E-Mail geschickt.</p>
+                </section>
                 <div class="result-header">
                     <div>
                         <span class="eyebrow" id="resultEyebrow">Deine erste Stilrichtung</span>
@@ -90,7 +94,7 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
                     <div id="decisionPaths">
                         <div class="decision-card__intro">
                             <span class="eyebrow">Dein nächster Schritt</span>
-                            <h3>Das ist deine erste Stilrichtung. Jetzt kannst du prüfen, wie sie zu Raum, Alltag und Technik passt.</h3>
+                            <h3>Passt dieser Stil zu deinem Raum und Alltag?</h3>
                         </div>
                         <div class="decision-progress">
                             <div class="decision-progress__track" role="progressbar" aria-labelledby="decisionProgressText" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="decisionProgressBar"><span id="decisionProgressFill"></span></div>
@@ -106,46 +110,6 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
                             <button class="text-button" id="openContactButton" type="button">Du planst schon konkret? Projekt direkt einordnen lassen</button>
                         </div>
                     </div>
-                    <div id="intentCard" class="intent-card hidden">
-                        <div class="contact-layout">
-                            <div>
-                                <span class="eyebrow">Kostenloses Beratungsgespräch</span>
-                                <h3>Besprich dein Stilprofil mit dem Tischlermeister</h3>
-                                <p>Ein Stil ist ein Anfang. Ob er funktioniert, entscheiden Raum, Licht, Abläufe und Stauraum. Genau darüber spricht Daniel Klas mit dir: persönlich, ehrlich und ohne Verkaufsdruck.</p>
-                                <p class="consult-list__title"><strong>Im Gespräch klären wir:</strong></p>
-                                <ul class="consult-list">
-                                    <li>wie deine Stilrichtung zu Raum und Licht passt</li>
-                                    <li>deine Sonderwünsche, vom Backofen auf Augenhöhe bis zum festen Platz für die Küchenmaschine</li>
-                                    <li>welcher Budgetrahmen realistisch ist</li>
-                                    <li>den sinnvollen nächsten Schritt</li>
-                                </ul>
-                                <p class="consult-stance">Der Rabatt ist schnell vergessen. Eine schlecht geplante Küche nicht.</p>
-                                <?php if ($stilfinderProofHtml !== ''): ?>
-                                    <div class="consult-proof"><?= $stilfinderProofHtml ?></div>
-                                <?php endif; ?>
-                                <div id="contactSummary" class="contact-summary"></div>
-                            </div>
-                            <form id="leadForm" novalidate>
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
-                                <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
-                                <p class="form-required-note"><span aria-hidden="true">*</span> Pflichtfeld</p>
-                                <label><span class="field-name">Dein Name <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="name" required aria-required="true" autocomplete="name" data-matomo-mask></label>
-                                <label><span class="field-name">E-Mail-Adresse <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="email" type="email" required aria-required="true" autocomplete="email" data-matomo-mask></label>
-                                <label><span class="field-name">Telefon <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>für deinen persönlichen Rückruf</span><input name="phone" type="tel" required aria-required="true" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
-                                <div class="form-row">
-                                    <label><span class="field-name">Postleitzahl <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>des Projekts</span><input name="postal_code" required aria-required="true" pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
-                                    <label>Wohnort <span>optional</span><input name="city" autocomplete="address-level2" maxlength="120" data-matomo-mask></label>
-                                </div>
-                                <label class="check-label"><input name="consent" type="checkbox" required aria-required="true"> <span>Ich bin einverstanden, dass Klas Küchen® meine Angaben zur Bearbeitung meiner Anfrage und für passende Informationen und Angebote rund um Küchen und Küchenplanung verarbeitet und Daniel Klas mich per E-Mail und telefonisch zu meinem Küchenprojekt sowie zu passenden Leistungen und Angeboten kontaktiert. Diese Einwilligung kann ich jederzeit mit Wirkung für die Zukunft widerrufen, zum Beispiel per E-Mail an kontakt@kuechen-klas.de. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>. <abbr class="required-mark" title="Pflichtfeld">*</abbr></span></label>
-                                <p id="formError" class="form-error" role="alert"></p>
-                                <button class="primary-button" type="submit">Kostenloses Beratungsgespräch anfragen</button>
-                                <p class="consult-after">Daniel Klas ruft dich persönlich an, um dein Küchenprojekt und den sinnvollen nächsten Schritt zu besprechen.</p>
-                            </form>
-                        </div>
-                    </div>
-                </section>
-                <section class="profile-save hidden" id="profileSave">
-                    <p id="profileSaveSuccess" class="profile-save__success" role="status">Dein Profil ist gespeichert. Den Link zum Weitermachen haben wir dir per E-Mail geschickt.</p>
                 </section>
                 <div id="resultFull">
                 <div class="style-mix-heading"><strong>Deine Stilanteile</strong><span>Orientierungswerte aus deinen Antworten – keine Messwerte.</span></div>
@@ -180,17 +144,61 @@ $stilfinderProofHtml = isset($stilfinderProofHtml) ? (string) $stilfinderProofHt
                     <h3>Deine Planungsangaben</h3>
                     <div id="planningGrid" class="planning-grid"></div>
                 </div>
-                <div class="result-consult-return">
-                    <button class="primary-button" id="bottomConsultButton" type="button">Kostenloses Beratungsgespräch anfragen</button>
                 </div>
+                <div class="result-consult-bar hidden" id="consultBar">
+                    <button class="primary-button" id="consultJumpButton" type="button">Stilprofil besprechen</button>
+                    <span>Kostenlos · 15 Min. · Telefon oder Video</span>
                 </div>
+                <section class="decision-card consult-card hidden" id="consultCard" tabindex="-1">
+                    <div id="budgetNote" class="intent-card budget-note hidden">
+                        <span class="eyebrow">Dein Budgetrahmen</span>
+                        <h3>Bis 15.000 € ist eine persönliche Planung meist nicht der passende Weg</h3>
+                        <p>Ehrlich gesagt: Die Küchen, die Daniel Klas plant und montiert, liegen meist zwischen 20.000 und 40.000 €. Mit einem kleineren Rahmen kommt es vor allem auf klare Prioritäten an – und dabei hilft dir dein Stilprofil oben. Nimm Stilrichtung, Materialwelt und Planungsangaben mit in jedes Angebotsgespräch.</p>
+                        <p>Planungstipps dazu bekommst du per E-Mail, sobald du deine Adresse über den Link in der Bestätigungsmail bestätigt hast.</p>
+                        <button class="text-button" id="changeBudgetButton" type="button">Dein Budget ist doch flexibler? Angabe ändern</button>
+                    </div>
+                    <div id="intentCard" class="intent-card hidden">
+                        <div class="contact-layout">
+                            <div>
+                                <span class="eyebrow">Kostenloses Erstgespräch · 15 Minuten</span>
+                                <h3>Besprich dein Stilprofil mit dem Tischlermeister</h3>
+                                <p>Ein Stil ist ein Anfang. Ob er funktioniert, entscheiden Raum, Licht, Abläufe und Stauraum. Daniel Klas sagt dir auch, was in deinem Raum nicht funktioniert – bevor du dafür bezahlst.</p>
+                                <p class="consult-list__title"><strong>Im Gespräch klären wir:</strong></p>
+                                <ul class="consult-list">
+                                    <li>wie deine Stilrichtung zu Raum und Licht passt</li>
+                                    <li>deine Sonderwünsche, vom Backofen auf Augenhöhe bis zum festen Platz für die Küchenmaschine</li>
+                                    <li>welcher Budgetrahmen realistisch ist</li>
+                                    <li>den sinnvollen nächsten Schritt</li>
+                                </ul>
+                                <p class="consult-stance">Der Rabatt ist schnell vergessen. Eine schlecht geplante Küche nicht.</p>
+                                <?php if ($stilfinderProofHtml !== ''): ?>
+                                    <div class="consult-proof"><?= $stilfinderProofHtml ?></div>
+                                <?php endif; ?>
+                                <div id="contactSummary" class="contact-summary"></div>
+                            </div>
+                            <form id="leadForm" novalidate>
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($stilfinderCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                                <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+                                <p class="form-required-note"><span aria-hidden="true">*</span> Pflichtfeld</p>
+                                <label><span class="field-name">Dein Name <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="name" required aria-required="true" autocomplete="name" data-matomo-mask></label>
+                                <label><span class="field-name">E-Mail-Adresse <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><input name="email" type="email" required aria-required="true" autocomplete="email" data-matomo-mask></label>
+                                <label><span class="field-name">Telefon <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>für deinen persönlichen Rückruf</span><input name="phone" type="tel" required aria-required="true" autocomplete="tel" inputmode="tel" maxlength="60" data-matomo-mask></label>
+                                <label><span class="field-name">Postleitzahl <abbr class="required-mark" title="Pflichtfeld">*</abbr></span><span>des Projekts</span><input name="postal_code" required aria-required="true" pattern="\d{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" data-matomo-mask></label>
+                                <label class="check-label"><input name="consent" type="checkbox" required aria-required="true"> <span>Ich bin einverstanden, dass Klas Küchen® meine Angaben zur Bearbeitung meiner Anfrage und für passende Informationen und Angebote rund um Küchen und Küchenplanung verarbeitet und Daniel Klas mich per E-Mail und telefonisch zu meinem Küchenprojekt sowie zu passenden Leistungen und Angeboten kontaktiert. Diese Einwilligung kann ich jederzeit mit Wirkung für die Zukunft widerrufen, zum Beispiel per E-Mail an kontakt@kuechen-klas.de. Weitere Hinweise in der <a href="https://kuechen-klas.de/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>. <abbr class="required-mark" title="Pflichtfeld">*</abbr></span></label>
+                                <p id="formError" class="form-error" role="alert"></p>
+                                <button class="primary-button" type="submit">Stilprofil mit dem Tischlermeister besprechen</button>
+                                <p class="consult-after">Kostenlos, 15 Minuten am Telefon oder gern per Videocall. Daniel Klas ruft dich persönlich an und stimmt mit dir ab, ob Stil, Raum und Budget zusammenpassen und was der sinnvolle nächste Schritt ist.</p>
+                            </form>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
 
         <section class="success panel hidden" data-view="success">
             <div class="success-mark">✓</div>
             <span class="eyebrow" id="successEyebrow">Sicher übermittelt</span>
-            <h2 id="successTitle">Dein Küchenprofil ist angekommen.</h2>
+            <h2 id="successTitle">Dein Stilprofil ist angekommen.</h2>
             <p id="successMessage">Du kannst dein Ergebnis weiterhin ansehen oder deine Antworten noch einmal durchgehen.</p>
             <div class="success-actions">
                 <a class="primary-button hidden" id="successAppointment" href="#" target="_blank" rel="noopener" data-track="stilfinder_appointment">Termin direkt wählen</a>

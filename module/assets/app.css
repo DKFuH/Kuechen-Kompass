@@ -212,7 +212,11 @@
 .kk-stilfinder .planning-row { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line-subtle); font-size: 14px; }
 .kk-stilfinder .planning-row span:first-child { color: var(--muted); }
 .kk-stilfinder .planning-row span:last-child { font-weight: 700; text-align: right; }
-.kk-stilfinder .result-consult-return { display: flex; justify-content: center; margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
+.kk-stilfinder .result-consult-bar { position: sticky; bottom: 12px; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 36px auto 24px; padding: 12px 16px; max-width: 640px; border-radius: 999px; background: var(--surface); border: 1px solid var(--accent-light); box-shadow: 0 14px 34px -18px rgba(43, 33, 24, .55); transition: opacity .2s ease, transform .2s ease; }
+.kk-stilfinder .result-consult-bar span { color: var(--muted); font-size: 13px; }
+.kk-stilfinder .result-consult-bar.is-form-visible { opacity: 0; transform: translateY(12px); pointer-events: none; }
+.kk-stilfinder .consult-card { margin-top: 0; }
+.kk-stilfinder #resultTitle:focus { outline: none; }
 
 .kk-stilfinder .decision-card { margin: 0 0 32px; padding: 28px; border-radius: var(--radius-xl); background: var(--sand); border: 1px solid var(--accent-light); box-shadow: var(--shadow-md); }
 .kk-stilfinder .decision-card:focus { outline: 3px solid var(--accent-glow); outline-offset: 3px; }
@@ -247,6 +251,11 @@
 .kk-stilfinder .hard-gate h2 { margin: 6px 0 12px; }
 .kk-stilfinder .hard-gate > p { color: var(--muted); }
 .kk-stilfinder .hard-gate__note { margin: 14px 0 0; font-size: 13px; }
+.kk-stilfinder .hard-gate { overflow: hidden; }
+.kk-stilfinder .hard-gate__teaser { height: 140px; margin: -32px -30px 22px; background: var(--sand) center / cover no-repeat; filter: blur(14px) saturate(1.05); transform: scale(1.08); }
+.kk-stilfinder .budget-note h3 { font-size: 22px; margin: 8px 0 10px; }
+.kk-stilfinder .budget-note p { color: var(--muted); max-width: 680px; }
+.kk-stilfinder .budget-note .text-button { margin-top: 6px; }
 .kk-stilfinder .hard-gate .check-label a { color: var(--accent-dark); text-decoration: underline; }
 .kk-stilfinder .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -301,6 +310,16 @@
 
 @media (max-width: 850px) {
     .kk-stilfinder .intro, .kk-stilfinder .contact-layout, .kk-stilfinder .result-layout { grid-template-columns: 1fr; }
+    /* Einspaltig: Einleitung, Siegel, dann sofort das Formular; Gesprächsthemen und Haltung danach. */
+    .kk-stilfinder .intent-card .contact-layout { gap: 18px; }
+    .kk-stilfinder .intent-card .contact-layout > div { display: contents; }
+    .kk-stilfinder .intent-card .contact-layout > div > * { order: 4; }
+    .kk-stilfinder .intent-card .contact-layout > div > .eyebrow,
+    .kk-stilfinder .intent-card .contact-layout > div > h3,
+    .kk-stilfinder .intent-card .contact-layout > div > p:not(.consult-list__title):not(.consult-stance) { order: 1; margin-block: 0; }
+    .kk-stilfinder .intent-card .contact-layout > div > .consult-proof { order: 2; margin: 0; }
+    .kk-stilfinder .intent-card .contact-layout > #leadForm { order: 3; }
+    .kk-stilfinder .intent-card .contact-summary { display: none; }
     .kk-stilfinder .intro-visual { min-height: 300px; order: -1; }
     .kk-stilfinder .answer-grid { grid-template-columns: repeat(2, 1fr); }
     .kk-stilfinder .planning-grid { grid-template-columns: 1fr; }
@@ -319,7 +338,7 @@
     .kk-stilfinder .question-meta .back-arrow { margin-left: -10px; }
     .kk-stilfinder .quiz h2 { margin-top: 2px; }
     .kk-stilfinder .decision-card { padding: 20px 16px; }
-    .kk-stilfinder .decision-card__primary, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .intent-card #leadForm .primary-button, .kk-stilfinder .result-consult-return .primary-button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
+    .kk-stilfinder .decision-card__primary, .kk-stilfinder .intent-card__actions > button, .kk-stilfinder .intent-card #leadForm .primary-button, .kk-stilfinder .result-consult-bar .primary-button, .kk-stilfinder .success-actions > *, .kk-stilfinder .profile-save__form .primary-button { width: 100%; justify-content: center; align-self: stretch; }
     .kk-stilfinder .profile-save { padding: 20px 16px; }
     .kk-stilfinder .intro-visual { min-height: 235px; }
     .kk-stilfinder .answer-grid { grid-template-columns: 1fr; }
@@ -359,9 +378,13 @@
     .kk-stilfinder #resultContent:not(.hidden) { display: flex; flex-direction: column; }
     .kk-stilfinder #resultContent > * { order: 3; }
     .kk-stilfinder #resultContent > .result-header { order: 1; }
+    .kk-stilfinder #resultContent > .profile-save { order: 0; margin: 0 0 14px; }
     .kk-stilfinder #resultContent.is-preview > .result-image { order: 2; margin: 18px 0 0; aspect-ratio: 16 / 9; }
     .kk-stilfinder #resultContent.is-preview > .decision-card { order: 3; margin: 18px 0 0; }
-    .kk-stilfinder #resultContent:not(.is-preview) > .decision-card { order: 2; margin: 18px 0 0; }
+    .kk-stilfinder #resultContent:not(.is-preview) > .result-image { order: 2; margin: 18px 0 0; }
+    .kk-stilfinder .result-consult-bar { bottom: max(10px, env(safe-area-inset-bottom)); margin: 24px 0 16px; padding: 10px 12px; border-radius: 18px; gap: 6px 12px; }
+    .kk-stilfinder .result-consult-bar .primary-button { width: 100%; }
+    .kk-stilfinder .result-consult-bar span { width: 100%; text-align: center; font-size: 12px; }
     .kk-stilfinder .result-seal { display: none; }
     .kk-stilfinder .decision-card__intro { margin-bottom: 14px; }
     .kk-stilfinder .decision-card__intro h3 { font-size: 18px; line-height: 1.3; }

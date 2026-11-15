@@ -63,8 +63,8 @@ $check(str_contains($moduleApp, "state.planningFinished = state.current === ques
 $check(str_contains($moduleApp, 'const planningSectionIds ='), 'Planning resume and completion must share one section definition.');
 $check(str_contains($moduleCss, '#resultContent.is-preview > .result-image'), 'The mobile preview must show its style image before the decision card.');
 $check(str_contains($moduleCss, '.decision-card__value') && str_contains($moduleView, 'class="decision-card__value"'), 'The preview must explain the value of completing the project questions.');
-$check(str_contains($moduleView, 'id="bottomConsultButton"') && str_contains($moduleApp, 'returnToConsultationForm'), 'The full profile must end with a button that returns to the consultation form.');
-$check(str_contains($moduleView, 'Deine Stilrichtung ist bereit') && str_contains($moduleView, 'Stilprofil speichern und direkt ansehen'), 'The result gate must lead with the finished style result.');
+$check(str_contains($moduleView, 'id="consultJumpButton"') && str_contains($moduleApp, 'jumpToConsultationForm') && strpos($moduleView, 'id="resultFull"') < strpos($moduleView, 'id="consultCard"'), 'The full profile must come first and keep a jump button to the consultation form.');
+$check(str_contains($moduleView, 'Deine Stilrichtung ist bereit') && str_contains($moduleView, 'Stilrichtung speichern und direkt ansehen'), 'The result gate must lead with the finished style result.');
 $check(str_contains($moduleView, 'Dein Ergebnis erscheint direkt nach dem Absenden') && str_contains($moduleView, 'Newsletter und weitere E-Mails starten erst nach deiner Bestätigung'), 'The result gate must distinguish immediate access from DOI-confirmed mail delivery.');
 $check(preg_match('/<input name="phone"[^>]*required[^>]*aria-required="true"/', $moduleView) === 1, 'The source module must preserve the required callback phone field.');
 $check(str_contains($moduleView, 'per E-Mail und telefonisch zu meinem Küchenprojekt sowie zu passenden Leistungen und Angeboten kontaktiert'), 'The source module must preserve the current combined consultation consent.');
